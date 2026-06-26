@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Three Number Input & Image Upload</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        .section { margin-bottom: 2em; }
+        .output { margin-top: 0.5em; }
+    </style>
+</head>
+<body>
+    <!-- Section 1: Input three numbers -->
+    <div class="section">
+        <h2>Send Three Numbers</h2>
+        <h3>Soon adding new function to see past stored results!</h3>
+        <input type="number" id="num1" placeholder="Number 1">
+        <input type="number" id="num2" placeholder="Number 2">
+        <input type="number" id="num3" placeholder="Number 3">
+        <button onclick="sendNumbers()">Send</button>
+        <div class="output" id="numStatus"></div>
+    </div>
+    <script>
+        function sendNumbers() {
+            const n1 = document.getElementById('num1').value;
+            const n2 = document.getElementById('num2').value;
+            const n3 = document.getElementById('num3').value;
+            // Change endpoint to your backend URL
+            fetch('http://localhost:8501/multiply', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ numbers: [n1, n2, n3] })
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Optional: update the below line based on what your API returns
+                document.getElementById('numStatus').innerText = data.result;
+            })
+            .catch(err => {
+                document.getElementById('numStatus').innerText = "Error sending numbers.";
+            });
+        }
+    </script>
+
+    <!-- Section 2: Image upload -->
+    <div class="section">
+        <h2>Upload an Image</h2>
+        <!-- <form id="uploadForm"> -->
+        <form action ="upload" enctype="multipart/form-data" method="post">
+            <input type="file" name ="files" id="imageInput" accept="image/*">
+            <button type="submit">Upload</button>
+        </form>
+        <div class="output" id="uploadStatus"></div>
+    </div>
+   
+
+    <!-- Section 3: Show uploaded images -->
+    <div class="section">
+        <h2>Show Uploaded Images</h2>
+        <button onclick="showImages()">Show Images</button>
+        <div class="output" id="imageGallery"></div>
+    </div>
+    <script>
+        function showImages() {
+            // Change endpoint to your backend URL
+            fetch('http://0.0.0.0:8501/get_images')
+            .then(res => res.json())
+            .then(data => {
+                const gallery = document.getElementById('imageGallery');
+                gallery.innerHTML = '';
+                // Assuming your backend returns: { images: ["url1", "url2", ...] }
+                data.images.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.width = 100;
+                    img.height = 100;
+                    img.style.margin = '0 10px';
+                    gallery.appendChild(img);
+                });
+            })
+            .catch(err => {
+                document.getElementById('imageGallery').innerText = "Error loading images.";
+            });
+        }
+    </script>
+</body>
+</html>

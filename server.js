@@ -4,7 +4,8 @@ const express = require ("express")
 const app = express()
 app.use(express.json())
 const bcrypt = require('bcrypt')
- 
+const cors = require('cors')
+app.use(cors())
 const {Client} = require("pg")
 const client = new Client({
     host: "localhost",
@@ -21,7 +22,23 @@ app.post('/users/login', async (req,res1) =>{
         (err,res)=>{
             if (!err){
                 if (bcrypt.compareSync(req.body.password, res.rows[0].hashpassword)){
-                    res1.send(res.rows[0].id)
+                    //res1.send(res.rows[0].id)
+                    client.query("SELECT COUNT (id) from users WHERE id ='"+res.rows[0].id+"';",
+                        (err, res2)=>{
+                            if (!err){
+                                console.log(res2)
+                                if(res2.rows[0].count==0){
+                                    res1.send("Account setup needed")
+                                }
+                                else{
+                                    res1.send("Allow through")
+                                }
+                            }
+                            else{
+                                res1.status(400).send("error")
+                            }
+                        }
+                    )
                 }
                 else{
                     res1.status(400).send("Incorrect password or email")
@@ -60,7 +77,18 @@ app.post('/users', async (req,res1) =>{
     }
 )
 
-
+app.post('/users/usersetup', async (req,res1) =>{
+    await client.query(
+        "INSERT INTO users (id, first_name, last_name, status) VALUES ('"+req.body.id+"', '"+req.body.first_name+"', '"+req.body.last_name+"', '"+req.body.status+"');", (err, res2)=>{
+            if (!err){
+                res1.status(200).send("Added all successfully")
+            }
+            else{
+                res1.status(500)
+            }
+        })
+    }
+)
 
 
 app.listen(3000)

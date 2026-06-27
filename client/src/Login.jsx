@@ -4,9 +4,7 @@ import './App.css'
 import axios from 'axios'
 
 function Login() {
-  const nav = useNavigate()
-  const [count, setCount] = useState(0)
-  
+  const nav = useNavigate()  
   const [email, setEmail] = useState('')
   const [pwd, setPwd] = useState('')
 
@@ -16,10 +14,10 @@ function Login() {
     axios.post("http://localhost:3000/users/login",
       {email: email, password: pwd})
     .then(res=> 
-      {if (res.status === 200){
-        if (res.data == "Account setup needed"){
-            nav('/setup')
-        }
+      {if (res.status == 200){
+        if (res.data.status == "Account setup needed"){
+            //setUserID(userID)
+            nav('/setup')}
       }
     }).catch(err =>
       {
@@ -39,18 +37,10 @@ function Login() {
             Login below
           </p>
         </div>
-
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
         
       </section>
 
-      <section id="next-steps">
+      <section id="login">
         <div id="login">
           <form onSubmit={handleSubmit}>
             <input name ="email"
@@ -58,10 +48,10 @@ function Login() {
             onChange = {e => setEmail(e.target.value)}></input> 
             <br></br>
             <input name ="pwd" 
-            value = {pwd}
-            type="password"
-            onChange = {e => setPwd(e.target.value)}
-            ></input> 
+                    value = {pwd}
+                    type="password"
+                    onChange = {e => setPwd(e.target.value)}
+            ></input>
             
             <br></br>
 

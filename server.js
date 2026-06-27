@@ -28,7 +28,7 @@ app.post('/users/login', async (req,res1) =>{
                             if (!err){
                                 console.log(res2)
                                 if(res2.rows[0].count==0){
-                                    res1.send("Account setup needed")
+                                    res1.send({status: "Account setup needed", id: res.rows[0].id})
                                 }
                                 else{
                                     res1.send("Allow through")

@@ -13,8 +13,9 @@ function Login() {
     event.preventDefault();
     axios.post("http://localhost:3000/users/login",
       {email: email, password: pwd})
-    .then(res=> 
-        nav('/home')
+    .then(res=> {
+        localStorage.setItem("id", res.data.id)
+        nav('/home')}
     ).catch(err =>
       {
         console.log("unsuccesful login attempt")

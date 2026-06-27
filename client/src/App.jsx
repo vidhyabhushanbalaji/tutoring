@@ -10,16 +10,14 @@ import axios from 'axios'
 function App() {
   return (
     <>
-      <div className='App'>
         <BrowserRouter>
           <Routes>
             <Route exact path="/login" element={<Login/>}/>
             <Route exact path="/setup" element={<Setup/>}/>
-            <Route exact path="/home" element={<Setup/>}/>
-            <Route exact path="/" element={<Home/>}/>
+            <Route exact path="/home" element={<Home/>}/>
+            <Route exact path="/" element={<Login/>}/>
           </Routes>
         </BrowserRouter>
-      </div>
 
     </>
   )

@@ -14,12 +14,8 @@ function Login() {
     axios.post("http://localhost:3000/users/login",
       {email: email, password: pwd})
     .then(res=> 
-      {if (res.status == 200){
-        if (res.data.status == "Account setup needed"){
-            //setUserID(userID)
-            nav('/setup')}
-      }
-    }).catch(err =>
+        nav('/home')
+    ).catch(err =>
       {
         console.log("unsuccesful login attempt")
         setPwd("")

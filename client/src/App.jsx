@@ -3,23 +3,22 @@ import { BrowserRouter, Routes, Route, useNavigate} from 'react-router-dom'
 import './App.css'
 import Login from './Login';
 import Setup from './Setup';
+import Home from './home';
 import axios from 'axios'
-import AuthProvider from './hooks/AuthProvider';
+//import AuthProvider from './hooks/AuthProvider';
 
 function App() {
-    const [userID, setUserID] = useState(-1)
   return (
     <>
       <div className='App'>
-      <AuthProvider>
         <BrowserRouter>
           <Routes>
             <Route exact path="/login" element={<Login/>}/>
             <Route exact path="/setup" element={<Setup/>}/>
-            <Route exact path="/" element={<Login/>}/>
+            <Route exact path="/home" element={<Setup/>}/>
+            <Route exact path="/" element={<Home/>}/>
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
       </div>
 
     </>

@@ -17,22 +17,26 @@ function Setup(){
         if (pwd1!=pwd2){
             setPwd1("")
             setPwd2("")
-            return error("Password's don't match")
-
+            alert("passwords don't match, retry those")
+            return;
         }
     event.preventDefault();
     axios.post("http://localhost:3000/users/usersetup",
-      {id: 3, first_name: fn, last_name: ln, status: status})
+      { "email" : email,
+        "password" : pwd2,
+        "first_name" : fn,
+        "last_name": ln,
+        "status": status})
     .then(res=> 
       {if (res.status == 200){
-            nav('/')}
+          localStorage.setItem("id", res.data.id)
+          nav('/home')}
       
     }).catch(err =>
       {
         console.log("unsuccesful entry attempt")
         setfn("")
         setln("")
-        setStatus("")
       }
     );
   }

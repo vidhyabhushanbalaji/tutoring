@@ -2,8 +2,9 @@ POST http://localhost:3000/users/usersetup
 Content-Type: application/json
 
 {
-    "id" : 5,
-    "first_name" : "Christopher",
-    "last_name" :  "James",
-    "status" : "T"
+    "email" : "Leonard13",
+    "password" : "Hello123",
+    "first_name" : "Brian",
+    "last_name": "Smith",
+    "status": "T"
 }

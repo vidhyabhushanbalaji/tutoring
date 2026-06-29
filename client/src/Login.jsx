@@ -22,8 +22,14 @@ function Login() {
         setPwd("")
         setEmail("")
       }
-    );
-  }
+    )}
+
+    function setupAccount(){
+        console.log("cliicked")
+        nav('/setup')
+    }
+
+  
 
   return (
     <>
@@ -55,6 +61,7 @@ function Login() {
 
             <button>Login</button>
           </form>
+          <button onClick={setupAccount}>setup</button>
         </div>
         
       </section>

@@ -35,39 +35,12 @@ app.post('/users/login', async (req,res1) =>{
     )
 })
 
-app.post('/users', async (req,res1) =>{
-        const hashed = await bcrypt.hashSync(req.body.password, 10)
-        // salt for hash is within hashed, don't need to store separately
-        await client.query(
-            "INSERT INTO auth (email, hashpassword) VALUES ('"+req.body.email+"', '"+hashed+"');",
-        (err,res2)=>{
-            if(!err){
-                    client.query("SELECT * from auth WHERE email ='"+req.body.email+"';",
-                        (err, res3)=>{
-                            if (!err){
-                                res1.send(res3.rows[0].id)
-                            }
-                            else{
-                                res1.status(500).send(err.message)
-                            }
-                        }
-                    )
-            }
-            else{
-                res1.status(500).send(err.message)
-            }
-        }
-    )
-    }
-)
-
 app.post('/users/usersetup', async (req,res1) =>{
     try{
         const hashed = await bcrypt.hashSync(req.body.password, 10)
         // salt for hash is within hashed, don't need to store separately
         console.log(req.body.email)
-        await await client.query("INSERT INTO auth (email, hashpassword) VALUES ('"+req.body.email+"', '"+hashed+"');")
-        const newIDreq = await client.query("SELECT id from auth WHERE email ='"+req.body.email+"';")
+        const newIDreq = await client.query("INSERT INTO auth (email, hashpassword) VALUES ('"+req.body.email+"', '"+hashed+"') RETURNING id;")
         const newID = newIDreq.rows[0].id
         await client.query("INSERT INTO users (id, first_name, last_name, status) VALUES ('"+newID+"', '"+req.body.first_name+"', '"+req.body.last_name+"', '"+req.body.status+"');")
         res1.status(200).send({id: newID})}
@@ -75,5 +48,18 @@ app.post('/users/usersetup', async (req,res1) =>{
         res1.status(500).send("error")
     }
 })
+
+
+app.post('/users/addclient', async(req,res1)=>{
+    try{
+        const addclient = await client.query("INSERT INTO client_links (description, tutor_id, default_price) VALUES ('"+req.body.description+"', '"+req.body.tutor_id+"', '"+req.body.price+"') RETURNING id;")
+        const newID = addclient.rows[0].id
+        res1.status(200).send({id: newID})
+    }
+    catch{
+        console.log("fail")
+    }
+})
+
 
 app.listen(3000)

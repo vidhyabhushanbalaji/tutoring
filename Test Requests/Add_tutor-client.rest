@@ -1,0 +1,8 @@
+POST http://localhost:3000/users/addclient
+Content-Type: application/json
+
+{
+    "description" : "Maths with client 8",
+    "tutor_id" : 8,
+    "price": 25
+}

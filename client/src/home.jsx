@@ -64,7 +64,11 @@ function Home(){
 
         <div id ="allstudents">
             <ul>
-                {allStudents.toString()}
+                {allStudents.map(({ id, description, default_price}) =>(
+                    <li>
+                        <Link to={`~/students/${id}`}>{description}</Link>
+                    </li>
+                ))}
             </ul>
         </div>
 

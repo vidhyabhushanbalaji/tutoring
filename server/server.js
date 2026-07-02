@@ -64,8 +64,8 @@ app.post('/users/addclient', async(req,res1)=>{
 app.post('/home/getstudents', async(req,res1)=>{
     try{
         const students = await client.query("SELECT id, description, default_price from client_links WHERE tutor_id='"+req.body.tutor_id+"';")
-        console.log(students)
-        res1.status(200).send(students.rows)
+        console.log("req")
+        res1.status(200).send({students: students.rows})
     }
     catch{
         console.log("fail")

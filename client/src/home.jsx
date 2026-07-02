@@ -7,7 +7,7 @@
 //                ))}
 
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import Modal from './Modal'
 import AddStudent from './addstudent'
@@ -18,33 +18,21 @@ function Home(){
     const userID = localStorage.getItem("id")
     console.log(userID)
     const [addStudentOpen, setAddStudentOpen] = useState(false)
-    const [allStudents, getStudents] = useState({data: []})
+    const [allStudents, setStudents] = useState([])
 
-    //var allStudents = [{ id: 13, description: "John", default_price: "$25.00" }]
-
-    try{
-        axios.post("http://localhost:3000/home/getstudents",{tutor_id: userID}).then( res =>{
-            console.log("first")
-            console.log(res.data)
-            getStudents(res.data);})
-    }
-    catch{
-        return(
-            <>
-                <p>error in fetching students</p>
-            </>
-        )
+    const getStudents = async()=>{
+        axios.post("http://localhost:3000/home/getstudents",{tutor_id: userID}).then(res =>{
+            console.log("here")
+            console.log(res.data.students)
+            setStudents(res.data.students)
+        }).catch(err=>{
+            console.log("error")
+        })
     }
 
-    var students = {data: []}
-
-    axios.post("http://localhost:3000/home/getstudents",{tutor_id: userID}).then( res =>{
-            console.log("first")
-            console.log(res.data)
-            const { students } = (res.data);})
-    
-    console.log("here")
-    console.log(students)
+    useEffect(()=> {
+        getStudents();
+    }, [])
 
     return(
         <>
@@ -68,7 +56,7 @@ function Home(){
 
         <div id ="allstudents">
             <ul>
-                {students[0].description}
+
             </ul>
         </div>
 

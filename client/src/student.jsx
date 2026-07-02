@@ -2,6 +2,7 @@ import {BrowserRouter as Router, Link, Route, Routes, useParams} from "react-rou
 
 function Student(){
     const { id } = useParams();
+    
 
     return (
         <>

@@ -19,20 +19,28 @@ function Home(){
     console.log(userID)
     const [addStudentOpen, setAddStudentOpen] = useState(false)
     const [allStudents, setStudents] = useState([])
+    let gotStudents = false;
 
     const getStudents = async()=>{
-        axios.post("http://localhost:3000/home/getstudents",{tutor_id: userID}).then(res =>{
+            try{
+            await axios.post("http://localhost:3000/home/getstudents",{tutor_id: userID}).then(res =>{
             console.log("here")
             console.log(res.data.students)
             setStudents(res.data.students)
-        }).catch(err=>{
+            })}
+        catch{
             console.log("error")
-        })
-    }
+        }
+        }
+    
 
     useEffect(()=> {
-        getStudents();
+        if (!gotStudents){
+            gotStudents = true;
+            getStudents();}
     }, [])
+
+    
 
     return(
         <>
@@ -56,7 +64,7 @@ function Home(){
 
         <div id ="allstudents">
             <ul>
-
+                {allStudents.toString()}
             </ul>
         </div>
 

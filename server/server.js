@@ -64,13 +64,50 @@ app.post('/users/addclient', async(req,res1)=>{
 app.post('/home/getstudents', async(req,res1)=>{
     try{
         const students = await client.query("SELECT id, description, default_price from client_links WHERE tutor_id='"+req.body.tutor_id+"';")
-        console.log("req")
         res1.status(200).send({students: students.rows})
     }
     catch{
         console.log("fail")
     }
 })
+
+app.post('/studentdetail', async(req,res1)=>{
+    try{
+        const details = await client.query("SELECT * from client_links WHERE tutor_id='"+req.body.tutor_id+"' AND id ="+req.body.id+";")
+        console.log(details)
+        const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE tutor_id='"+req.body.tutor_id+"' AND clientlink ="+req.body.id+";")
+        console.log(lessons)
+        res1.status(200).send({details: details.rows[0], lessons: lessons.rows})
+    }
+    catch{
+        console.log("fail")
+    }
+})
+
+app.post('/addlesson', async(req,res1)=>{
+    try{
+        console.log("INSERT INTO lessons (lessontime, title, privatenotes, publicnotes, price, paid, tutor_id, parent_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.privatenotes+"', '"+req.body.publicnotes+"', '"+req.body.price+"', '"+req.body.paid+"', '"+req.body.tutor_id+"', '"+req.body.parent_id+"', '"+req.body.clientlink+") RETURNING lessonid;")
+        const newlesson = await client.query("INSERT INTO lessons (lessontime, title, privatenotes, publicnotes, price, paid, tutor_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.privatenotes+"', '"+req.body.publicnotes+"', '"+req.body.price+"', '"+req.body.paid+"', '"+req.body.tutor_id+"', '"+req.body.clientlink+"') RETURNING lessonid;")
+        console.log(newlesson)
+        const newID = newlesson.rows[0].lessonid
+        res1.status(200).send({lessonID: newID})
+    }
+    catch{
+        console.log("failhere2")
+    }
+})
+
+app.post('/getlesson', async(req,res1)=>{
+    try{
+        const lesson = await client.query("SELECT * from lessons WHERE lessonid='"+req.body.lessonid+"' AND tutor_id ="+req.body.tutor_id+";")
+        res1.status(200).send(lesson.rows[0])
+    }
+    catch{
+        console.log("failedhere")
+    }
+})
+
+
 
 
 app.listen(3000)

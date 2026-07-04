@@ -1,0 +1,7 @@
+POST http://localhost:3000/studentdetail
+Content-Type: application/json
+
+{
+    "tutor_id" : 29,
+    "id" : 32
+}

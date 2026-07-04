@@ -1,12 +1,3 @@
-// https://demo.mobiscroll.com/react/popup/
-
-//{allStudents.map(( { id, description, price })=>(
-//                    <li>
-//                        <Link to={`student/${id}`}>{description}, {price}</Link>
-//                    </li>
-//                ))}
-
-
 import { useState, useEffect } from 'react'
 
 import Modal from './Modal'
@@ -66,7 +57,7 @@ function Home(){
             <ul>
                 {allStudents.map(({ id, description, default_price}) =>(
                     <li>
-                        <Link to={`../student/${id}`}>{description}</Link>
+                        <Link to={`../student/${id}`}>{description}, {default_price}</Link>
                     </li>
                 ))}
             </ul>

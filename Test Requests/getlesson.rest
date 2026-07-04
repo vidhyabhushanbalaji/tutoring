@@ -1,0 +1,7 @@
+POST http://localhost:3000/getlesson
+Content-Type: application/json
+
+{
+    "lessonid" : 0,
+    "tutor_id" : 22
+}

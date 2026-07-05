@@ -7,11 +7,10 @@ function CreateLesson({ default_price, clientlink, onAdd }){
 
     const nav = useNavigate()  
     const userID = localStorage.getItem("id")
-    const [date, setDate] = useState('')
     const [time, setTime] = useState('')
     // update with default price
     const [price, setPrice] = useState(default_price)
-    const [paid, setPaid] = useState("false")
+    const [paid, setPaid] = useState(false)
     const [privateNotes, setPrivNotes] = useState('')
     const [publicNotes, setPubNotes] = useState('')
     const [title, setTitle] = useState('')
@@ -23,10 +22,9 @@ function CreateLesson({ default_price, clientlink, onAdd }){
             return;
         }
         event.preventDefault();
-        const dbTime = date+"T"+time+":00.000Z"
         // when possible add parent id as well
         axios.post("http://localhost:3000/addlesson",
-        {"lessontime": dbTime,
+        {"lessontime": time,
             "title": title,
             "privatenotes": privateNotes,
             "publicnotes": publicNotes,
@@ -55,44 +53,47 @@ function CreateLesson({ default_price, clientlink, onAdd }){
 
           <form onSubmit={handleSubmit}>
             <input name ="title"
+            size = "75"
             placeholder = "Title for session"
             value = {title}
-            onChange = {e => setTitle(e.target.value)}></input> 
+            onChange = {e => setTitle(e.target.value)}
+            style={{width: "400px", height:"40px" }}></input> 
             <br></br>
 
             <input name ="date"
             placeholder = "session date YYYY-MM-DD"
-            value = {date}
-            onChange = {e => setDate(e.target.value)}></input> 
-
-            <input name ="time"
-            placeholder = "time as HH:MM"
-            maxLength="5"
+            type="datetime-local"
             value = {time}
             onChange = {e => setTime(e.target.value)}></input> 
+            <br></br>
 
             <input name ="price"
             placeholder = "price"
             value = {price}
             onChange = {e => setPrice(e.target.value)}></input> 
-
+            <br></br>
+            <p>paid?</p>
             <input name ="paid" 
+                    type="checkbox"
                     value = {paid}
-                    placeholder = "true or false paid"
                     onChange = {e => setPaid(e.target.value)}
             ></input>
-            <input name ="publicNotes"
+            <br></br>
+
+            <textarea name ="publicNotes"
                     placeholder = "general notes"
                     value = {publicNotes}
-                    onChange = {e => setPubNotes(e.target.value)}>
-            </input> 
-            <input name ="privNotes"
+                    onChange = {e => setPubNotes(e.target.value)}
+                    style={{width: "100%", height:"200px" }}>
+            </textarea> 
+            <br></br>
+
+            <textarea name ="privNotes"
                     placeholder = "private notes"
                     value = {privateNotes}
-                    onChange = {e => setPrivNotes(e.target.value)}>
-            </input> 
-
-            <br></br>
+                    onChange = {e => setPrivNotes(e.target.value)}
+                    style={{width: "100%", height:"150px" }}>
+            </textarea> 
             <br></br>
             <button>Let's go!</button>
           </form>

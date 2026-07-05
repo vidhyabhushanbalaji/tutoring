@@ -9,10 +9,8 @@ function CurrLesson({ lessonID, clientlink }){
     console.log("lessonID"+lessonID)
     const userID = localStorage.getItem("id")
     console.log(userID)
-    const [lessonDetails, setLD] = useState([])
+    const [lessonDetails, setLD] = useState({})
     let gotLesson = false;
-
-
 
     const getLD = async(lessonID)=>{
         console.log("here2")
@@ -23,6 +21,7 @@ function CurrLesson({ lessonID, clientlink }){
                 console.log("here")
                 console.log(res.data)
                 setLD(res.data)
+                console.log(lessonDetails)
             })}
             catch{
                 console.log("error")
@@ -37,18 +36,65 @@ function CurrLesson({ lessonID, clientlink }){
             getLD(lessonID);}
     }, [lessonID])
 
-    if (lessonID==-1){
-        return(
-            <CreateLesson default_price="5" clientlink={clientlink}/>
-        )
-    }
-
+    function handleSubmit(event){}
     
+    const [time, setTime] = useState(lessonDetails.lessontime)
+    // update with default price
+    const [price, setPrice] = useState(lessonDetails.price)
+    const [paid, setPaid] = useState(lessonDetails.paid)
+    const [privateNotes, setPrivNotes] = useState(lessonDetails.privatenotes)
+    const [publicNotes, setPubNotes] = useState(lessonDetails.publicNotes)
+    const [title, setTitle] = useState(lessonDetails.title)
+    console.log(price, paid, privateNotes, publicNotes, title)
 
     return(
         <>
-        <h1>{lessonDetails.title}</h1>
-        <h2></h2>
+        <form onSubmit={handleSubmit}>
+            <input name ="title"
+            size = "75"
+            placeholder = "Title for session"
+            value = {lessonDetails.title}
+            onChange = {e => setTitle(e.target.value)}
+            style={{width: "400px", height:"40px" }}></input> 
+            <br></br>
+
+            <input name ="date"
+            placeholder = "session date YYYY-MM-DD"
+            type="datetime-local"
+            value = {lessonDetails.lessontime}
+            onChange = {e => setTime(e.target.value)}></input> 
+            <br></br>
+
+            <input name ="price"
+            placeholder = "price"
+            value = {lessonDetails.price}
+            onChange = {e => setPrice(e.target.value)}></input> 
+            <br></br>
+            <p>paid?</p>
+            <input name ="paid" 
+                    type="checkbox"
+                    value = {lessonDetails.paid}
+                    onChange = {e => setPaid(e.target.value)}
+            ></input>
+            <br></br>
+
+            <textarea name ="publicNotes"
+                    placeholder = "general notes"
+                    value = {lessonDetails.publicnotes}
+                    onChange = {e => setPubNotes(e.target.value)}
+                    style={{width: "100%", height:"200px" }}>
+            </textarea> 
+            <br></br>
+
+            <textarea name ="privNotes"
+                    placeholder = "private notes"
+                    value = {lessonDetails.privatenotes}
+                    onChange = {e => setPrivNotes(e.target.value)}
+                    style={{width: "100%", height:"150px" }}>
+            </textarea> 
+            <br></br>
+            <button>Let's go!</button>
+          </form>
 
 
         </>

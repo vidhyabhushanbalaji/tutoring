@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 
-function CreateLesson({ default_price, clientlink }){
+function CreateLesson({ default_price, clientlink, onAdd }){
+    console.log(default_price)
+
     const nav = useNavigate()  
     const userID = localStorage.getItem("id")
-    console.log(userID)
     const [date, setDate] = useState('')
     const [time, setTime] = useState('')
     // update with default price
     const [price, setPrice] = useState(default_price)
-    const [paid, setPaid] = useState(false)
+    const [paid, setPaid] = useState("false")
     const [privateNotes, setPrivNotes] = useState('')
     const [publicNotes, setPubNotes] = useState('')
     const [title, setTitle] = useState('')
@@ -32,10 +33,10 @@ function CreateLesson({ default_price, clientlink }){
             "price": price,
             "paid": paid,
             "tutor_id": userID,
-            "clientlink": clientlink})
-        .then(res=> 
+            "clientlink": clientlink}).then(res=> 
             {if (res.status == 200){
                 console.log("added")
+                onAdd()
                 const navlocation = '/student/'+clientlink
                 console.log(navlocation)
                 nav(navlocation)}

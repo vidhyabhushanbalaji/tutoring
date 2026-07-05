@@ -8,28 +8,28 @@ import CreateLesson from "./CreateLesson";
 function Student(){
     const { id } = useParams();
     const tutorID = localStorage.getItem("id")
-    let gotStudents = false;
+    let gotLessons = false;
 
     const [studentDetails, setSD] = useState({})
     const [lessons, setLessons] = useState([])
     const [currLesson, setCurrLesson] = useState(-1)
 
-    const getStudents = async()=>{
-            try{
-            await axios.post("http://localhost:3000/studentdetail",{tutor_id: tutorID, id: id}).then(res =>{
-                console.log(res)
-                setSD(res.data.details)
-                setLessons(res.data.lessons)
-            })}
+    const getLessons = async()=>{
+        try{
+        await axios.post("http://localhost:3000/studentdetail",{tutor_id: tutorID, id: id}).then(res =>{
+            console.log(res)
+            setSD(res.data.details)
+            setLessons(res.data.lessons)
+        })}
         catch{
             console.log("error")
         }
         }
 
         useEffect(()=> {
-        if (!gotStudents){
-            gotStudents = true;
-            getStudents();}
+        if (!gotLessons){
+            gotLessons = true;
+            getLessons();}
         }, [])
 
         useEffect(()=>{
@@ -38,6 +38,20 @@ function Student(){
     
     console.log(studentDetails)
     console.log(lessons)
+
+    function LessonArea(currLesson){
+        if (currLesson==-1){
+            return(
+                <CreateLesson default_price={studentDetails.default_price} clientlink={id} onAdd={()=>{getLessons()}}/>
+            )
+        }
+        else{
+                return(
+                    <CurrLesson lessonID={currLesson} clientlink={id}/>
+                )
+            }
+    }
+
 
     return (
         <>
@@ -49,8 +63,9 @@ function Student(){
 
             <table>
                 <tr>
-                    <th>
+                    <th style={{width:"30%"}}>
                         <h3>Lessons</h3>
+                        <button onClick={()=>setCurrLesson(-1)}>Add a new lesson</button>
                         <ul>
                             {lessons.map(({ lessontime, title, price, paid, lessonid }) =>(
                                 <li key={lessonid}>
@@ -63,7 +78,7 @@ function Student(){
                         </ul>
                     </th>
                     <th>
-                        <CurrLesson lessonID={currLesson} clientlink={id}/>
+                        {LessonArea(currLesson)}
                     </th>
                 </tr>
             </table>

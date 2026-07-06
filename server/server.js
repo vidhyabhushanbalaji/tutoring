@@ -52,7 +52,9 @@ app.post('/users/usersetup', async (req,res1) =>{
 
 app.post('/users/addclient', async(req,res1)=>{
     try{
+        console.log("INSERT INTO client_links (description, tutor_id, default_price) VALUES ('"+req.body.description+"', '"+req.body.tutor_id+"', '"+req.body.price+"') RETURNING id;")
         const addclient = await client.query("INSERT INTO client_links (description, tutor_id, default_price) VALUES ('"+req.body.description+"', '"+req.body.tutor_id+"', '"+req.body.price+"') RETURNING id;")
+        console.log(addclient)
         const newID = addclient.rows[0].id
         res1.status(200).send({id: newID})
     }

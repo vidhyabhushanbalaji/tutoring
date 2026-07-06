@@ -16,11 +16,6 @@ function CreateLesson({ default_price, clientlink, onAdd }){
     const [title, setTitle] = useState('')
     
     function handleSubmit(event){
-        if (paid!="false"&&paid!="true"){
-            setPaid(false)
-            alert("issue on paid format")
-            return;
-        }
         event.preventDefault();
         // when possible add parent id as well
         axios.post("http://localhost:3000/addlesson",
@@ -75,10 +70,9 @@ function CreateLesson({ default_price, clientlink, onAdd }){
             <p>paid?</p>
             <input name ="paid" 
                     type="checkbox"
-                    value = {paid}
-                    onChange = {e => setPaid(e.target.value)}
+                    checked = {paid}
+                    onChange = {e => setPaid(!paid)}
             ></input>
-            <br></br>
 
             <textarea name ="publicNotes"
                     placeholder = "general notes"

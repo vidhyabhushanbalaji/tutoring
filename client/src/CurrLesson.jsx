@@ -51,36 +51,37 @@ function CurrLesson({ lessonID, clientlink }){
         <>
         <form onSubmit={handleSubmit}>
             <input name ="title"
-            size = "75"
-            placeholder = "Title for session"
-            value = {lessonDetails.title}
-            onChange = {e => setTitle(e.target.value)}
-            style={{width: "400px", height:"40px" }}></input> 
+                size = "75"
+                placeholder = "Title for session"
+                value = {title}
+                onChange = {e => setTitle(e.target.value)}
+                style={{width: "400px", height:"40px" }}></input> 
             <br></br>
 
             <input name ="date"
             placeholder = "session date YYYY-MM-DD"
             type="datetime-local"
-            value = {lessonDetails.lessontime}
+            value = {time}
             onChange = {e => setTime(e.target.value)}></input> 
             <br></br>
 
             <input name ="price"
             placeholder = "price"
-            value = {lessonDetails.price}
+            value = {price}
             onChange = {e => setPrice(e.target.value)}></input> 
             <br></br>
+
             <p>paid?</p>
             <input name ="paid" 
                     type="checkbox"
-                    value = {lessonDetails.paid}
-                    onChange = {e => setPaid(e.target.value)}
+                    checked = {paid}
+                    onChange = {e => setPaid(!paid)}
             ></input>
             <br></br>
 
             <textarea name ="publicNotes"
                     placeholder = "general notes"
-                    value = {lessonDetails.publicnotes}
+                    value = {publicNotes}
                     onChange = {e => setPubNotes(e.target.value)}
                     style={{width: "100%", height:"200px" }}>
             </textarea> 
@@ -88,7 +89,7 @@ function CurrLesson({ lessonID, clientlink }){
 
             <textarea name ="privNotes"
                     placeholder = "private notes"
-                    value = {lessonDetails.privatenotes}
+                    value = {privateNotes}
                     onChange = {e => setPrivNotes(e.target.value)}
                     style={{width: "100%", height:"150px" }}>
             </textarea> 

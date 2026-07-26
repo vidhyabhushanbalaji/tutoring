@@ -6,6 +6,13 @@ import CreateLesson from "./CreateLesson";
 
 
 function Student(){
+    useEffect(()=> {
+        if (!gotLessons){
+            gotLessons = true;
+            getLessons();}
+        }, [])
+
+
     const { id } = useParams();
     const tutorID = localStorage.getItem("id")
     let gotLessons = false;
@@ -26,15 +33,8 @@ function Student(){
         }
         }
 
-        useEffect(()=> {
-        if (!gotLessons){
-            gotLessons = true;
-            getLessons();}
-        }, [])
+        
 
-        useEffect(()=>{
-
-        })
     
     console.log(studentDetails)
     console.log(lessons)
@@ -44,7 +44,30 @@ function Student(){
             return(
                 <CreateLesson default_price={studentDetails.default_price} clientlink={id} onAdd={()=>{getLessons()}}/>
             )
+        
         }
+        else if (currLesson==-2){
+            return(
+                <>
+                    <h1>Student statistics</h1>
+                        <h2>No Lessons Paid: {studentDetails.totalLessons}</h2>
+                        <h2>Total Paid: {studentDetails.totalPaid}</h2>
+                        <h2>Unpaid Lessons: {studentDetails.unpaidLessonsSum}</h2>
+                        <ul>
+                            {studentDetails.unpaidLessons.map(({ lessontime, title, price, paid, lessonid }) =>(
+                                <li key={lessonid}>
+                                    <button onClick={() => setCurrLesson(lessonid)}>
+                                        <b>{title}</b>
+                                        <p>{lessontime}, {lessonid}</p>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+
+                </>
+            )
+        }
+
         else{
                 return(
                     <CurrLesson lessonID={currLesson} clientlink={id}/>

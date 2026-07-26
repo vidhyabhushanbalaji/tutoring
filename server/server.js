@@ -88,8 +88,8 @@ app.post('/studentdetail', async(req,res1)=>{
 
 app.post('/addlesson', async(req,res1)=>{
     try{
-        console.log("INSERT INTO lessons (lessontime, title, privatenotes, publicnotes, price, paid, tutor_id, parent_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.privatenotes+"', '"+req.body.publicnotes+"', '"+req.body.price+"', '"+req.body.paid+"', '"+req.body.tutor_id+"', '"+req.body.parent_id+"', '"+req.body.clientlink+") RETURNING lessonid;")
-        const newlesson = await client.query("INSERT INTO lessons (lessontime, title, privatenotes, publicnotes, price, paid, tutor_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.privatenotes+"', '"+req.body.publicnotes+"', '"+req.body.price+"', '"+req.body.paid+"', '"+req.body.tutor_id+"', '"+req.body.clientlink+"') RETURNING lessonid;")
+        console.log("INSERT INTO lessons (lessontime, title, privatenotes, publicnotes, price, paid, complete, tutor_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.privatenotes+"', '"+req.body.publicnotes+"', '"+req.body.price+"', "+req.body.paid+", "+req.body.complete+" ,"+req.body.tutor_id+", "+req.body.clientlink+"') RETURNING lessonid;")
+        const newlesson = await client.query("INSERT INTO lessons (lessontime, title, privatenotes, publicnotes, price, paid, complete, tutor_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.privatenotes+"', '"+req.body.publicnotes+"', '"+req.body.price+"', "+req.body.paid+", "+req.body.complete+" ,"+req.body.tutor_id+", "+req.body.clientlink+") RETURNING lessonid;")
         console.log(newlesson)
         const newID = newlesson.rows[0].lessonid
         res1.status(200).send({lessonID: newID})
@@ -102,6 +102,23 @@ app.post('/addlesson', async(req,res1)=>{
 app.post('/getlesson', async(req,res1)=>{
     try{
         const lesson = await client.query("SELECT * from lessons WHERE lessonid='"+req.body.lessonid+"' AND tutor_id ="+req.body.tutor_id+";")
+        res1.status(200).send(lesson.rows[0])
+    }
+    catch{
+        console.log("failedhere")
+    }
+})
+
+app.post('/updatelesson', async(req,res1)=>{
+    try{
+        var changes = " ";
+        for (const key in req.body.changes){
+            changes = changes + `${key} = '${req.body.changes[key]}', `
+        }
+        changes = changes.slice(0,-2) + " ";
+        console.log(changes);
+        console.log("UPDATE lessons SET"+changes+"WHERE lessonid='"+req.body.lessonid+"' AND tutor_id ="+req.body.tutor_id+";");
+        const lesson = await client.query("UPDATE lessons SET"+changes+"WHERE lessonid='"+req.body.lessonid+"' AND tutor_id ="+req.body.tutor_id+";")
         res1.status(200).send(lesson.rows[0])
     }
     catch{

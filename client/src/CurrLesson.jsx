@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 import Modal from './Modal'
 import axios from 'axios'
@@ -9,8 +9,19 @@ function CurrLesson({ lessonID, clientlink }){
     console.log("lessonID"+lessonID)
     const userID = localStorage.getItem("id")
     console.log(userID)
-    const [lessonDetails, setLD] = useState({})
+    let lessonDetails = {}
     let gotLesson = false;
+
+    const [time, setTime] = useState('')
+    const [price, setPrice] = useState('')
+    const [complete, setComplete] = useState(false)
+    const [paid, setPaid] = useState(false)
+    const [privateNotes, setPrivNotes] = useState('')
+    const [publicNotes, setPubNotes] = useState('')
+    const [title, setTitle] = useState('')
+    const [saved, setSaved] = useState(true)
+
+    var changes = {};
 
     const getLD = async(lessonID)=>{
         console.log("here2")
@@ -19,8 +30,14 @@ function CurrLesson({ lessonID, clientlink }){
             try{
             await axios.post("http://localhost:3000/getlesson",{tutor_id: userID, lessonid: lessonID}).then(res =>{
                 console.log("here")
-                console.log(res.data)
-                setLD(res.data)
+                setTime(res.data.lessontime.substring(0,16))
+                setPrice(res.data.price)
+                setPaid(res.data.paid)
+                setPrivNotes(res.data.privatenotes)
+                setPubNotes(res.data.publicnotes)
+                setTitle(res.data.title)
+                setComplete(res.data.complete)
+
                 console.log(lessonDetails)
             })}
             catch{
@@ -36,25 +53,60 @@ function CurrLesson({ lessonID, clientlink }){
             getLD(lessonID);}
     }, [lessonID])
 
-    function handleSubmit(event){}
-    
-    const [time, setTime] = useState(lessonDetails.lessontime)
-    // update with default price
-    const [price, setPrice] = useState(lessonDetails.price)
-    const [paid, setPaid] = useState(lessonDetails.paid)
-    const [privateNotes, setPrivNotes] = useState(lessonDetails.privatenotes)
-    const [publicNotes, setPubNotes] = useState(lessonDetails.publicNotes)
-    const [title, setTitle] = useState(lessonDetails.title)
-    console.log(price, paid, privateNotes, publicNotes, title)
 
+    function debounce(func, delay=1000){
+        console.log("here right now");
+        console.log(changes);
+        if (saved == true){
+            setSaved(false);
+        }
+
+        const timerRef = useRef(null);
+        const debouncedFn = useCallback((... args) =>{
+            if (timerRef.current) clearTimeout(timerRef.current);
+            timerRef.current = setTimeout(()=>{
+                func(...args);
+            }, delay);
+            
+        }, [func, delay]);
+        return debouncedFn;
+    }
+
+    function autoUpdate(){
+        console.log("i got called");
+            axios.post("http://localhost:3000/updatelesson",
+            {"lessonid": lessonID,
+            "tutor_id": userID,
+            "changes": changes}).then(res=> 
+            {if (res.status == 200){
+                console.log("updated");
+                changes={};
+                setSaved(true);
+            }
+            }).catch(err =>
+            {
+                console.log("unsuccesful entry attempt")
+            }
+            );
+        };
+
+    const debouncedUpdate = debounce(()=>{
+        autoUpdate();
+    },1000)
+    
+   
     return(
         <>
-        <form onSubmit={handleSubmit}>
+        <form>
             <input name ="title"
                 size = "75"
                 placeholder = "Title for session"
                 value = {title}
-                onChange = {e => setTitle(e.target.value)}
+                onChange = {e =>{
+                    setTitle(e.target.value);
+                    changes["title"]= e.target.value;
+                    debouncedUpdate();
+                    }}
                 style={{width: "400px", height:"40px" }}></input> 
             <br></br>
 
@@ -62,27 +114,47 @@ function CurrLesson({ lessonID, clientlink }){
             placeholder = "session date YYYY-MM-DD"
             type="datetime-local"
             value = {time}
-            onChange = {e => setTime(e.target.value)}></input> 
+            onChange = {e => {
+                setTime(e.target.value);
+                changes["time"]=e.target.value;}}></input> 
             <br></br>
 
             <input name ="price"
             placeholder = "price"
             value = {price}
-            onChange = {e => setPrice(e.target.value)}></input> 
+            onChange = {e => {
+                setPrice(e.target.value);
+                changes["price"] = e.target.value;            
+            }}></input> 
             <br></br>
 
             <p>paid?</p>
             <input name ="paid" 
                     type="checkbox"
                     checked = {paid}
-                    onChange = {e => setPaid(!paid)}
+                    onChange = {e => {
+                        setPaid(!paid);
+                        changes["paid"] = {paid};}}
             ></input>
+
+            <p>complete?</p>
+            <input name ="complete" 
+                    type="checkbox"
+                    checked = {complete}
+                    onChange = {e => {
+                        setComplete(!complete);
+                        changes["complete"] = {complete};}}
+            ></input>
+
             <br></br>
 
             <textarea name ="publicNotes"
                     placeholder = "general notes"
                     value = {publicNotes}
-                    onChange = {e => setPubNotes(e.target.value)}
+                    onChange = {e => {
+                        setPubNotes(e.target.value);
+                        changes["publicnotes"]=e.target.value;
+                    }}
                     style={{width: "100%", height:"200px" }}>
             </textarea> 
             <br></br>
@@ -90,11 +162,13 @@ function CurrLesson({ lessonID, clientlink }){
             <textarea name ="privNotes"
                     placeholder = "private notes"
                     value = {privateNotes}
-                    onChange = {e => setPrivNotes(e.target.value)}
+                    onChange = {e => {
+                        setPrivNotes(e.target.value);
+                        changes["privatenotes"]=e.target.value;
+                    }}
                     style={{width: "100%", height:"150px" }}>
-            </textarea> 
+            </textarea>
             <br></br>
-            <button>Let's go!</button>
           </form>
 
 

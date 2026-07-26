@@ -1,0 +1,10 @@
+POST http://localhost:3000/updatelesson
+Content-Type: application/json
+
+{
+    "lessonid" : 14,
+    "tutor_id" : 29,
+    "changes" : {
+        "publicnotes": "doing very well, needs some help with pythagoras"
+    }
+}

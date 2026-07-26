@@ -2,18 +2,19 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 
-function CreateLesson({ default_price, clientlink, onAdd }){
-    console.log(default_price)
-
+function CreateLesson(props){
+    console.log(props.default_price)
+    let setprice = false
     const nav = useNavigate()  
     const userID = localStorage.getItem("id")
     const [time, setTime] = useState('')
     // update with default price
-    const [price, setPrice] = useState(default_price)
+    const [price, setPrice] = useState(props.default_price)
     const [paid, setPaid] = useState(false)
     const [privateNotes, setPrivNotes] = useState('')
     const [publicNotes, setPubNotes] = useState('')
     const [title, setTitle] = useState('')
+    const [complete, setComplete] = useState(false)
     
     function handleSubmit(event){
         event.preventDefault();
@@ -26,13 +27,15 @@ function CreateLesson({ default_price, clientlink, onAdd }){
             "price": price,
             "paid": paid,
             "tutor_id": userID,
-            "clientlink": clientlink}).then(res=> 
+            "clientlink": props.clientlink,
+            "complete": complete}).then(res=> 
             {if (res.status == 200){
                 console.log("added")
-                onAdd()
-                const navlocation = '/student/'+clientlink
+                props.onAdd()
+                const navlocation = '/student/'+props.clientlink
                 console.log(navlocation)
-                nav(navlocation)}
+                nav(navlocation)
+            }
             
             }).catch(err =>
             {
@@ -40,9 +43,9 @@ function CreateLesson({ default_price, clientlink, onAdd }){
             }
             );
         }
-    
 
     return(
+       
        <section id="newLesson">
         <div id="newLesson">
 
@@ -73,6 +76,12 @@ function CreateLesson({ default_price, clientlink, onAdd }){
                     checked = {paid}
                     onChange = {e => setPaid(!paid)}
             ></input>
+             <p>complete?</p>
+            <input name ="complete" 
+                    type="checkbox"
+                    checked = {complete}
+                    onChange = {e => setComplete(!complete)}
+            ></input>
 
             <textarea name ="publicNotes"
                     placeholder = "general notes"
@@ -86,7 +95,7 @@ function CreateLesson({ default_price, clientlink, onAdd }){
                     placeholder = "private notes"
                     value = {privateNotes}
                     onChange = {e => setPrivNotes(e.target.value)}
-                    style={{width: "100%", height:"150px" }}>
+                    style={{width: "100%", height:"50px" }}>
             </textarea> 
             <br></br>
             <button>Let's go!</button>

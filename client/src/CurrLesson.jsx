@@ -19,7 +19,7 @@ function CurrLesson({ lessonID, clientlink }){
     const [privateNotes, setPrivNotes] = useState('')
     const [publicNotes, setPubNotes] = useState('')
     const [title, setTitle] = useState('')
-    const [saved, setSaved] = useState(true)
+    const [saved, setSaved] = useState('blue')
 
     var changes = {};
 
@@ -57,9 +57,6 @@ function CurrLesson({ lessonID, clientlink }){
     function debounce(func, delay=1000){
         console.log("here right now");
         console.log(changes);
-        if (saved == true){
-            setSaved(false);
-        }
 
         const timerRef = useRef(null);
         const debouncedFn = useCallback((... args) =>{
@@ -81,7 +78,7 @@ function CurrLesson({ lessonID, clientlink }){
             {if (res.status == 200){
                 console.log("updated");
                 changes={};
-                setSaved(true);
+                setSaved('blue');
             }
             }).catch(err =>
             {
@@ -89,15 +86,18 @@ function CurrLesson({ lessonID, clientlink }){
             }
             );
         };
+    function alertChange(){
+        if (saved=='blue') setSaved('red');
+        debouncedUpdate();
+    }
 
-    const debouncedUpdate = debounce(()=>{
-        autoUpdate();
-    },1000)
-    
+    const debouncedUpdate = debounce(()=>{autoUpdate();},1000)
    
     return(
         <>
-        <form>
+        <form style ={{
+            backgroundColor: `${saved}`
+        }}>
             <input name ="title"
                 size = "75"
                 placeholder = "Title for session"
@@ -105,7 +105,7 @@ function CurrLesson({ lessonID, clientlink }){
                 onChange = {e =>{
                     setTitle(e.target.value);
                     changes["title"]= e.target.value;
-                    debouncedUpdate();
+                    alertChange();
                     }}
                 style={{width: "400px", height:"40px" }}></input> 
             <br></br>
@@ -116,7 +116,8 @@ function CurrLesson({ lessonID, clientlink }){
             value = {time}
             onChange = {e => {
                 setTime(e.target.value);
-                changes["time"]=e.target.value;}}></input> 
+                changes["time"]=e.target.value;
+                alertChange();}}></input> 
             <br></br>
 
             <input name ="price"
@@ -124,7 +125,8 @@ function CurrLesson({ lessonID, clientlink }){
             value = {price}
             onChange = {e => {
                 setPrice(e.target.value);
-                changes["price"] = e.target.value;            
+                changes["price"] = e.target.value; 
+                alertChange();           
             }}></input> 
             <br></br>
 
@@ -134,7 +136,8 @@ function CurrLesson({ lessonID, clientlink }){
                     checked = {paid}
                     onChange = {e => {
                         setPaid(!paid);
-                        changes["paid"] = {paid};}}
+                        changes["paid"] = {paid};
+                        alertChange();}}
             ></input>
 
             <p>complete?</p>
@@ -143,7 +146,8 @@ function CurrLesson({ lessonID, clientlink }){
                     checked = {complete}
                     onChange = {e => {
                         setComplete(!complete);
-                        changes["complete"] = {complete};}}
+                        changes["complete"] = {complete};
+                        alertChange();}}
             ></input>
 
             <br></br>
@@ -154,6 +158,7 @@ function CurrLesson({ lessonID, clientlink }){
                     onChange = {e => {
                         setPubNotes(e.target.value);
                         changes["publicnotes"]=e.target.value;
+                        alertChange();
                     }}
                     style={{width: "100%", height:"200px" }}>
             </textarea> 
@@ -165,6 +170,7 @@ function CurrLesson({ lessonID, clientlink }){
                     onChange = {e => {
                         setPrivNotes(e.target.value);
                         changes["privatenotes"]=e.target.value;
+                        alertChange();
                     }}
                     style={{width: "100%", height:"150px" }}>
             </textarea>

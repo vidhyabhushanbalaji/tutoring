@@ -88,8 +88,8 @@ app.post('/studentdetail', async(req,res1)=>{
 
 app.post('/addlesson', async(req,res1)=>{
     try{
-        console.log("INSERT INTO lessons (lessontime, title, privatenotes, publicnotes, price, paid, complete, tutor_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.privatenotes+"', '"+req.body.publicnotes+"', '"+req.body.price+"', "+req.body.paid+", "+req.body.complete+" ,"+req.body.tutor_id+", "+req.body.clientlink+"') RETURNING lessonid;")
-        const newlesson = await client.query("INSERT INTO lessons (lessontime, title, privatenotes, publicnotes, price, paid, complete, tutor_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.privatenotes+"', '"+req.body.publicnotes+"', '"+req.body.price+"', "+req.body.paid+", "+req.body.complete+" ,"+req.body.tutor_id+", "+req.body.clientlink+") RETURNING lessonid;")
+        console.log("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.price+"', "+req.body.paid+", "+req.body.complete+" ,"+req.body.tutor_id+", "+req.body.clientlink+"') RETURNING lessonid;")
+        const newlesson = await client.query("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink) VALUES ('"+req.body.lessontime+"', '"+req.body.title+"', '"+req.body.price+"', "+req.body.paid+", "+req.body.complete+" ,"+req.body.tutor_id+", "+req.body.clientlink+") RETURNING lessonid;")
         console.log(newlesson)
         const newID = newlesson.rows[0].lessonid
         res1.status(200).send({lessonID: newID})
@@ -125,6 +125,7 @@ app.post('/updatelesson', async(req,res1)=>{
         console.log("failedhere")
     }
 })
+
 
 
 

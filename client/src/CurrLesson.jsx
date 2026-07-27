@@ -20,6 +20,7 @@ function CurrLesson({ lessonID, clientlink }){
     const [publicNotes, setPubNotes] = useState('')
     const [title, setTitle] = useState('')
     const [saved, setSaved] = useState('blue')
+    const newChanges = useRef({});
 
     var changes = {};
 
@@ -71,14 +72,16 @@ function CurrLesson({ lessonID, clientlink }){
 
     function autoUpdate(){
         console.log("i got called");
+        console.log(newChanges);
+        console.log(changes);
             axios.post("http://localhost:3000/updatelesson",
             {"lessonid": lessonID,
             "tutor_id": userID,
-            "changes": changes}).then(res=> 
+            "changes": newChanges.current}).then(res=> 
             {if (res.status == 200){
                 console.log("updated");
-                changes={};
                 setSaved('blue');
+                newChanges.current = {}
             }
             }).catch(err =>
             {
@@ -104,7 +107,7 @@ function CurrLesson({ lessonID, clientlink }){
                 value = {title}
                 onChange = {e =>{
                     setTitle(e.target.value);
-                    changes["title"]= e.target.value;
+                    newChanges.current["title"]= e.target.value;
                     alertChange();
                     }}
                 style={{width: "400px", height:"40px" }}></input> 
@@ -116,7 +119,7 @@ function CurrLesson({ lessonID, clientlink }){
             value = {time}
             onChange = {e => {
                 setTime(e.target.value);
-                changes["time"]=e.target.value;
+                newChanges.current["time"]=e.target.value;
                 alertChange();}}></input> 
             <br></br>
 
@@ -125,7 +128,7 @@ function CurrLesson({ lessonID, clientlink }){
             value = {price}
             onChange = {e => {
                 setPrice(e.target.value);
-                changes["price"] = e.target.value; 
+                newChanges.current["price"] = e.target.value; 
                 alertChange();           
             }}></input> 
             <br></br>
@@ -136,7 +139,7 @@ function CurrLesson({ lessonID, clientlink }){
                     checked = {paid}
                     onChange = {e => {
                         setPaid(!paid);
-                        changes["paid"] = {paid};
+                        newChanges.current["paid"] = {paid};
                         alertChange();}}
             ></input>
 
@@ -146,7 +149,7 @@ function CurrLesson({ lessonID, clientlink }){
                     checked = {complete}
                     onChange = {e => {
                         setComplete(!complete);
-                        changes["complete"] = {complete};
+                        newChanges.current["complete"] = {complete};
                         alertChange();}}
             ></input>
 
@@ -157,7 +160,7 @@ function CurrLesson({ lessonID, clientlink }){
                     value = {publicNotes}
                     onChange = {e => {
                         setPubNotes(e.target.value);
-                        changes["publicnotes"]=e.target.value;
+                        newChanges.current["publicNotes"]=e.target.value;
                         alertChange();
                     }}
                     style={{width: "100%", height:"200px" }}>
@@ -169,8 +172,9 @@ function CurrLesson({ lessonID, clientlink }){
                     value = {privateNotes}
                     onChange = {e => {
                         setPrivNotes(e.target.value);
-                        changes["privatenotes"]=e.target.value;
+                        newChanges.current["privateNotes"]=e.target.value;
                         alertChange();
+                        
                     }}
                     style={{width: "100%", height:"150px" }}>
             </textarea>

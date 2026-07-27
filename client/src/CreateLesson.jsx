@@ -1,92 +1,163 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
-function CreateLesson(props){
-    console.log(props.default_price)
-    let setprice = false
-    const nav = useNavigate()  
+import Modal from './Modal'
+import axios from 'axios'
+import { Link } from "react-router-dom"
+import CreateLesson from './CreateLesson'
+
+function CurrLesson({ lessonID, clientlink }){
+    console.log("lessonID"+lessonID)
     const userID = localStorage.getItem("id")
+    console.log(userID)
+    let lessonDetails = {}
+    let gotLesson = false;
+
     const [time, setTime] = useState('')
-    // update with default price
-    const [price, setPrice] = useState(props.default_price)
+    const [price, setPrice] = useState('')
+    const [complete, setComplete] = useState(false)
     const [paid, setPaid] = useState(false)
     const [privateNotes, setPrivNotes] = useState('')
     const [publicNotes, setPubNotes] = useState('')
     const [title, setTitle] = useState('')
-    const [complete, setComplete] = useState(false)
+    const [saved, setSaved] = useState(true)
+    const [newChanges, setNewChanges] = useState([])
+
+    var changes = {};
+
+    const getLD = async(lessonID)=>{
+        console.log("here2")
+        if (lessonID!=-1){
+            console.log("here3")
+            try{
+            await axios.post("http://localhost:3000/getlesson",{tutor_id: userID, lessonid: lessonID}).then(res =>{
+                console.log("here")
+                setTime(res.data.lessontime.substring(0,16))
+                setPrice(res.data.price)
+                setPaid(res.data.paid)
+                setPrivNotes(res.data.privatenotes)
+                setPubNotes(res.data.publicnotes)
+                setTitle(res.data.title)
+                setComplete(res.data.complete)
+
+                console.log(lessonDetails)
+            })}
+            catch{
+                console.log("error")
+            }}
+        }
     
-    function handleSubmit(event){
-        event.preventDefault();
-        // when possible add parent id as well
-        axios.post("http://localhost:3000/addlesson",
-        {"lessontime": time,
-            "title": title,
-            "privatenotes": privateNotes,
-            "publicnotes": publicNotes,
-            "price": price,
-            "paid": paid,
-            "tutor_id": userID,
-            "clientlink": props.clientlink,
-            "complete": complete}).then(res=> 
-            {if (res.status == 200){
-                console.log("added")
-                props.onAdd()
-                const navlocation = '/student/'+props.clientlink
-                console.log(navlocation)
-                nav(navlocation)
-            }
+
+    useEffect(()=> {
+        if (lessonID!=-1 && !gotLesson){
+            gotLesson = true;
+            console.log("here1")
+            getLD(lessonID);}
+    }, [lessonID])
+
+
+    function debounce(func, delay=1000){
+        console.log("here right now");
+        console.log(changes);
+        if (saved == true){
+            setSaved(false);
+        }
+
+        const timerRef = useRef(null);
+        const debouncedFn = useCallback((... args) =>{
+            if (timerRef.current) clearTimeout(timerRef.current);
+            timerRef.current = setTimeout(()=>{
+                func(...args);
+            }, delay);
             
+        }, [func, delay]);
+        return debouncedFn;
+    }
+
+    function autoUpdate(){
+        console.log("i got called");
+        console.log(newChanges)
+            axios.post("http://localhost:3000/updatelesson",
+            {"lessonid": lessonID,
+            "tutor_id": userID,
+            "changes": changes}).then(res=> 
+            {if (res.status == 200){
+                console.log("updated");
+                changes={};
+                setSaved(true);
+            }
             }).catch(err =>
             {
                 console.log("unsuccesful entry attempt")
             }
             );
-        }
+        };
 
+    const debouncedUpdate = debounce(()=>{
+        autoUpdate();
+    },1000)
+    
+   
     return(
-       
-       <section id="newLesson">
-        <div id="newLesson">
-
-          <form onSubmit={handleSubmit}>
+        <>
+        <form>
             <input name ="title"
-            size = "75"
-            placeholder = "Title for session"
-            value = {title}
-            onChange = {e => setTitle(e.target.value)}
-            style={{width: "400px", height:"40px" }}></input> 
+                size = "75"
+                placeholder = "Title for session"
+                value = {title}
+                onChange = {e =>{
+                    setTitle(e.target.value);
+                    changes["title"]= e.target.value;
+                    debouncedUpdate();
+                    }}
+                style={{width: "400px", height:"40px" }}></input> 
             <br></br>
 
             <input name ="date"
             placeholder = "session date YYYY-MM-DD"
             type="datetime-local"
             value = {time}
-            onChange = {e => setTime(e.target.value)}></input> 
+            onChange = {e => {
+                setTime(e.target.value);
+                changes["time"]=e.target.value;}}></input> 
             <br></br>
 
             <input name ="price"
             placeholder = "price"
             value = {price}
-            onChange = {e => setPrice(e.target.value)}></input> 
+            onChange = {e => {
+                setPrice(e.target.value);
+                changes["price"] = e.target.value;            
+            }}></input> 
             <br></br>
+
             <p>paid?</p>
             <input name ="paid" 
                     type="checkbox"
                     checked = {paid}
-                    onChange = {e => setPaid(!paid)}
+                    onChange = {e => {
+                        setPaid(!paid);
+                        changes["paid"] = {paid};}}
             ></input>
-             <p>complete?</p>
+
+            <p>complete?</p>
             <input name ="complete" 
                     type="checkbox"
                     checked = {complete}
-                    onChange = {e => setComplete(!complete)}
+                    onChange = {e => {
+                        setComplete(!complete);
+                        changes["complete"] = {complete};}}
             ></input>
+
+            <br></br>
 
             <textarea name ="publicNotes"
                     placeholder = "general notes"
                     value = {publicNotes}
-                    onChange = {e => setPubNotes(e.target.value)}
+                    onChange = {e => {
+                        setPubNotes(e.target.value);
+                        setNewChanges(newChanges.push(["publicNotes", e.target.value]))
+                        changes["publicnotes"]=e.target.value;
+                    }}
                     style={{width: "100%", height:"200px" }}>
             </textarea> 
             <br></br>
@@ -94,15 +165,19 @@ function CreateLesson(props){
             <textarea name ="privNotes"
                     placeholder = "private notes"
                     value = {privateNotes}
-                    onChange = {e => setPrivNotes(e.target.value)}
-                    style={{width: "100%", height:"50px" }}>
-            </textarea> 
+                    onChange = {e => {
+                        setPrivNotes(e.target.value);
+                        setNewChanges(newChanges.push(["privateNotes", e.target.value]))
+                        changes["privatenotes"]=e.target.value;
+                    }}
+                    style={{width: "100%", height:"150px" }}>
+            </textarea>
             <br></br>
-            <button>Let's go!</button>
           </form>
-        </div>
-      </section>
+
+
+        </>
     )
 }
 
-export default CreateLesson;
+export default CurrLesson;

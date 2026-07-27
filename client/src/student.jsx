@@ -19,7 +19,7 @@ function Student(){
 
     const [studentDetails, setSD] = useState({})
     const [lessons, setLessons] = useState([])
-    const [currLesson, setCurrLesson] = useState(-1)
+    const [currLesson, setCurrLesson] = useState(-2)
 
     const getLessons = async()=>{
         try{
@@ -50,18 +50,18 @@ function Student(){
             return(
                 <>
                     <h1>Student statistics</h1>
-                        <h2>No Lessons Paid: {studentDetails.totalLessons}</h2>
-                        <h2>Total Paid: {studentDetails.totalPaid}</h2>
-                        <h2>Unpaid Lessons: {studentDetails.unpaidLessonsSum}</h2>
+                        <h2>No Lessons Paid: {/*studentDetails.totalLessons*/}</h2>
+                        <h2>Total Paid: {/*studentDetails.totalPaid*/}</h2>
+                        <h2>Unpaid Lessons: {/*studentDetails.unpaidLessonsSum*/}</h2>
                         <ul>
-                            {studentDetails.unpaidLessons.map(({ lessontime, title, price, paid, lessonid }) =>(
+                            {/*studentDetails.unpaidLessons.map(({ lessontime, title, price, paid, lessonid }) =>(
                                 <li key={lessonid}>
                                     <button onClick={() => setCurrLesson(lessonid)}>
                                         <b>{title}</b>
                                         <p>{lessontime}, {lessonid}</p>
                                     </button>
                                 </li>
-                            ))}
+                            ))*/}
                         </ul>
 
                 </>

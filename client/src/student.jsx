@@ -13,7 +13,7 @@ function Student(){
         }, [])
 
 
-    const { id } = useParams();
+    const clientlink  = useParams().clientlink;
     const tutorID = localStorage.getItem("id")
     let gotLessons = false;
 
@@ -23,7 +23,8 @@ function Student(){
 
     const getLessons = async()=>{
         try{
-        await axios.post("http://localhost:3000/studentdetail",{tutor_id: tutorID, id: id}).then(res =>{
+        console.log("clientlink "+clientlink)
+        await axios.post("http://localhost:3000/studentdetail",{tutor_id: tutorID, clientlink: clientlink}).then(res =>{
             console.log(res)
             setSD(res.data.details)
             setLessons(res.data.lessons)
@@ -70,7 +71,7 @@ function Student(){
 
         else{
                 return(
-                    <CurrLesson lessonID={currLesson} clientlink={id}/>
+                    <CurrLesson lessonID={currLesson} clientlink={clientlink}/>
                 )
             }
     }

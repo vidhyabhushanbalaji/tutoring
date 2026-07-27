@@ -55,9 +55,9 @@ function Home(){
 
         <div id ="allstudents">
             <ul>
-                {allStudents.map(({ id, description, default_price}) =>(
+                {allStudents.map(({ clientlink, description, default_price}) =>(
                     <li>
-                        <Link to={`../student/${id}`}>{description}, {default_price}</Link>
+                        <Link to={`../student/${clientlink}`}>{description}, {default_price}</Link>
                     </li>
                 ))}
             </ul>

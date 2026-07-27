@@ -17,7 +17,7 @@ function AddStudent(){
              tutor_id: userID,
              price: price})
         .then(res=> {
-            const clientstudentID = res.data.id
+            const clientstudentID = res.data.clientlink
             console.log("got id of"+clientstudentID)
             const navlocation = '/student/'+clientstudentID
             console.log(navlocation)

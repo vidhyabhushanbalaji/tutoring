@@ -5,7 +5,7 @@ import axios from 'axios'
 import { Link } from "react-router-dom"
 import CreateLesson from './CreateLesson'
 
-function CurrLesson({ lessonID, clientlink }){
+function CurrLesson({ lessonID, clientlink, changeLesson }){
     console.log("lessonID"+lessonID)
     const userID = localStorage.getItem("id")
     console.log(userID)
@@ -81,7 +81,22 @@ function CurrLesson({ lessonID, clientlink }){
             {if (res.status == 200){
                 console.log("updated");
                 setSaved('blue');
-                newChanges.current = {}
+                let listUpdate = {
+                    title: title,
+                    lessontime: time
+                }
+                if ("title" in newChanges.current){
+                    listUpdate.title = newChanges.current.title;
+                    listUpdate.lessonid = lessonID;}
+                if ("lessontime" in newChanges.current){
+                    listUpdate.lessontime =newChanges.current.lessontime;
+                    listUpdate.lessonid = lessonID}
+                // using whether the lessonID has been added as an indicator of whether the list needs updating
+                if ("lessonid" in listUpdate){
+                    listUpdate["lessonid"] = lessonID;
+                    changeLesson(listUpdate)
+                }
+                newChanges.current = {};
             }
             }).catch(err =>
             {
@@ -119,7 +134,7 @@ function CurrLesson({ lessonID, clientlink }){
             value = {time}
             onChange = {e => {
                 setTime(e.target.value);
-                newChanges.current["time"]=e.target.value;
+                newChanges.current["lessontime"]=e.target.value;
                 alertChange();}}></input> 
             <br></br>
 

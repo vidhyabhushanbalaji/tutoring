@@ -32,7 +32,7 @@ function Student(){
         catch{
             console.log("error")
         }
-        }
+    }
 
         
 
@@ -43,7 +43,7 @@ function Student(){
     function LessonArea(currLesson){
         if (currLesson==-1){
             return(
-                <CreateLesson default_price={studentDetails.default_price} clientlink={id} onAdd={()=>{getLessons()}}/>
+                <CreateLesson default_price={studentDetails.default_price} clientlink={id} />
             )
         
         }
@@ -71,10 +71,30 @@ function Student(){
 
         else{
                 return(
-                    <CurrLesson lessonID={currLesson} clientlink={clientlink}/>
+                    <CurrLesson lessonID={currLesson} clientlink={clientlink} lessons={lessons} changeLesson={(changedLesson)=>{updateList(changedLesson)}}/>
                 )
             }
     }
+
+    function updateList(changedLesson){
+        console.log("this ran!");
+        console.log(lessons)
+        const newLessons = []
+        console.log("changed lesson")
+        console.log(changedLesson)
+        for (let lesson of lessons){
+            console.log(lesson);
+            if (lesson.lessonid==changedLesson.lessonid){
+                newLessons.push({...lesson, "title": changedLesson.title, "lessontime":changedLesson.lessontime})
+            }
+            else{
+                newLessons.push(lesson)
+            }
+        }
+        console.log(newLessons)
+        setLessons(newLessons)
+    }
+
 
 
     return (

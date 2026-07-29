@@ -83,13 +83,17 @@ function CurrLesson({ lessonID, clientlink, changeLesson }){
                 setSaved('blue');
                 let listUpdate = {
                     title: title,
-                    lessontime: time
+                    lessontime: time,
+                    paid: paid
                 }
                 if ("title" in newChanges.current){
                     listUpdate.title = newChanges.current.title;
                     listUpdate.lessonid = lessonID;}
                 if ("lessontime" in newChanges.current){
                     listUpdate.lessontime =newChanges.current.lessontime;
+                    listUpdate.lessonid = lessonID}
+                if ("paid" in newChanges.current){
+                    listUpdate.paid =newChanges.current.paid;
                     listUpdate.lessonid = lessonID}
                 // using whether the lessonID has been added as an indicator of whether the list needs updating
                 if ("lessonid" in listUpdate){
@@ -154,7 +158,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson }){
                     checked = {paid}
                     onChange = {e => {
                         setPaid(!paid);
-                        newChanges.current["paid"] = {paid};
+                        newChanges.current["paid"] = !paid;
                         alertChange();}}
             ></input>
 
@@ -164,7 +168,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson }){
                     checked = {complete}
                     onChange = {e => {
                         setComplete(!complete);
-                        newChanges.current["complete"] = {complete};
+                        newChanges.current["complete"] = !complete;
                         alertChange();}}
             ></input>
 

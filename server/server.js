@@ -56,7 +56,7 @@ app.post('/users/addclient', async(req,res1)=>{
         const addclient = await client.query("INSERT INTO client_links (description, tutor_id, default_price) VALUES ($1, $2, $3) RETURNING clientlink;", [req.body.description, req.body.tutor_id, req.body.price])
         console.log(addclient)
         const newID = addclient.rows[0].clientlink
-        res1.status(200).send({id: newID})
+        res1.status(200).send({clientlink: newID})
     }
     catch{
         console.log("fail")
@@ -76,7 +76,7 @@ app.post('/home/getstudents', async(req,res1)=>{
 app.post('/studentdetail', async(req,res1)=>{
     try{
         const details = await client.query("SELECT * from client_links WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
-        const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
+        const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE tutor_id=$1 AND clientlink =$2 ORDER BY lessontime DESC;", [req.body.tutor_id, req.body.clientlink])
         res1.status(200).send({details: details.rows[0], lessons: lessons.rows})
     }
     catch{
@@ -87,9 +87,10 @@ app.post('/studentdetail', async(req,res1)=>{
 
 app.post('/addlesson', async(req,res1)=>{
     try{
+
         console.log("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING lessonid")
-        
-        //newlesson = await client.query("INSERT INTO lessons (title) ($1) RETURNING lessonid", [`%test lesson title%`]);
+
+        newlesson = await client.query("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING lessonid",[req.body.lessontime, req.body.title, req.body.price, req.body.paid, req.body.complete, req.body.tutor_id, req.body.clientlink])
         console.log(newlesson);
         const newID = newlesson.rows[0].lessonid;
         res1.status(200).send({lessonID: newID});
@@ -113,7 +114,7 @@ app.post('/getlesson', async(req,res1)=>{
 const allowed = new Set(["lessonid", "lessontime", "title", "privatenotes", "publicnotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
 app.post('/updatelesson', async(req,res1)=>{
     try{
-        
+        console.log(req.body.changes)
         var changes = " ";
         var count = 1;
         var params = [];
@@ -126,10 +127,11 @@ app.post('/updatelesson', async(req,res1)=>{
             params.push(req.body.changes[key])
         }
         changes = changes.slice(0,-2) + " ";
-        console.log(changes);
+        console.log(changes.toString());
         params.push(req.body.lessonid);
         params.push(req.body.tutor_id);
         console.log((`UPDATE lessons SET${changes}WHERE lessonid= $${count} AND tutor_id =$${count+1};`))
+        console.log(params)
         const lesson = await client.query(`UPDATE lessons SET${changes}WHERE lessonid= $${count} AND tutor_id =$${count+1};`, params)
         res1.status(200).send("success")
     }

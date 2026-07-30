@@ -75,6 +75,12 @@ function Student(){
         setCurrLesson(newLesson.lessonid)
     }
 
+    function removeFromLessons(lessonID){
+        const newLessons = lessons.filter((lesson)=>{return (lesson.lessonid!=lessonID)})
+        setLessons(newLessons)
+        setCurrLesson(-2)
+    }
+
     console.log(studentDetails)
     console.log(lessons)
 
@@ -123,6 +129,7 @@ function Student(){
                         clientlink={clientlink} 
                         lessons={lessons} 
                         changeLesson={(changedLesson)=>{updateList(changedLesson)}}
+                        removeLesson={(lessonID)=>{removeFromLessons(lessonID)}}
                     />
                 
                 )

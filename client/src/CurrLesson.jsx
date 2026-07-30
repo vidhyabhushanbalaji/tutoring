@@ -5,13 +5,14 @@ import axios from 'axios'
 import { Link } from "react-router-dom"
 import CreateLesson from './CreateLesson'
 
-function CurrLesson({ lessonID, clientlink, changeLesson }){
+function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
     console.log("lessonID"+lessonID)
     const userID = localStorage.getItem("id")
     console.log(userID)
     let lessonDetails = {}
     let gotLesson = false;
 
+    const [deleteOpen, setDeleteOpen] = useState(false)
     const [time, setTime] = useState('')
     const [price, setPrice] = useState('')
     const [complete, setComplete] = useState(false)
@@ -113,6 +114,16 @@ function CurrLesson({ lessonID, clientlink, changeLesson }){
         debouncedUpdate();
     }
 
+    function deleteLesson(){
+        console.log("reached delete lesson")
+        axios.post("http://localhost:3000/deletelesson",
+            {"tutor_id": userID,
+            "lessonid": lessonID,
+            "clientlink": clientlink})
+        .then(res=>{
+            removeLesson(lessonID);
+    })}
+
     const debouncedUpdate = debounce(()=>{autoUpdate();},1000)
    
     return(
@@ -198,8 +209,17 @@ function CurrLesson({ lessonID, clientlink, changeLesson }){
                     style={{width: "100%", height:"150px" }}>
             </textarea>
             <br></br>
-          </form>
-
+        </form>
+            <button class="bg-red-600" onClick={()=>setDeleteOpen(true)}>
+                    Delete this lesson
+                </button>
+            <Modal open={deleteOpen} onClose={()=>{setDeleteOpen(false)}}>
+                <h2>Sure you want to delete this lesson?</h2>
+                This is a permanent action.<br/> 
+                Your student and parent will be unable to access the lesson as well. <br/><br/>
+                <button class="bg-red-600 text-black" onClick={()=>deleteLesson()}>I am certain I want to permanently delete this lesson</button>
+                <br/>
+            </Modal>
 
         </>
     )

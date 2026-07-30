@@ -151,6 +151,17 @@ app.post('/getlesson', async(req,res1)=>{
     }
 })
 
+app.post('/deletelesson', async(req,res1)=>{
+    try{
+        console.log("delete ran")
+        const lessons = await client.query("DELETE from lessons WHERE tutor_id=$1 AND clientlink =$2 AND lessonid=$3;", [req.body.tutor_id, req.body.clientlink, req.body.lessonid])
+        res1.status(200).send("deleted")
+    }
+    catch{
+        console.log("fail")
+    }
+})
+
 const allowed_updatelesson = new Set(["lessonid", "lessontime", "title", "privatenotes", "publicnotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
 app.post('/updatelesson', async(req,res1)=>{
     try{

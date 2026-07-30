@@ -63,6 +63,35 @@ app.post('/users/addclient', async(req,res1)=>{
     }
 })
 
+const allowed_updateclient = new Set(["description", "default_price", "privateNote", "publicNote"])
+app.post('/updateclient', async(req,res1)=>{
+    try{
+        console.log(req.body.changes)
+        var changes = " ";
+        var count = 1;
+        var params = [];
+        for (const key in req.body.changes){
+            if (!(allowed_updateclient.has(key))){
+                console.log(key)
+            }
+            else{
+                changes = changes + `${key} = $${count++}, `
+                params.push(req.body.changes[key])}
+        }
+        changes = changes.slice(0,-2) + " ";
+        console.log(changes.toString());
+        params.push(req.body.clientlink);
+        params.push(req.body.tutor_id);
+        console.log((`UPDATE client_links SET${changes}WHERE clientlink= $${count} AND tutor_id =$${count+1};`))
+        console.log(params)
+        const lesson = await client.query(`UPDATE client_links SET${changes}WHERE clientlink= $${count} AND tutor_id =$${count+1};`, params)
+        res1.status(200).send("success")
+    }
+    catch{
+        console.log("failedhere")
+    }
+})
+
 app.post('/home/getstudents', async(req,res1)=>{
     try{
         const students = await client.query("SELECT clientlink, description, default_price from client_links WHERE tutor_id=$1;", [req.body.tutor_id])
@@ -78,6 +107,17 @@ app.post('/studentdetail', async(req,res1)=>{
         const details = await client.query("SELECT * from client_links WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
         const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE tutor_id=$1 AND clientlink =$2 ORDER BY lessontime DESC;", [req.body.tutor_id, req.body.clientlink])
         res1.status(200).send({details: details.rows[0], lessons: lessons.rows})
+    }
+    catch{
+        console.log("fail")
+    }
+})
+
+app.post('/deleteclient', async(req,res1)=>{
+    try{
+        const details = await client.query("DELETE from client_links WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
+        const lessons = await client.query("DELETE from lessons WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
+        res1.status(200).send("deleted")
     }
     catch{
         console.log("fail")
@@ -111,7 +151,7 @@ app.post('/getlesson', async(req,res1)=>{
     }
 })
 
-const allowed = new Set(["lessonid", "lessontime", "title", "privatenotes", "publicnotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
+const allowed_updatelesson = new Set(["lessonid", "lessontime", "title", "privatenotes", "publicnotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
 app.post('/updatelesson', async(req,res1)=>{
     try{
         console.log(req.body.changes)
@@ -119,12 +159,13 @@ app.post('/updatelesson', async(req,res1)=>{
         var count = 1;
         var params = [];
         for (const key in req.body.changes){
-            if (!(allowed.has(key))){
+            if (!(allowed_updatelesson.has(key))){
                 console.log(key)
                 //res1.status(500).send("field name error")
             }
-            changes = changes + `${key} = $${count++}, `
-            params.push(req.body.changes[key])
+            else{
+                changes = changes + `${key} = $${count++}, `
+                params.push(req.body.changes[key])}
         }
         changes = changes.slice(0,-2) + " ";
         console.log(changes.toString());

@@ -42,7 +42,7 @@ function AddStudent(){
                     placeholder = "Default price for a lesson"
                     value = {price}
                     onChange = {e => {if (!isNaN(e.target.value)){setPrice(e.target.value)}}}
-            ></input>
+            />
             <p>Note: parent and student will be linked in the next page</p>
 
 

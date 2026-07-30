@@ -9,6 +9,10 @@ import UpperDetails from "./UpperDetails";
 
 function Student(){
     const nav = useNavigate()  
+    const [studentDetails, setSD] = useState({})
+    const [price, setPrice]=useState("")
+    const [lessons, setLessons] = useState([])
+    const [currLesson, setCurrLesson] = useState(-2)
     useEffect(()=> {
         if (!gotLessons){
             gotLessons = true;
@@ -19,10 +23,7 @@ function Student(){
     const clientlink  = useParams().clientlink;
     const tutorID = localStorage.getItem("id")
     let gotLessons = false;
-
-    const [studentDetails, setSD] = useState({})
-    const [lessons, setLessons] = useState([])
-    const [currLesson, setCurrLesson] = useState(-2)
+    
 
     const getLessons = async()=>{
         try{
@@ -30,6 +31,8 @@ function Student(){
         await axios.post("http://localhost:3000/studentdetail",{tutor_id: tutorID, clientlink: clientlink}).then(res =>{
             console.log(res)
             setSD(res.data.details)
+            setPrice(res.data.details.default_price)
+            console.log("set the details")
             setLessons(res.data.lessons)
         })}
         catch{
@@ -79,7 +82,7 @@ function Student(){
         if (currLesson==-1){
             return(
                 <CreateLesson 
-                    default_price={studentDetails.default_price} 
+                    default_price={price} 
                     clientlink={clientlink} 
                     onAdd={(newLesson)=>{addIntoList(newLesson)}}
                 />
@@ -136,14 +139,14 @@ function Student(){
             <div id="full-screen" class="h-lvh pb-10">
                 <NavBar/>
                 <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto">
-                    {()=>console.log(studentDetails)}
+                    {()=>{console.log("student side details");console.log(studentDetails)}}
                     <UpperDetails
                                 details = {studentDetails}
                                 clientlink={clientlink} 
                                 title={studentDetails.description} 
                                 price = {studentDetails.default_price}
                                 start = {new Date(studentDetails.start).toUTCString().slice(0,-13)}
-                                setPriceChange = {()=>{}}
+                                setPriceChange = {(new_price)=>{console.log("i ran"); setPrice(new_price); console.log(price)}}
                     />
                     
 

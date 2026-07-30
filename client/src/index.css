@@ -126,6 +126,12 @@ code {
   background: var(--code-bg);
 }
 
+textarea{
+  border-radius: 4px;
+  border: solid;
+  border-color: #08060d;
+}
+
 #navbar{
   background-color: #6194FA;
   color: white;

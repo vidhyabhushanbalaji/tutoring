@@ -5,6 +5,7 @@ import axios from 'axios'
 import CurrLesson from "./CurrLesson";
 import CreateLesson from "./CreateLesson";
 import NavBar from "./NavBar";
+import UpperDetails from "./UpperDetails";
 
 function Student(){
     const nav = useNavigate()  
@@ -120,6 +121,7 @@ function Student(){
                         lessons={lessons} 
                         changeLesson={(changedLesson)=>{updateList(changedLesson)}}
                     />
+                
                 )
             }
     }
@@ -133,17 +135,24 @@ function Student(){
             
             <div id="full-screen" class="h-lvh pb-10">
                 <NavBar/>
-                <div id="upper details" class="w-screen h-1/10 ">
-                    <h1 onClick={()=>setCurrLesson(-2)}>{studentDetails.description}</h1>
-                    <h2>Default Price: {studentDetails.default_price}</h2> 
-                    <h2>Tutoring since : {new Date(studentDetails.start).toUTCString().slice(0,-13)}</h2>
-                    <hr/>
+                <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto">
+                    {()=>console.log(studentDetails)}
+                    <UpperDetails
+                                details = {studentDetails}
+                                clientlink={clientlink} 
+                                title={studentDetails.description} 
+                                price = {studentDetails.default_price}
+                                start = {new Date(studentDetails.start).toUTCString().slice(0,-13)}
+                                setPriceChange = {()=>{}}
+                    />
+                    
+
                 </div>
                 
 
                 <div class="h-4/5 w-screen flex flex-row">
                         
-                        <div class="flex flex-col w-1/5 pl-4">
+                        <div class="flex flex-col w-1/5 pt-4 pl-4">
                             <div class="h-min">
                                 <h2>Lessons</h2>
                                 <button onClick={()=>setCurrLesson(-1)}>Add a new lesson</button>

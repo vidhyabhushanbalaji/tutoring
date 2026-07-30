@@ -38,7 +38,7 @@ function AddStudent(){
             value = {desc}
             onChange = {e => setDesc(e.target.value)}></input> 
             <br></br>
-            <input name = "price" 
+            £<input name = "price" 
                     placeholder = "Default price for a lesson"
                     value = {price}
                     onChange = {e => {if (!isNaN(e.target.value)){setPrice(e.target.value)}}}

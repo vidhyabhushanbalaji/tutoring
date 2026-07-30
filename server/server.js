@@ -52,8 +52,8 @@ app.post('/users/usersetup', async (req,res1) =>{
 
 app.post('/users/addclient', async(req,res1)=>{
     try{
-        console.log("INSERT INTO client_links (description, tutor_id, default_price) VALUES ($1, $2, $3) RETURNING clientlink;")
-        const addclient = await client.query("INSERT INTO client_links (description, tutor_id, default_price) VALUES ($1, $2, $3) RETURNING clientlink;", [req.body.description, req.body.tutor_id, req.body.price])
+        console.log("INSERT INTO client_links (description, tutor_id, default_price, start) VALUES ($1, $2, $3, $4) RETURNING clientlink;")
+        const addclient = await client.query("INSERT INTO client_links (description, tutor_id, default_price, start) VALUES ($1, $2, $3, $4) RETURNING clientlink;", [req.body.description, req.body.tutor_id, req.body.price, (new Date())])
         console.log(addclient)
         const newID = addclient.rows[0].clientlink
         res1.status(200).send({clientlink: newID})

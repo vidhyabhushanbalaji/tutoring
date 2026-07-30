@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 import CurrLesson from "./CurrLesson";
 import CreateLesson from "./CreateLesson";
-
+import NavBar from "./NavBar";
 
 function Student(){
     const nav = useNavigate()  
@@ -88,10 +88,10 @@ function Student(){
         else if (currLesson==-2){
             return(
                 <>
-                        <h2>No Lessons : {lessons.length}</h2>
+                        <h2>Total Number of Lessons : {lessons.length}</h2>
                         <h2>Unpaid Lessons: {lessons.filter((lesson)=>(!lesson.paid)).length}</h2>
                         <table class="w-full text-sm text-left rtl:text-right text-body">
-                            <thead class="bg-neutral-secondary-soft border-b border-default">
+                            <thead class="border-b">
                                 <th>lessontime</th>
                                 <th>title</th>
                                 <th>price</th>
@@ -130,36 +130,38 @@ function Student(){
 
     return (
         <>
-            <div id="full-screen" class="h-screen w-screen">
             
-                <div id="upper details" class="w-screen h-3/10">
-                    <button onClick={()=>nav("/home/")}>Home</button>
+            <div id="full-screen" class="h-lvh pb-10">
+                <NavBar/>
+                <div id="upper details" class="w-screen h-1/10 ">
                     <h1 onClick={()=>setCurrLesson(-2)}>{studentDetails.description}</h1>
                     <h2>Default Price: {studentDetails.default_price}</h2> 
-                    <h2>Tutoring since : {studentDetails.start}</h2>
+                    <h2>Tutoring since : {new Date(studentDetails.start).toUTCString().slice(0,-13)}</h2>
+                    <hr/>
                 </div>
                 
 
-                <div class="h-screen w-screen flex flex-row">
+                <div class="h-4/5 w-screen flex flex-row">
                         
-                        <div class="h-7/10 w-1/5 overflow-y-auto">
-                            <h3>Lessons</h3>
-                            <button onClick={()=>setCurrLesson(-1)}>Add a new lesson</button>
+                        <div class="flex flex-col w-1/5 pl-4">
+                            <div class="h-min">
+                                <h2>Lessons</h2>
+                                <button onClick={()=>setCurrLesson(-1)}>Add a new lesson</button>
+                            </div>
+                            <div class="overflow-y-auto">
                                 <ul>
-                                    <hr/>
                                     {lessons.map(({ lessontime, title, lessonid }) =>(
                                         
-                                        <li key={lessonid}>
-                                            <hr/>
-                                            <button onClick={() => setCurrLesson(lessonid)}>
+                                        <li onClick={() => setCurrLesson(lessonid)} key={lessonid}>
                                                 <b>{title}</b>
                                                 <p>{(new Date(lessontime).toUTCString().slice(0,-7))}</p>
-                                            </button>
                                         </li>
                                     ))}
                                 </ul>
+                            
+                            </div>
                         </div>
-                        <div class="w-4/5 overflow-y-auto">
+                        <div class="w-4/5 overflow-y-auto p-20 ">
                             {LessonArea(currLesson)}
                         </div>
                 </div>

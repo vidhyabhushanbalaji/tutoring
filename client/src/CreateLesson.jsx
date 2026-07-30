@@ -11,8 +11,6 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     // update with default price
     const [price, setPrice] = useState(default_price)
     const [paid, setPaid] = useState(false)
-    const [privateNotes, setPrivNotes] = useState('')
-    const [publicNotes, setPubNotes] = useState('')
     const [title, setTitle] = useState('')
     const [complete, setComplete] = useState(false)
     
@@ -22,8 +20,6 @@ function CreateLesson({ default_price, clientlink, onAdd}){
         axios.post("http://localhost:3000/addlesson",
         {"lessontime": time,
             "title": title,
-            "privatenotes": privateNotes,
-            "publicnotes": publicNotes,
             "price": price,
             "paid": paid,
             "tutor_id": userID,
@@ -54,49 +50,36 @@ function CreateLesson({ default_price, clientlink, onAdd}){
             value = {title}
             onChange = {e => setTitle(e.target.value)}
             style={{width: "400px", height:"40px" }}></input> 
-            <br></br>
+            <br/><br/><br/>
 
             <input name ="date"
             placeholder = "session date YYYY-MM-DD"
             type="datetime-local"
             value = {time}
             onChange = {e => setTime(e.target.value)}></input> 
-            <br></br>
+            <br/><br/><br/>
 
             <input name ="price"
             placeholder = "price"
             value = {price}
             onChange = {e => setPrice(e.target.value)}></input> 
-            <br></br>
-            <p>paid?</p>
+            <br/><br/><br/>
+            <label for ="paid">paid?</label>
             <input name ="paid" 
                     type="checkbox"
                     checked = {paid}
                     onChange = {e => setPaid(!paid)}
             ></input>
-             <p>complete?</p>
+            <br/><br/>
+            <label for ="complete">complete?</label>
             <input name ="complete" 
                     type="checkbox"
                     checked = {complete}
                     onChange = {e => setComplete(!complete)}
             ></input>
 
-            <textarea name ="publicNotes"
-                    placeholder = "general notes"
-                    value = {publicNotes}
-                    onChange = {e => setPubNotes(e.target.value)}
-                    style={{width: "100%", height:"200px" }}>
-            </textarea> 
-            <br></br>
-
-            <textarea name ="privNotes"
-                    placeholder = "private notes"
-                    value = {privateNotes}
-                    onChange = {e => setPrivNotes(e.target.value)}
-                    style={{width: "100%", height:"50px" }}>
-            </textarea> 
-            <br></br>
-            <button>Let's go!</button>
+            <br/><br/><br/>
+            <button>Add lesson</button>
           </form>
         </div>
       </section>

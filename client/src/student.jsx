@@ -76,7 +76,7 @@ function Student(){
     }
 
     function removeFromLessons(lessonID){
-        const newLessons = lessons.filter((lesson)=>{return (lesson.lessonid!=lessonID)})
+        const newLessons = lessons.filter((lesson)=>{return(lesson.lessonid!=lessonID)})
         setLessons(newLessons)
         setCurrLesson(-2)
     }
@@ -161,7 +161,7 @@ function Student(){
                 
 
                 <div class="h-4/5 w-screen flex flex-row">
-                        
+
                         <div class="flex flex-col w-1/5 pt-4 pl-4">
                             <div class="h-min">
                                 <h2>Lessons</h2>
@@ -180,7 +180,7 @@ function Student(){
                             
                             </div>
                         </div>
-                        <div class="w-4/5 overflow-y-auto p-20 ">
+                        <div class="w-4/5 pl-10 pr-10 pt-5 pb-5">
                             {LessonArea(currLesson)}
                         </div>
                 </div>

@@ -162,7 +162,7 @@ app.post('/deletelesson', async(req,res1)=>{
     }
 })
 
-const allowed_updatelesson = new Set(["lessonid", "lessontime", "title", "privatenotes", "publicnotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
+const allowed_updatelesson = new Set(["lessonid", "lessontime", "title", "privatenotes", "publicNotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
 app.post('/updatelesson', async(req,res1)=>{
     try{
         console.log(req.body.changes)

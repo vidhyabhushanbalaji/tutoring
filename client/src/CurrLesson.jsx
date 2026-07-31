@@ -71,11 +71,11 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
         return debouncedFn;
     }
 
-    function autoUpdate(){
+    async function autoUpdate(){
         console.log("i got called");
-        console.log(newChanges);
+        console.log(newChanges.current);
         console.log(changes);
-            axios.post("http://localhost:3000/updatelesson",
+            await axios.post("http://localhost:3000/updatelesson",
             {"lessonid": lessonID,
             "tutor_id": userID,
             "changes": newChanges.current}).then(res=> 
@@ -128,91 +128,107 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
    
     return(
         <>
-        <form style ={{
-            backgroundColor: `${saved}`
-        }}>
-            <input name ="title"
-                size = "75"
-                placeholder = "Title for session"
-                value = {title}
-                onChange = {e =>{
-                    setTitle(e.target.value);
-                    newChanges.current["title"]= e.target.value;
-                    alertChange();
-                    }}
-                style={{width: "400px", height:"40px" }}></input> 
-            <br></br>
+        <div class="flex flex-col h-full ">
+        
+        <p class="h-min" style ={{backgroundColor: `${saved}`}}>Saved Status</p>
 
-            <input name ="date"
-            placeholder = "session date YYYY-MM-DD"
-            type="datetime-local"
-            value = {time}
-            onChange = {e => {
-                setTime(e.target.value);
-                newChanges.current["lessontime"]=e.target.value;
-                alertChange();}}></input> 
-            <br></br>
+        <div class="h-max overflow-y-auto">
+            <form >
+                <div class="flex flex-col ">
+                    <input 
+                        class = "w-full text-6xl h-auto"
+                        name ="title"
+                        placeholder = "Title for session"
+                        maxLength="127"
+                        value = {title}
+                        onChange = {e =>{
+                            setTitle(e.target.value);
+                            newChanges.current["title"]= e.target.value;
+                            alertChange();
+                            }}
+                        ></input> 
+                    <br></br>
 
-            <input name ="price"
-            placeholder = "price"
-            value = {price}
-            onChange = {e => {
-                setPrice(e.target.value);
-                newChanges.current["price"] = e.target.value; 
-                alertChange();           
-            }}></input> 
-            <br></br>
+                    <div class="flex flex-row">
+                        <input 
+                        name ="date"
+                        class="w-1/3"
+                        placeholder = "session date YYYY-MM-DD"
+                        type="datetime-local"
+                        value = {time}
+                        onChange = {e => {
+                            setTime(e.target.value);
+                            newChanges.current["lessontime"]=e.target.value;
+                            alertChange();}}/>
+                    
+                        <input 
+                        name ="price"
+                        class="w-1/3"
+                        placeholder = "price"
+                        value = {price}
+                        onChange = {e => {
+                            setPrice(e.target.value);
+                            newChanges.current["price"] = e.target.value; 
+                            alertChange();           
+                        }}/>
+                    </div>
+                    <br></br>
 
-            <p>paid?</p>
-            <input name ="paid" 
-                    type="checkbox"
-                    checked = {paid}
-                    onChange = {e => {
-                        setPaid(!paid);
-                        newChanges.current["paid"] = !paid;
-                        alertChange();}}
-            ></input>
+                    <p>paid?</p>
+                    <input name ="paid" 
+                        type="checkbox"
+                        checked = {paid}
+                        onChange = {e => {
+                            setPaid(!paid);
+                            newChanges.current["paid"] = !paid;
+                            alertChange();}}
+                    ></input>
 
-            <p>complete?</p>
-            <input name ="complete" 
-                    type="checkbox"
-                    checked = {complete}
-                    onChange = {e => {
-                        setComplete(!complete);
-                        newChanges.current["complete"] = !complete;
-                        alertChange();}}
-            ></input>
+                    <p>complete?</p>
+                    <input name ="complete" 
+                        type="checkbox"
+                        checked = {complete}
+                        onChange = {e => {
+                            setComplete(!complete);
+                            newChanges.current["complete"] = !complete;
+                            alertChange();}}
+                    ></input>
 
-            <br></br>
+                    <br></br>
 
-            <textarea name ="publicNotes"
-                    placeholder = "general notes"
-                    value = {publicNotes}
-                    onChange = {e => {
-                        setPubNotes(e.target.value);
-                        newChanges.current["publicNotes"]=e.target.value;
-                        alertChange();
-                    }}
-                    style={{width: "100%", height:"200px" }}>
-            </textarea> 
-            <br></br>
+                    <textarea name ="publicNotes"
+                        placeholder = "general notes"
+                        maxLength="3000"
+                        value = {publicNotes}
+                        onChange = {e => {
+                            setPubNotes(e.target.value);
+                            newChanges.current["publicNotes"]=e.target.value;
+                            alertChange();
+                        }}
+                        style={{width: "100%", height:"200px" }}>
+                    </textarea> 
+                    <br></br>
 
-            <textarea name ="privNotes"
-                    placeholder = "private notes"
-                    value = {privateNotes}
-                    onChange = {e => {
-                        setPrivNotes(e.target.value);
-                        newChanges.current["privateNotes"]=e.target.value;
-                        alertChange();
-                        
-                    }}
-                    style={{width: "100%", height:"150px" }}>
-            </textarea>
-            <br></br>
-        </form>
-            <button class="bg-red-600" onClick={()=>setDeleteOpen(true)}>
+                    <textarea name ="privNotes"
+                        placeholder = "private notes"
+                        maxLength="2000"
+                        value = {privateNotes}
+                        onChange = {e => {
+                            setPrivNotes(e.target.value);
+                            newChanges.current["privateNotes"]=e.target.value;
+                            alertChange();
+                            
+                        }}
+                        style={{width: "100%", height:"150px" }}>
+                    </textarea>
+                    <br></br>
+                </div>
+            </form>
+            <button class="bg-red-600 w-full" onClick={()=>setDeleteOpen(true)}>
                     Delete this lesson
-                </button>
+            </button>
+            </div>
+            
             <Modal open={deleteOpen} onClose={()=>{setDeleteOpen(false)}}>
                 <h2>Sure you want to delete this lesson?</h2>
                 This is a permanent action.<br/> 
@@ -220,7 +236,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                 <button class="bg-red-600 text-black" onClick={()=>deleteLesson()}>I am certain I want to permanently delete this lesson</button>
                 <br/>
             </Modal>
-
+        </div>
         </>
     )
 }

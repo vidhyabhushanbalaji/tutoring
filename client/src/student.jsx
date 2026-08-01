@@ -12,7 +12,7 @@ function Student(){
     const [studentDetails, setSD] = useState({})
     const [price, setPrice]=useState("")
     const [lessons, setLessons] = useState([])
-    const [currLesson, setCurrLesson] = useState(-2)
+    const [currLesson, setCurrLesson] = useState(-1)
     useEffect(()=> {
         if (!gotLessons){
             gotLessons = true;
@@ -88,7 +88,7 @@ function Student(){
         if (currLesson==-1){
             return(
                 <CreateLesson 
-                    default_price={price} 
+                    default_price={studentDetails.default_price} 
                     clientlink={clientlink} 
                     onAdd={(newLesson)=>{addIntoList(newLesson)}}
                 />
@@ -145,7 +145,7 @@ function Student(){
             
             <div id="full-screen" class="h-lvh pb-10">
                 <NavBar/>
-                <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto">
+                <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-100">
                     {()=>{console.log("student side details");console.log(studentDetails)}}
                     <UpperDetails
                                 details = {studentDetails}
@@ -160,27 +160,45 @@ function Student(){
                 </div>
                 
 
-                <div class="h-4/5 w-screen flex flex-row">
+                <div class="h-4/5 w-screen flex flex-row bg-gray-50">
 
                         <div class="flex flex-col w-1/5 pt-4 pl-4">
-                            <div class="h-min">
-                                <h2>Lessons</h2>
-                                <button onClick={()=>setCurrLesson(-1)}>Add a new lesson</button>
+                            <div class="h-min mb-2 content-center">
+                                <h2 className="font-semibold">Lessons</h2>
+                                <button 
+                                onClick={()=>setCurrLesson(-1)}
+                                className="w-4/5 justify-center bg-blue-400 hover:bg-blue-600 text-white font-medium border-black">
+                                    <span className="text-lg">+</span> Add a new lesson
+                                </button>
                             </div>
-                            <div class="overflow-y-auto">
-                                <ul>
-                                    {lessons.map(({ lessontime, title, lessonid }) =>(
-                                        
-                                        <li onClick={() => setCurrLesson(lessonid)} key={lessonid}>
+                            <div class="overflow-y-auto w-auto content-center mb-2">
+                                {lessons.length===0 ? 
+                                    (<p className="text-black text-center">
+                                        Add your first lesson!
+                                    </p>) 
+                                    : 
+                                    (
+                                        lessons.map(({ lessontime, title, lessonid }) =>(
+                                        <div 
+                                            onClick={() => setCurrLesson(lessonid)} 
+                                            key={lessonid}
+                                            className={`w-full cursor-pointed rounded-xl shadow-sm content-center mb-2 border
+                                            ${currLesson===lessonid ?
+                                                'bg-blue-200 ring-2 ring-blue-300'
+                                                :"bg-blue-50 hover:translate-y-0.5"
+                                            }`}>
                                                 <b>{title}</b>
                                                 <p>{(new Date(lessontime).toUTCString().slice(0,-7))}</p>
-                                        </li>
-                                    ))}
-                                </ul>
+                                        </div>
+
+                                    )))
+                                    
+                                    }
+                                
                             
                             </div>
                         </div>
-                        <div class="w-4/5 pl-10 pr-10 pt-5 pb-5">
+                        <div class="w-4/5 ml-5 mr-5 mt-5 mb-5 border">
                             {LessonArea(currLesson)}
                         </div>
                 </div>

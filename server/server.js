@@ -53,7 +53,7 @@ app.post('/users/usersetup', async (req,res1) =>{
 app.post('/users/addclient', async(req,res1)=>{
     try{
         console.log("INSERT INTO client_links (description, tutor_id, default_price, start) VALUES ($1, $2, $3, $4) RETURNING clientlink;")
-        const addclient = await client.query("INSERT INTO client_links (description, tutor_id, default_price, start) VALUES ($1, $2, $3, $4) RETURNING clientlink;", [req.body.description, req.body.tutor_id, req.body.price, (new Date())])
+        const addclient = await client.query("INSERT INTO client_links (description, tutor_id, default_price, start) VALUES ($1, $2, $3, $4) RETURNING clientlink;", [req.body.description, req.body.tutor_id, req.body.price, (new Date()).toISOString()])
         console.log(addclient)
         const newID = addclient.rows[0].clientlink
         res1.status(200).send({clientlink: newID})
@@ -128,9 +128,9 @@ app.post('/deleteclient', async(req,res1)=>{
 app.post('/addlesson', async(req,res1)=>{
     try{
 
-        console.log("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING lessonid")
+        console.log("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink, publicnotes, privatenotes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING lessonid")
 
-        newlesson = await client.query("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING lessonid",[req.body.lessontime, req.body.title, req.body.price, req.body.paid, req.body.complete, req.body.tutor_id, req.body.clientlink])
+        newlesson = await client.query("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink, publicnotes, privatenotes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING lessonid",[req.body.lessontime, req.body.title, req.body.price, req.body.paid, req.body.complete, req.body.tutor_id, req.body.clientlink, "", ""])
         console.log(newlesson);
         const newID = newlesson.rows[0].lessonid;
         res1.status(200).send({lessonID: newID});
@@ -162,7 +162,7 @@ app.post('/deletelesson', async(req,res1)=>{
     }
 })
 
-const allowed_updatelesson = new Set(["lessonid", "lessontime", "title", "privatenotes", "publicNotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
+const allowed_updatelesson = new Set(["lessonid", "lessontime", "title", "privateNotes", "publicNotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
 app.post('/updatelesson', async(req,res1)=>{
     try{
         console.log(req.body.changes)
@@ -172,7 +172,6 @@ app.post('/updatelesson', async(req,res1)=>{
         for (const key in req.body.changes){
             if (!(allowed_updatelesson.has(key))){
                 console.log(key)
-                //res1.status(500).send("field name error")
             }
             else{
                 changes = changes + `${key} = $${count++}, `

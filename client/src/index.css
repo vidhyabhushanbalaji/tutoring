@@ -127,9 +127,12 @@ code {
 }
 
 textarea{
-  border-radius: 4px;
+  border-radius: 10px;
   border: solid;
-  border-color: #08060d;
+  border-width: 1px;
+  border-color: #9ca3af;
+  margin-bottom: 10px;
+  background-color: #f5f5f5;
 }
 
 #navbar{

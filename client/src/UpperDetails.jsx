@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal'
 import axios from 'axios'
+import { Save, Trash2, SquarePen } from 'lucide-react';
 
 
 function UpperDetails({ title, details, setPriceChange}){
@@ -106,15 +107,15 @@ function UpperDetails({ title, details, setPriceChange}){
                     }}
                     />
                 </div>
-                <button class="h-full w-10 bg-green-300" onClick={()=>
+                <button class="h-full w-10 bg-green-300 mr-1" onClick={()=>
                     {   setEditsOpen(false);
                         updateClient();
                         setPrice("£"+price);
                     }}>
-                    S<br/>A<br/>V<br/>E
+                    <Save size={16}/>
                 </button>
                 <button class="h-full w-10 bg-red-600" onClick={()=>setDeleteOpen(true)}>
-                    D<br/>E<br/>L<br/>E<br/>T<br/>E
+                    <Trash2 size={16}/>
                 </button>
 
             </div>
@@ -154,7 +155,7 @@ function UpperDetails({ title, details, setPriceChange}){
                         {setEditsOpen(true);
                         setPrice(price.slice(1))
                     }}>
-                    E<br/>D<br/>I<br/>T
+                    <SquarePen />
                 </button>
 
             </div>
@@ -172,7 +173,7 @@ function UpperDetails({ title, details, setPriceChange}){
                 All lesson records will be deleted <br/>
                 This is a permanent action.<br/> 
                 Your student and parent will be unable to access records as well. <br/><br/>
-                <button class="bg-red-600 text-black" onClick={()=>deleteClient()}>I am certain I want to permanently delete this student record</button>
+                <button class="bg-red-600 text-black mb-2" onClick={()=>deleteClient()}>I am certain I want to permanently delete this student record</button>
                 <br/>
             </Modal>
         </>

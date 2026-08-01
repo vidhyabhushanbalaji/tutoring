@@ -5,6 +5,7 @@ import Login from './Login';
 import Setup from './Setup';
 import Home from './home';
 import Student from './student'
+import Test from './test';
 import axios from 'axios'
 //import AuthProvider from './hooks/AuthProvider';
 
@@ -18,6 +19,7 @@ function App() {
             <Route exact path="/home" element={<Home/>}/>
             <Route exact path="/" element={<Login/>}/>
             <Route exact path="/student/:clientlink" element={<Student />}/>
+            <Route exact path="/test" element={<Test/>}/>
           </Routes>
         </BrowserRouter>
 

@@ -20,7 +20,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
     const [privateNotes, setPrivNotes] = useState('')
     const [publicNotes, setPubNotes] = useState('')
     const [title, setTitle] = useState('')
-    const [saved, setSaved] = useState('blue')
+    const [saved, setSaved] = useState(true)
     const newChanges = useRef({});
 
     var changes = {};
@@ -81,7 +81,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
             "changes": newChanges.current}).then(res=> 
             {if (res.status == 200){
                 console.log("updated");
-                setSaved('blue');
+                setSaved(true);
                 let listUpdate = {
                     title: title,
                     lessontime: time,
@@ -110,7 +110,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
             );
         };
     function alertChange(){
-        if (saved=='blue') setSaved('red');
+        if (saved) setSaved(false);
         debouncedUpdate();
     }
 
@@ -130,13 +130,14 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
         <>
         <div class="flex flex-col h-full ">
         
-        <p class="h-min" style ={{backgroundColor: `${saved}`}}>Saved Status</p>
+        <p class="h-min text-white text-left" style ={{backgroundColor: saved ? '#6194FA' : 'red' }}>
+            {`Saved Status: ${saved ? "All saved" : "Saving..."}`} </p>
 
-        <div class="h-max overflow-y-auto">
+        <div class="h-max overflow-y-auto bg-gray-50 p-5">
             <form >
                 <div class="flex flex-col ">
                     <input 
-                        class = "w-full text-6xl h-auto"
+                        class = "w-full text-6xl h-auto font-semibold bg-transparent border-none"
                         name ="title"
                         placeholder = "Title for session"
                         maxLength="127"
@@ -147,12 +148,11 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                             alertChange();
                             }}
                         ></input> 
-                    <br></br>
 
-                    <div class="flex flex-row">
+                    <div class="flex flex-row gap-4 pt-4">
                         <input 
                         name ="date"
-                        class="w-1/3"
+                        class="w-1/3 rounded-md border border-gray-400"
                         placeholder = "session date YYYY-MM-DD"
                         type="datetime-local"
                         value = {time}
@@ -163,7 +163,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                     
                         <input 
                         name ="price"
-                        class="w-1/3"
+                        class="w-1/3 rounded-md border border-gray-400"
                         placeholder = "price"
                         value = {price}
                         onChange = {e => {
@@ -172,43 +172,57 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                             alertChange();           
                         }}/>
                     </div>
-                    <br></br>
 
-                    <p>paid?</p>
-                    <input name ="paid" 
-                        type="checkbox"
-                        checked = {paid}
-                        onChange = {e => {
-                            setPaid(!paid);
-                            newChanges.current["paid"] = !paid;
-                            alertChange();}}
-                    ></input>
+                    <div class="flex flex-row gap-4 pt-4">
+                    <label className={`flex-1 flex items-center justify-center gap-2 rounded-lg font-medium cursor-pointer border transition-colors ${paid ? 'bg-green-100 border-green-300 text-green-800' : 'bg-gray-200 text-gray-500'}`}>
+                        paid
+                        <input name ="paid"
+                            type="checkbox"
+                            checked = {paid}
+                            onChange = {e => {
+                                setPaid(!paid);
+                                newChanges.current["paid"] = !paid;
+                                alertChange();}}
+                        />
+                    </label>
 
-                    <p>complete?</p>
-                    <input name ="complete" 
-                        type="checkbox"
-                        checked = {complete}
-                        onChange = {e => {
-                            setComplete(!complete);
-                            newChanges.current["complete"] = !complete;
-                            alertChange();}}
-                    ></input>
+                        <label className={`flex-1 flex items-center justify-center gap-2 rounded-lg font-medium cursor-pointer border transition-colors ${complete ? 'bg-blue-100 border-blue-300 text-green-800' : 'bg-gray-200 text-gray-500'}`}>
+                            complete?
+                            <input name ="complete" 
+                                type="checkbox"
+                                checked = {complete}
+                                onChange = {e => {
+                                    setComplete(!complete);
+                                    newChanges.current["complete"] = !complete;
+                                    alertChange();}}
+                            />
+                        </label>
 
-                    <br></br>
+                    </div>
 
+                    <div className={`pt-5 text-black text-left`}>
+                    <div className={`flex flex-row justify-between`}>
+                        Student and Parent notes: 
+                    <span className="text-xs text-gray-400">{publicNotes.length}/3000</span>
+                    </div>
                     <textarea name ="publicNotes"
                         placeholder = "general notes"
                         maxLength="3000"
                         value = {publicNotes}
+                        className='h-40 w-full'
                         onChange = {e => {
                             setPubNotes(e.target.value);
                             newChanges.current["publicNotes"]=e.target.value;
                             alertChange();
                         }}
-                        style={{width: "100%", height:"200px" }}>
+                    >
                     </textarea> 
-                    <br></br>
+                    </div>
 
+                    <div className={`pt-5 text-black text-left flex flex-row justify-between`}>
+                    Private notes: only you can see
+                    <span className="text-xs text-gray-400">{privateNotes.length}/2000</span>
+                    </div>
                     <textarea name ="privNotes"
                         placeholder = "private notes"
                         maxLength="2000"
@@ -217,14 +231,14 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                             setPrivNotes(e.target.value);
                             newChanges.current["privateNotes"]=e.target.value;
                             alertChange();
-                            
                         }}
-                        style={{width: "100%", height:"150px" }}>
+                        className='h-32 w-full'
+                    >
                     </textarea>
                     <br></br>
                 </div>
             </form>
-            <button class="bg-red-600 w-full" onClick={()=>setDeleteOpen(true)}>
+            <button class="bg-gray-300 w-full" onClick={()=>setDeleteOpen(true)}>
                     Delete this lesson
             </button>
             </div>

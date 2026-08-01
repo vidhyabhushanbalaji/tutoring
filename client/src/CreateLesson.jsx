@@ -41,45 +41,77 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     return(
        
        <section id="newLesson">
-        <div id="newLesson">
+          <div class="flex flex-col ">
+            <p className='justify-center h-min w-full text-white text-4xl pb-6 bg-blue-400 rounded-xl content-center border-black p-4 mb-8'>New Lesson:</p>
+            <form>
+                    <input 
+                        class = "w-full text-6xl h-auto font-semibold bg-transparent border-none mb-10 pl-4 pr-4"
+                        name ="title"
+                        placeholder = "Title for the new session"
+                        maxLength="127"
+                        value = {title}
+                        onChange = {e =>{
+                            setTitle(e.target.value);
+                            newChanges.current["title"]= e.target.value;
+                            alertChange();
+                            }}
+                        ></input> 
 
-          <form onSubmit={handleSubmit}>
-            <input name ="title"
-            size = "75"
-            placeholder = "Title for session"
-            value = {title}
-            onChange = {e => setTitle(e.target.value)}
-            style={{width: "400px", height:"40px" }}></input> 
-            <br/><br/><br/>
+                    <div class="flex flex-row gap-4 pt-4 justify-center h-full mb-10">
+                        <input 
+                        name ="date"
+                        class="w-1/3 rounded-md border border-gray-400"
+                        placeholder = "session date YYYY-MM-DD"
+                        type="datetime-local"
+                        value = {time}
+                        onChange = {e => {
+                            setTime(e.target.value);
+                            newChanges.current["lessontime"]=e.target.value;
+                            alertChange();}}/>
+                    
+                    
+                        <input 
+                        name ="price"
+                        class="w-1/3 rounded-md border border-gray-400"
+                        placeholder = "price"
+                        value = {price}
+                        onChange = {e => {
+                            setPrice(e.target.value);
+                            newChanges.current["price"] = e.target.value; 
+                            alertChange();           
+                        }}/>
+                    </div>
 
-            <input name ="date"
-            placeholder = "session date YYYY-MM-DD"
-            type="datetime-local"
-            value = {time}
-            onChange = {e => setTime(e.target.value)}></input> 
-            <br/><br/><br/>
+                    <div class="flex flex-row gap-4 pt-4 pb-4 mb-10 mr-5 ml-5">
+                    <label className={`flex-1 flex items-center justify-center gap-2 rounded-lg font-medium cursor-pointer border transition-colors p-5  text-xl ${paid ? 'bg-green-100 border-green-300 text-green-800' : 'bg-gray-200 text-gray-500'}`}>
+                        paid?
+                        <input name ="paid"
+                            type="checkbox"
+                            checked = {paid}
+                            onChange = {e => {
+                                setPaid(!paid);
+                                newChanges.current["paid"] = !paid;
+                                alertChange();}}
+                        />
+                    </label>
 
-            <input name ="price"
-            placeholder = "price"
-            value = {price}
-            onChange = {e => setPrice(e.target.value)}></input> 
-            <br/><br/><br/>
-            <label for ="paid">paid?</label>
-            <input name ="paid" 
-                    type="checkbox"
-                    checked = {paid}
-                    onChange = {e => setPaid(!paid)}
-            ></input>
-            <br/><br/>
-            <label for ="complete">complete?</label>
-            <input name ="complete" 
-                    type="checkbox"
-                    checked = {complete}
-                    onChange = {e => setComplete(!complete)}
-            ></input>
+                        <label className={`flex-1 flex items-center justify-center gap-2 rounded-lg font-medium cursor-pointer border transition-colors p-5 text-xl ${complete ? 'bg-blue-100 border-blue-300 text-green-800' : 'bg-gray-200 text-gray-500'}`}>
+                            complete?
+                            <input name ="complete" 
+                                type="checkbox"
+                                checked = {complete}
+                                onChange = {e => {
+                                    setComplete(!complete);
+                                    newChanges.current["complete"] = !complete;
+                                    alertChange();}}
+                            />
+                        </label>
 
-            <br/><br/><br/>
-            <button>Add lesson</button>
+                    </div>
+            <div className=''></div>
+            <button class="bg-blue-400 w-5/6 text-white text-xl ml-5">
+              Add this lesson!
+            </button>
           </form>
         </div>
       </section>

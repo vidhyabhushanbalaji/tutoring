@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 import CurrLesson from "./CurrLesson";
 import CreateLesson from "./CreateLesson";
-import NavBar from "./NavBar";
+import NavBar from "../NavBar";
 import UpperDetails from "./UpperDetails";
 
 function Student(){

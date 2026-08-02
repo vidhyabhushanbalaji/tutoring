@@ -4,8 +4,6 @@ Content-Type: application/json
 {
     "lessontime": "2025-04-03T12:00:00.000Z",
     "title": "my new lesson",
-    "privatenotes": "yes",
-    "publicnotes": "no",
     "price": "$2.00",
     "paid": true,
     "tutor_id": 22,

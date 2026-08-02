@@ -30,6 +30,7 @@ function Setup(){
     .then(res=> 
       {if (res.status == 200){
           localStorage.setItem("id", res.data.id)
+          localStorage.setItem("status", status)
           nav('/home')}
       
     }).catch(err =>

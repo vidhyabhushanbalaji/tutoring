@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
-import Modal from './Modal'
+import Modal from '../Modal'
 import axios from 'axios'
 import { Save, Trash2, SquarePen } from 'lucide-react';
 

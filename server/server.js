@@ -63,6 +63,46 @@ app.post('/users/addclient', async(req,res1)=>{
     }
 })
 
+function genJoinCode(){
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i =0; i<8; i++){
+        result=result+ chars.charAt(Math.floor(Math.random()*chars.length));
+    }
+    return result;
+}
+
+
+app.post('/users/joinparent', async(req,res1)=>{
+    console.log("here")
+    try{
+        const check = await client.query("SELECT * from join_codes WHERE clientlink=$1", [req.body.clientlink]);
+        
+        if (check.rowCount==0){
+            const joincode = genJoinCode()
+            const expiry = new Date (Date.now()+(72*60*60*1000))
+            const addParent = await client.query("INSERT INTO join_codes (join_code, expiry, clientlink) VALUES ($1, $2, $3) RETURNING join_code_id", [joincode, expiry.toISOString(), req.body.clientlink])
+            const newID = addParent.rows[0].join_code_id;
+            res1.status(200).send({"join_code_id": newID, "join_code": joincode, "expiry": expiry })
+        }
+        else{
+            expiry = new Date(check.rows[0].expiry);
+            now = new Date();
+            if(now>expiry){
+                await client.query("DELETE from join_codes WHERE clientlink = $1;", [req.body.clientlink])
+                res1.status(200).send({"join_code_id": newID, "join_code": joincode, "expiry": expiry })
+            }
+
+            res1.status(500)
+        }
+    }
+    catch{
+        console.log("fail")
+    }
+})
+
+
+
 const allowed_updateclient = new Set(["description", "default_price", "privateNote", "publicNote"])
 app.post('/updateclient', async(req,res1)=>{
     try{
@@ -105,7 +145,20 @@ app.post('/home/getstudents', async(req,res1)=>{
 app.post('/studentdetail', async(req,res1)=>{
     try{
         const details = await client.query("SELECT * from client_links WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
-        const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE tutor_id=$1 AND clientlink =$2 ORDER BY lessontime DESC;", [req.body.tutor_id, req.body.clientlink])
+        const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE clientlink =$1 ORDER BY lessontime DESC;", [req.body.clientlink])
+        res1.status(200).send({details: details.rows[0], lessons: lessons.rows})
+    }
+    catch{
+        console.log("fail")
+    }
+})
+
+app.post('/tutoringdetail', async(req,res1)=>{
+    try{
+        const details = await client.query("SELECT description, default_price, public_note, start from client_links WHERE clientlink =$1;", [req.body.clientlink])
+        const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE clientlink =$1 ORDER BY lessontime DESC;", [req.body.clientlink])
+        console.log(details)
+        console.log(lessons)
         res1.status(200).send({details: details.rows[0], lessons: lessons.rows})
     }
     catch{
@@ -144,6 +197,16 @@ app.post('/addlesson', async(req,res1)=>{
 app.post('/getlesson', async(req,res1)=>{
     try{
         const lesson = await client.query("SELECT * from lessons WHERE lessonid=$1 AND tutor_id =$2;", [req.body.lessonid, req.body.tutor_id])
+        res1.status(200).send(lesson.rows[0])
+    }
+    catch{
+        console.log("failedhere")
+    }
+})
+
+app.post('/tutoring/getlesson', async(req,res1)=>{
+    try{
+        const lesson = await client.query("SELECT lessontime, title, price, paid, complete, tutor_id, clientlink, publicnotes from lessons WHERE lessonid=$1 AND clientlink =$2;", [req.body.lessonid, req.body.clientlink])
         res1.status(200).send(lesson.rows[0])
     }
     catch{

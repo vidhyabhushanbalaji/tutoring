@@ -50,4 +50,4 @@ function AddStudent(){
           </form>
     )
 }
-export default AddStudent
+export default AddStudent;

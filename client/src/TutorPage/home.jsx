@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import Modal from './Modal'
+import Modal from '../Modal'
 import AddStudent from './addstudent'
 import axios from 'axios'
 import { Link } from "react-router-dom"

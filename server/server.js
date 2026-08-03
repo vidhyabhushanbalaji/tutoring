@@ -66,6 +66,36 @@ app.post('/users/usersetup', async (req,res1) =>{
     }
 })
 
+const allowed_updateuser = new Set(["first_name", "last_name"]) 
+app.post('/users/updateuser', async (req,res1) =>{
+    try{
+        console.log(req.body.changes)
+        var changes = " ";
+        var count = 1;
+        var params = [];
+        for (const key in req.body.changes){
+            if (!(allowed_updateuser.has(key))){
+                console.log(key)
+            }
+            else{
+                changes = changes + `${key} = $${count++}, `
+                params.push(req.body.changes[key])}
+        }
+        changes = changes.slice(0,-2) + " ";
+        console.log(changes.toString());
+        params.push(req.body.userID);
+        console.log((`UPDATE users SET${changes} WHERE id= $${count};`))
+        console.log(params)
+        await client.query(`UPDATE users SET${changes} WHEREid= $${count};`, params)
+        res1.status(200).send("success")
+    }
+        
+        
+    catch{
+        res1.status(500).send("error")
+    }
+})
+
 
 app.post('/users/addclient', async(req,res1)=>{
     try{
@@ -143,8 +173,11 @@ app.post('/updateclient', async(req,res1)=>{
 
 app.post('/home/getstudents', async(req,res1)=>{
     try{
-        const students = await client.query("SELECT clientlink, description, default_price from client_links WHERE tutor_id=$1;", [req.body.tutor_id])
-        res1.status(200).send({students: students.rows})
+        const students = await client.query("SELECT clientlink, description, default_price, start from client_links WHERE tutor_id=$1 ORDER BY start ASC;", [req.body.tutor_id])
+        const tutor = await client.query("SELECT users.first_name, users.last_name, auth.email from auth JOIN users ON auth.id=users.id WHERE users.id =$1;", [req.body.tutor_id])
+        console.log(tutor)
+        const unpaid = await client.query("SELECT client_links.clientlink, client_links.description, lessons.lessonid, lessons.lessontime, lessons.title, lessons.price from lessons JOIN client_links ON lessons.clientlink = client_links.clientlink WHERE lessons.tutor_id = $1 AND lessons.paid=false  ORDER BY lessons.lessontime DESC;", [req.body.tutor_id])
+        res1.status(200).send({students: students.rows, tutor: tutor.rows[0], unpaid: unpaid.rows})
     }
     catch{
         console.log("fail")

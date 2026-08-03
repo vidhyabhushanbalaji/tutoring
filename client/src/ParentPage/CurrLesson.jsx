@@ -29,7 +29,10 @@ function CurrLesson({ lessonID, clientlink}){
         if (lessonID!=-1){
             console.log("here3")
             try{
-            await axios.post("http://localhost:3000/tutoring/getlesson",{tutor_id: userID, lessonid: lessonID, clientlink: clientlink}).then(res =>{
+            await axios.post("http://localhost:3000/tutoring/getlesson",{
+                    tutor_id: userID, 
+                    lessonid: lessonID, 
+                    clientlink: clientlink}).then(res =>{
                 console.log("here")
                 setTime(res.data.lessontime.substring(0,16))
                 setPrice(res.data.price)

@@ -6,7 +6,7 @@ import axios from 'axios'
 function AddStudent(){
     const nav = useNavigate()  
     const [desc, setDesc] = useState('')
-    const [price, setPrice] = useState(0)
+    const [price, setPrice] = useState(0.00)
 
     const userID = localStorage.getItem("id")
 
@@ -33,21 +33,30 @@ function AddStudent(){
 
     return(
         <form onSubmit={handleSubmit}>
+            <div className='flex flex-col'>
+            <h2 className='text-gray-500 text-4xl mb-4'>Add a new tutoring student</h2>
             <input name ="description"
-            placeholder = "Title for your new tutoring client"
-            value = {desc}
-            onChange = {e => setDesc(e.target.value)}></input> 
-            <br></br>
-            £<input name = "price" 
-                    placeholder = "Default price for a lesson"
-                    value = {price}
-                    onChange = {e => {if (!isNaN(e.target.value)){setPrice(e.target.value)}}}
-            />
-            <p>Note: parent and student will be linked in the next page</p>
+                placeholder = "Description for your new tutoring client"
+                value = {desc}
+                onChange = {e => setDesc(e.target.value)}
+                className='w-full'/>
+            <p className='text-xs mb-4'>Note: you can link a parent to this student in the next page</p>    
+            
+            <div>
+                Default Lesson price: £<input name = "price" 
+                        placeholder = "Default price for a lesson"
+                        value = {price}
+                        onChange = {e => {if (!isNaN(e.target.value)){setPrice(e.target.value)}}}
+                />
+            </div>
+
+            <br/>            
 
 
-            <button>Add new tutoring role</button>
+            <button className='my-4 hover:bg-blue-300'>Add new tutoring role</button>
+            </div>
           </form>
     )
 }
 export default AddStudent;
+

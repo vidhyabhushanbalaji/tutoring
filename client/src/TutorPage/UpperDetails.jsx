@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Modal from '../Modal'
 import axios from 'axios'
-import { Save, Trash2, SquarePen } from 'lucide-react';
+import { Save, Trash2, SquarePen, X } from 'lucide-react';
 
 
-function UpperDetails({ title, details, setPriceChange}){
+function UpperDetails({ details, setPriceChange}){
     let detailsSet = false;
     const nav = useNavigate()  
     const userID = localStorage.getItem("id")
@@ -16,6 +16,15 @@ function UpperDetails({ title, details, setPriceChange}){
     const [publicNote, setPublicNote] =useState("")
     const [privateNote, setPrivateNote] =useState("")
     const [deleteOpen, setDeleteOpen] = useState(false)
+    const [parentLinked, setParentLinked] = useState(false)
+    
+    const [parentFirstName, setParentFirstName] = useState("")
+    const [parentLastName, setParentLastName] = useState("")
+    const [parentEmail, setParentEmail] = useState("")
+    const [authCode, setAuthCode] = useState("")
+    const [removeParentOpen, setRemoveParentOpen] = useState(false)
+    const [addParentOpen, setAddParentOpen] = useState(false)
+
 
     const newChanges = useRef({});
 
@@ -26,21 +35,35 @@ function UpperDetails({ title, details, setPriceChange}){
                 setPrice(details.default_price)
                 setPublicNote(details.public_note);
                 setPrivateNote(details.private_note);
+                var parent = {...details.parent}
+                console.log(parent)
+                if(Object.keys(parent).length!= 0){
+                    setParentLinked(true);
+                    console.log("found parent details")
+                    setParentFirstName(parent.first_name);
+                    setParentEmail(parent.email);
+                    setParentLastName(parent.last_name);}
+                
+                
     }, [details])
 
 
     function updateClient(){
         console.log("update");
         console.log(newChanges)
-        axios.post("http://localhost:3000/updateclient",
-            {"tutor_id": userID,
-            "clientlink": details.clientlink,
-            "changes": newChanges.current}).then(res=>{console.log("here")
-        if("default_price" in newChanges.current){
-            setPriceChange("£"+newChanges.current.default_price);
-        }
-        newChanges.current= {};
-    })}
+        if (Object.keys(newChanges.current).length!= 0){
+            axios.post("http://localhost:3000/updateclient",
+                {"tutor_id": userID,
+                "clientlink": details.clientlink,
+                "changes": newChanges.current}).then(res=>{console.log("here")
+            if("default_price" in newChanges.current){
+                setPriceChange("£"+newChanges.current.default_price);
+            }
+            newChanges.current= {};
+            }
+        )
+    }
+    }
 
     function deleteClient(){
         axios.post("http://localhost:3000/deleteclient",
@@ -49,6 +72,106 @@ function UpperDetails({ title, details, setPriceChange}){
         .then(res=>{
             nav('/home')
     })}
+
+    function linkParent(){
+        axios.post("http://localhost:3000/users/joinparent",
+            {
+                
+                "tutor_id": userID,
+                "clientlink": details.clientlink,
+                "parent_email": parentEmail,
+                "authcode": authCode,
+
+            })
+        .then(res=>{
+            console.log(res.data);
+            setParentEmail(res.data.email);
+            setAuthCode("")
+            setParentFirstName(res.data.first_name);
+            setParentLastName(res.data.last_name);
+            setParentLinked(true);
+            console.log(parentLinked)
+    })}
+
+    function removeParent(){
+        axios.post("http://localhost:3000/users/removeparent",
+            {
+                "clientlink": details.clientlink,
+                "tutor_id": userID,
+            })
+        .then(res=>{
+            setParentEmail("");
+            setParentFirstName("");
+            setParentLastName("");
+            setParentLinked(false);
+    })}
+    
+
+    function ParentArea(){
+        if (!parentLinked){
+            return(
+                <>
+                    <button className='mt-1 w-full bg-green-300' onClick={()=>setAddParentOpen(true)}>Add a parent!</button>
+                    <p className='text-xs'>Give access to a parent to view all lesson records.<br/>
+                    They need to have an account signed up already, and you will need their email address.</p>
+                    <Modal open={addParentOpen} onClose={()=>{setAddParentOpen(false)}}>
+                        <h2>Add a parent</h2>
+                        <p className='text-left'>
+                        Step 1. The parent needs to create an account themselves, make sure they select status as 'Parent' during signup.<br/>
+                        Step 2. Enter the email address they used to create the account below.<br/>
+                        Step 3. On the parent's homepage they will have a 8 character authorisation code, enter this below.<br/>
+                        Step 4. They will be able to see this tutoring activity on their homescreen when they login next.<br/><br/>
+                        </p>
+                        <input name = "email" 
+                                className='w-4/5 mb-2 text-2xl'
+                                placeholder = "Parent's email"
+                                value = {parentEmail}
+                                onChange = {
+                                e => {setParentEmail(e.target.value)}
+                                }
+                        />
+                        <input name = "authcode" 
+                                className='w-4/5 mb-2 text-2xl'
+                                placeholder = "Auth Code"
+                                maxLength="8"
+                                value = {authCode}
+                                onChange = {
+                                e => {setAuthCode(e.target.value)}
+                            }
+                        />
+
+                        <button class="bg-green-600 text-black mb-2 w-4/5" onClick={()=>{linkParent()}}>I am certain the email is correct and I wish to grant this account permission to view the lesson records.</button>
+                        <br/>
+                    </Modal>
+                </>
+            )
+        }
+        else{
+            return(
+                <>
+                <div className='flex flex-row justify-between text-left mt-1'>
+                <h2>Parent:</h2>
+                {editsOpen ? <button className='bg-red-500' onClick={()=>setRemoveParentOpen(true)}>
+                    <X />
+                </button>: `` }
+                
+                </div>
+                    <h3>{parentFirstName}</h3>
+                    <h3>{parentLastName}</h3>
+                    <a href={`mailto:${parentEmail}`}>
+                    <h3 className='hover:text-blue-500 '>{parentEmail}</h3></a>
+                    <Modal open={removeParentOpen} onClose={()=>{setRemoveParentOpen(false)}}>
+                        <h2>Sure you want to unlink this parent?</h2>
+                        The parent will be unable to access the lesson records <br/>
+                        Lessons's will not be deleted, and they can be readded.<br/>
+                        If you want to change the parent linked to the record, first remove this parent and then you can add a different user.<br/><br/>
+                        <button class="bg-red-600 text-black mb-2" onClick={()=>{setRemoveParentOpen(false); removeParent();}}>I am certain I want to remove this parent's access</button>
+                        <br/>
+                    </Modal>
+                </>
+            )
+        }
+    }
 
 
     function Content(){
@@ -107,6 +230,14 @@ function UpperDetails({ title, details, setPriceChange}){
                     }}
                     />
                 </div>
+                <div
+                    className='min-w-52 pr-4 text-left'>
+                    
+                        {ParentArea(parentLinked)}
+
+                </div>
+
+
                 <button class="h-full w-10 bg-green-300 mr-1" onClick={()=>
                     {   setEditsOpen(false);
                         updateClient();
@@ -151,6 +282,13 @@ function UpperDetails({ title, details, setPriceChange}){
                         <b>Private Notes: </b>{privateNote}
                     </p>
                 </div>
+
+                <div
+                    className='min-w-52 pr-4 text-left'>
+                        {ParentArea(parentLinked)}                        
+                    </div>
+
+
                 <button class="h-full w-10 bg-green-300" onClick={()=>
                         {setEditsOpen(true);
                         setPrice(price.slice(1))

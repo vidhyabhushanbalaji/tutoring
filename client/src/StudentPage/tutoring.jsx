@@ -22,14 +22,16 @@ function Tutoring(){
 
 
     const clientlink  = useParams().clientlink;
-    const tutorID = localStorage.getItem("id")
+    const userID = localStorage.getItem("id")
     let gotLessons = false;
     
 
     const getLessons = async()=>{
         try{
         console.log("clientlink "+clientlink)
-        await axios.post("http://localhost:3000/tutoringdetail",{clientlink: clientlink}).then(res =>{
+        await axios.post("http://localhost:3000/tutoringdetail",{
+            clientlink: clientlink,
+            parent_id: userID}).then(res =>{
             console.log(res)
             setSD(res.data.details)
             setPrice(res.data.details.default_price)

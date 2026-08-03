@@ -2,5 +2,7 @@ POST http://localhost:3000/users/joinparent
 Content-Type: application/json
 
 {
-    "clientlink" : 4
+    "parent_email" : "seifmum",
+    "clientlink": 36,
+    "tutor_id" : 31
 }

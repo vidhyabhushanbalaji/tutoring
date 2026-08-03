@@ -13,6 +13,7 @@ function Student(){
     const [price, setPrice]=useState("")
     const [lessons, setLessons] = useState([])
     const [currLesson, setCurrLesson] = useState(-1)
+    
     useEffect(()=> {
         if (!gotLessons){
             gotLessons = true;

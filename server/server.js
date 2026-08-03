@@ -35,6 +35,15 @@ app.post('/users/login', async (req,res1) =>{
     )
 })
 
+function genJoinCode(){
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i =0; i<8; i++){
+        result=result+ chars.charAt(Math.floor(Math.random()*chars.length));
+    }
+    return result;
+}
+
 app.post('/users/usersetup', async (req,res1) =>{
     try{
         const hashed = await bcrypt.hashSync(req.body.password, 10)
@@ -42,8 +51,16 @@ app.post('/users/usersetup', async (req,res1) =>{
         console.log(req.body.email)
         const newIDreq = await client.query("INSERT INTO auth (email, hashpassword) VALUES ($1, $2) RETURNING id;", [req.body.email, hashed])
         const newID = newIDreq.rows[0].id
-        await client.query("INSERT INTO users (id, first_name, last_name, status) VALUES ($1, $2, $3, $4);", [newID, req.body.first_name, req.body.last_name, req.body.status])
-        res1.status(200).send({id: newID})}
+        if (req.body.status=='P'){
+            const authcode = genJoinCode()
+            await client.query("INSERT INTO users (id, first_name, last_name, status, authcode) VALUES ($1, $2, $3, $4, $5);", [newID, req.body.first_name, req.body.last_name, req.body.status, authcode])
+        }
+        else{
+            await client.query("INSERT INTO users (id, first_name, last_name, status) VALUES ($1, $2, $3, $4);", [newID, req.body.first_name, req.body.last_name, req.body.status])
+            }
+        res1.status(200).send({id: newID})
+        }
+        
     catch{
         res1.status(500).send("error")
     }
@@ -63,45 +80,37 @@ app.post('/users/addclient', async(req,res1)=>{
     }
 })
 
-function genJoinCode(){
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i =0; i<8; i++){
-        result=result+ chars.charAt(Math.floor(Math.random()*chars.length));
-    }
-    return result;
-}
-
 
 app.post('/users/joinparent', async(req,res1)=>{
-    console.log("here")
     try{
-        const check = await client.query("SELECT * from join_codes WHERE clientlink=$1", [req.body.clientlink]);
-        
-        if (check.rowCount==0){
-            const joincode = genJoinCode()
-            const expiry = new Date (Date.now()+(72*60*60*1000))
-            const addParent = await client.query("INSERT INTO join_codes (join_code, expiry, clientlink) VALUES ($1, $2, $3) RETURNING join_code_id", [joincode, expiry.toISOString(), req.body.clientlink])
-            const newID = addParent.rows[0].join_code_id;
-            res1.status(200).send({"join_code_id": newID, "join_code": joincode, "expiry": expiry })
-        }
-        else{
-            expiry = new Date(check.rows[0].expiry);
-            now = new Date();
-            if(now>expiry){
-                await client.query("DELETE from join_codes WHERE clientlink = $1;", [req.body.clientlink])
-                res1.status(200).send({"join_code_id": newID, "join_code": joincode, "expiry": expiry })
-            }
+        console.log()
+        const findparent = await client.query("SELECT users.id, users.first_name, users.last_name from auth JOIN users ON auth.id = users.id WHERE auth.email=$1 AND users.authcode=$2 AND users.status='P' ", [req.body.parent_email, req.body.authcode]);
+        let newParent = findparent.rows[0];
+        await client.query("UPDATE users SET authcode=$1 WHERE id=$2", [genJoinCode(), newParent.id]);
+        const addparent = await client.query("UPDATE client_links SET parent_id = $1 WHERE clientlink=$2 and tutor_id=$3;", [newParent.id, req.body.clientlink, req.body.tutor_id]);
+        res1.status(200).send({...newParent, email: req.body.parent_email});
 
-            res1.status(500)
-        }
     }
     catch{
         console.log("fail")
     }
 })
 
+app.post('/users/removeparent', async(req,res1)=>{
+    try{
+        console.log("this ran")
+        console.log(req.body)
+        if("tutor_id" in req.body){
+            await client.query("UPDATE client_links SET parent_id = $1 WHERE clientlink=$2 AND tutor_id= $3", [null, req.body.clientlink, req.body.tutor_id])}
+        else{
+            await client.query("UPDATE client_links SET parent_id = $1 WHERE clientlink=$2 AND parent_id=$3", [null, req.body.clientlink, req.body.parent_id])}
 
+        res1.status(200).send("success")
+        }
+    catch{
+        console.log("fail")
+    }
+})
 
 const allowed_updateclient = new Set(["description", "default_price", "privateNote", "publicNote"])
 app.post('/updateclient', async(req,res1)=>{
@@ -146,7 +155,12 @@ app.post('/studentdetail', async(req,res1)=>{
     try{
         const details = await client.query("SELECT * from client_links WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
         const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE clientlink =$1 ORDER BY lessontime DESC;", [req.body.clientlink])
-        res1.status(200).send({details: details.rows[0], lessons: lessons.rows})
+        console.log(details)
+        var parent = {rows:[{}]}
+        if (details.rows[0].parent_id!=null){
+            parent = await client.query("SELECT users.first_name, users.last_name, auth.email from auth JOIN users ON auth.id=users.id WHERE users.id =$1;", [details.rows[0].parent_id])
+        }
+        res1.status(200).send({details: {...details.rows[0], parent: {...parent.rows[0]}}, lessons: lessons.rows})
     }
     catch{
         console.log("fail")
@@ -155,11 +169,12 @@ app.post('/studentdetail', async(req,res1)=>{
 
 app.post('/tutoringdetail', async(req,res1)=>{
     try{
-        const details = await client.query("SELECT description, default_price, public_note, start from client_links WHERE clientlink =$1;", [req.body.clientlink])
+        const details = await client.query("SELECT clientlink, tutor_id, description, default_price, public_note, start from client_links WHERE clientlink =$1 AND parent_id = $2;", [req.body.clientlink, req.body.parent_id])
         const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE clientlink =$1 ORDER BY lessontime DESC;", [req.body.clientlink])
+        const tutor = await client.query("SELECT users.first_name, users.last_name, auth.email from auth JOIN users ON auth.id=users.id WHERE users.id =$1;", [details.rows[0].tutor_id])
         console.log(details)
         console.log(lessons)
-        res1.status(200).send({details: details.rows[0], lessons: lessons.rows})
+        res1.status(200).send({details: {...details.rows[0], tutor: {...tutor.rows[0]}}, lessons: lessons.rows})
     }
     catch{
         console.log("fail")

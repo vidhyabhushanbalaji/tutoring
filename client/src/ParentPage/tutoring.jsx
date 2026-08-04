@@ -97,7 +97,9 @@ function Tutoring(){
         <>
             
             <div id="full-screen" class="h-lvh pb-10">
-                <NavBar/>
+                <NavBar
+                    userType="parent"
+                />
                 <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-100">
                     {()=>{console.log("student side details");console.log(studentDetails)}}
                     <UpperDetails

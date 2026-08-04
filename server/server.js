@@ -18,11 +18,11 @@ const client = new Client({
 client.connect();
 
 app.post('/users/login', async (req,res1) =>{
-    await client.query("SELECT * from auth WHERE email =$1;", [req.body.email],
+    await client.query("SELECT auth.id, auth.hashpassword, users.status from auth JOIN users ON auth.id = users.id WHERE email =$1;", [req.body.email],
         (err,res)=>{
             if (!err){
                 if (bcrypt.compareSync(req.body.password, res.rows[0].hashpassword)){
-                    res1.send({id: res.rows[0].id})
+                    res1.send({id: res.rows[0].id, status: res.rows[0].status})
                 }
                 else{
                     res1.status(400).send("Incorrect password or email")
@@ -184,6 +184,18 @@ app.post('/home/getstudents', async(req,res1)=>{
     }
 })
 
+app.post('/home/gettutors', async(req,res1)=>{
+    try{
+        const students = await client.query("SELECT clientlink, description, default_price, start from client_links WHERE parent_id=$1 ORDER BY start ASC;", [req.body.parent_id])
+        const parent = await client.query("SELECT users.first_name, users.last_name, users.authcode, auth.email from auth JOIN users ON auth.id=users.id WHERE users.id =$1;", [req.body.parent_id])
+        const unpaid = await client.query("SELECT client_links.clientlink, client_links.description, lessons.lessonid, lessons.lessontime, lessons.title, lessons.price from lessons JOIN client_links ON lessons.clientlink = client_links.clientlink WHERE client_links.parent_id = $1 AND lessons.paid=false  ORDER BY lessons.lessontime DESC;", [req.body.parent_id])
+        res1.status(200).send({tutors: students.rows, parent: parent.rows[0], unpaid: unpaid.rows})
+    }
+    catch{
+        console.log("fail")
+    }
+})
+
 app.post('/studentdetail', async(req,res1)=>{
     try{
         const details = await client.query("SELECT * from client_links WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
@@ -205,8 +217,6 @@ app.post('/tutoringdetail', async(req,res1)=>{
         const details = await client.query("SELECT clientlink, tutor_id, description, default_price, public_note, start from client_links WHERE clientlink =$1 AND parent_id = $2;", [req.body.clientlink, req.body.parent_id])
         const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE clientlink =$1 ORDER BY lessontime DESC;", [req.body.clientlink])
         const tutor = await client.query("SELECT users.first_name, users.last_name, auth.email from auth JOIN users ON auth.id=users.id WHERE users.id =$1;", [details.rows[0].tutor_id])
-        console.log(details)
-        console.log(lessons)
         res1.status(200).send({details: {...details.rows[0], tutor: {...tutor.rows[0]}}, lessons: lessons.rows})
     }
     catch{

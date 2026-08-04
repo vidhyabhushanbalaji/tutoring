@@ -130,7 +130,7 @@ function TutorHome(){
                             </>    
                         }
                         <h3>Email: {tutorEmail}</h3>
-                        <p className='pt-1 text-xs text-gray-600'>Parent's can see this when they view a linked student's page</p>
+                        <p className='pt-1 text-xs text-gray-600'>Parents can see this when they view a linked student's page</p>
 
                     </div>
 

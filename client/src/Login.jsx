@@ -15,7 +15,13 @@ function Login() {
       {email: email, password: pwd})
     .then(res=> {
         localStorage.setItem("id", res.data.id)
-        nav('/home')}
+        if (res.data.status=="T"){
+          nav('/tutor/home')
+        }
+        else{
+          nav('/parent/home')
+        }
+        }
     ).catch(err =>
       {
         console.log("unsuccesful login attempt")

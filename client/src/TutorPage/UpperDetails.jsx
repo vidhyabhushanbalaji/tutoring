@@ -52,7 +52,7 @@ function UpperDetails({ details, setPriceChange}){
         console.log("update");
         console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
-            axios.post("http://localhost:3000/updateclient",
+            axios.post("https://localhost:443/updateclient",
                 {"tutor_id": userID,
                 "clientlink": details.clientlink,
                 "changes": newChanges.current}).then(res=>{console.log("here")
@@ -66,7 +66,7 @@ function UpperDetails({ details, setPriceChange}){
     }
 
     function deleteClient(){
-        axios.post("http://localhost:3000/deleteclient",
+        axios.post("https://localhost:443/deleteclient",
             {"tutor_id": userID,
             "clientlink": details.clientlink})
         .then(res=>{
@@ -74,7 +74,7 @@ function UpperDetails({ details, setPriceChange}){
     })}
 
     function linkParent(){
-        axios.post("http://localhost:3000/users/joinparent",
+        axios.post("https://localhost:443/users/joinparent",
             {
                 
                 "tutor_id": userID,
@@ -94,7 +94,7 @@ function UpperDetails({ details, setPriceChange}){
     })}
 
     function removeParent(){
-        axios.post("http://localhost:3000/users/removeparent",
+        axios.post("https://localhost:443/users/removeparent",
             {
                 "clientlink": details.clientlink,
                 "tutor_id": userID,

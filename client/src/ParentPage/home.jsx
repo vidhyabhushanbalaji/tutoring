@@ -25,7 +25,7 @@ function ParentHome(){
 
     const getTutors = async()=>{
             try{
-            await axios.post("http://localhost:3000/home/gettutors",
+            await axios.post("https://localhost:443/home/gettutors",
                 {parent_id: userID}).then(res =>{
             console.log("here")
             console.log(res.data)
@@ -52,7 +52,7 @@ function ParentHome(){
         console.log("update");
         console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
-            axios.post("http://localhost:3000/users/updateuser",
+            axios.post("https://localhost:443/users/updateuser",
                 {"userID": userID,
                 "changes": newChanges.current}).then(res=>{console.log("here")
             

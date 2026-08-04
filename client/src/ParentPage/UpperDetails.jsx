@@ -33,7 +33,7 @@ function UpperDetails({ title, details, setPriceChange}){
     }, [details])
 
     function removeParent(){
-        axios.post("http://localhost:3000/users/removeparent",
+        axios.post("https://localhost:443/users/removeparent",
             {
                 "clientlink": details.clientlink,
                 "parent_id": userID,

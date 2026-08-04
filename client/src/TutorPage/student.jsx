@@ -29,7 +29,7 @@ function Student(){
     const getLessons = async()=>{
         try{
         console.log("clientlink "+clientlink)
-        await axios.post("http://localhost:3000/studentdetail",{tutor_id: tutorID, clientlink: clientlink}).then(res =>{
+        await axios.post("https://localhost:443/studentdetail",{tutor_id: tutorID, clientlink: clientlink}).then(res =>{
             console.log(res)
             setSD(res.data.details)
             setPrice(res.data.details.default_price)

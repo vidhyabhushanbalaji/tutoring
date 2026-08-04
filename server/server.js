@@ -1,6 +1,10 @@
 // https://www.youtube.com/watch?v=Ud5xKCYQTjM
 
 const express = require ("express")
+const https = require("https")
+const fs = require('fs')
+const path = require('path')
+const config = require('./config.js')
 const app = express()
 app.use(express.json())
 const bcrypt = require('bcrypt')
@@ -18,21 +22,19 @@ const client = new Client({
 client.connect();
 
 app.post('/users/login', async (req,res1) =>{
-    await client.query("SELECT auth.id, auth.hashpassword, users.status from auth JOIN users ON auth.id = users.id WHERE email =$1;", [req.body.email],
-        (err,res)=>{
-            if (!err){
-                if (bcrypt.compareSync(req.body.password, res.rows[0].hashpassword)){
-                    res1.send({id: res.rows[0].id, status: res.rows[0].status})
-                }
-                else{
-                    res1.status(400).send("Incorrect password or email")
-                }
-            }
-            else{
-                res1.status(400).send("Unexpected error")
-            }
+    console.log("here")
+    try{
+        const login = await client.query("SELECT auth.id, auth.hashpassword, users.status from auth JOIN users ON auth.id = users.id WHERE email =$1;", [req.body.email])
+        if (bcrypt.compareSync(req.body.password, login.rows[0].hashpassword)){
+            res1.send({id: login.rows[0].id, status: login.rows[0].status})
         }
-    )
+        else{
+            res1.status(400).send("Incorrect password or email")
+        }
+    }
+    catch{
+        res1.status(400).send("Unexpected error")
+    }
 })
 
 function genJoinCode(){
@@ -312,8 +314,12 @@ app.post('/updatelesson', async(req,res1)=>{
     }
 })
 
+const options = {
+    key: config.PRIVATE_KEY,
+    cert: config.CERTIFICATE,
+}
 
 
-
-
-app.listen(3000)
+https.createServer(options, app).listen(443, ()=>{
+    console.log('HTTPS Server runnning on 443')
+})

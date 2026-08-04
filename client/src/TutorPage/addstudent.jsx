@@ -12,7 +12,7 @@ function AddStudent(){
 
     function handleSubmit(event){
         event.preventDefault();
-        axios.post("http://localhost:3000/users/addclient/",
+        axios.post("https://localhost:443/users/addclient/",
             {description: desc, 
              tutor_id: userID,
              price: price})

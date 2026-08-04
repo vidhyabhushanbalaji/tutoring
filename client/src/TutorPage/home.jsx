@@ -25,7 +25,7 @@ function TutorHome(){
 
     const getStudents = async()=>{
             try{
-            await axios.post("http://localhost:3000/home/getstudents",{tutor_id: userID}).then(res =>{
+            await axios.post("https://localhost:443/home/getstudents",{tutor_id: userID}).then(res =>{
             console.log("here")
             console.log(res.data)
             setStudents(res.data.students)
@@ -50,7 +50,7 @@ function TutorHome(){
         console.log("update");
         console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
-            axios.post("http://localhost:3000/users/updateuser",
+            axios.post("https://localhost:443/users/updateuser",
                 {"userID": userID,
                 "changes": newChanges.current}).then(res=>{console.log("here")
             

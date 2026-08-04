@@ -17,7 +17,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     function handleSubmit(event){
         event.preventDefault();
         // when possible add parent id as well
-        axios.post("http://localhost:3000/addlesson",
+        axios.post("https://localhost:443/addlesson",
         {"lessontime": time,
             "title": title,
             "price": price,

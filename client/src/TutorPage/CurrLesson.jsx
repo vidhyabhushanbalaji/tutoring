@@ -30,7 +30,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
         if (lessonID!=-1){
             console.log("here3")
             try{
-            await axios.post("http://localhost:3000/getlesson",{tutor_id: userID, lessonid: lessonID}).then(res =>{
+            await axios.post("https://localhost:443/getlesson",{tutor_id: userID, lessonid: lessonID}).then(res =>{
                 console.log("here")
                 setTime(res.data.lessontime.substring(0,16))
                 setPrice(res.data.price)
@@ -75,7 +75,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
         console.log("i got called");
         console.log(newChanges.current);
         console.log(changes);
-            await axios.post("http://localhost:3000/updatelesson",
+            await axios.post("https://localhost:443/updatelesson",
             {"lessonid": lessonID,
             "tutor_id": userID,
             "changes": newChanges.current}).then(res=> 
@@ -116,7 +116,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
 
     function deleteLesson(){
         console.log("reached delete lesson")
-        axios.post("http://localhost:3000/deletelesson",
+        axios.post("https://localhost:443/deletelesson",
             {"tutor_id": userID,
             "lessonid": lessonID,
             "clientlink": clientlink})

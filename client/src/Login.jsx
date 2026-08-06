@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
+
 import './App.css'
 import axios from 'axios'
 
@@ -7,6 +9,7 @@ function Login() {
   const nav = useNavigate()  
   const [email, setEmail] = useState('')
   const [pwd, setPwd] = useState('')
+  const [cookies, setCookies, removeCookie] = useCookies(["userID"])
 
   
   function handleSubmit(event){
@@ -15,6 +18,7 @@ function Login() {
       {email: email, password: pwd})
     .then(res=> {
         localStorage.setItem("id", res.data.id)
+        setCookies("userID", res.data.id, { path: "/" })
         if (res.data.status=="T"){
           nav('/tutor/home')
         }
@@ -39,7 +43,16 @@ function Login() {
 
   return (
     <>
-      <section id="top">
+
+      <div className='w-screen h-screen flex flex-row'>
+
+        <div className='w-1/2 h-full bg-blue-200'>
+        
+        </div>
+
+        <div className='w-1/2 h-full bg-blue-300'>
+          
+          <div id="top">
         <div>  
           <h1>Welcome</h1>
           <p>
@@ -47,9 +60,9 @@ function Login() {
           </p>
         </div>
         
-      </section>
+      </div>
 
-      <section id="login">
+      <div id="login">
         <div id="login">
           <form onSubmit={handleSubmit}>
             <input name ="email"
@@ -70,7 +83,13 @@ function Login() {
           <button onClick={setupAccount}>setup</button>
         </div>
         
-      </section>
+      </div>
+
+        </div>
+
+      </div>
+
+      
     </>
   )
 }

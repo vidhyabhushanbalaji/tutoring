@@ -317,6 +317,9 @@ app.post('/updatelesson', async(req,res1)=>{
 const options = {
     key: config.PRIVATE_KEY,
     cert: config.CERTIFICATE,
+    secureOptions: require('constants').SSL_OP_NO_SSLv3,
+    minVersion: 'TLSv1.2',
+    
 }
 
 

@@ -14,7 +14,7 @@ function AddStudent(){
     async function handleSubmit(event){
         event.preventDefault();
         const session = await supabase.auth.getSession()
-        axios.post("https://localhost:443/users/addclient/",
+        axios.post("https://helpmetutor-backend.vercel.app:443/users/addclient/",
             {headers:
                 {Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id,

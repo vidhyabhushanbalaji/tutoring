@@ -55,7 +55,7 @@ function UpperDetails({ details, setPriceChange}){
         console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
             const session = await supabase.auth.getSession()
-            axios.post("https://localhost:443/updateclient",
+            axios.post("https://helpmetutor-backend.vercel.app:443/updateclient",
                 {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
                 user: session.data.session.user.id,
                 "clientlink": details.clientlink,
@@ -70,7 +70,7 @@ function UpperDetails({ details, setPriceChange}){
     }
 
     function deleteClient(){
-        axios.post("https://localhost:443/deleteclient",
+        axios.post("https://helpmetutor-backend.vercel.app:443/deleteclient",
             {"tutor_id": userID,
             "clientlink": details.clientlink})
         .then(res=>{
@@ -78,7 +78,7 @@ function UpperDetails({ details, setPriceChange}){
     })}
 
     function linkParent(){
-        axios.post("https://localhost:443/users/joinparent",
+        axios.post("https://helpmetutor-backend.vercel.app:443/users/joinparent",
             {
                 
                 "tutor_id": userID,
@@ -98,7 +98,7 @@ function UpperDetails({ details, setPriceChange}){
     })}
 
     function removeParent(){
-        axios.post("https://localhost:443/users/removeparent",
+        axios.post("https://helpmetutor-backend.vercel.app:443/users/removeparent",
             {
                 "clientlink": details.clientlink,
                 "tutor_id": userID,

@@ -19,7 +19,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     async function handleSubmit(event){
         event.preventDefault();
         const session = await supabase.auth.getSession()
-        axios.post("https://localhost:443/addlesson",
+        axios.post("https://helpmetutor-backend.vercel.app:443/addlesson",
         {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
         user: session.data.session.user.id,
         newLesson:

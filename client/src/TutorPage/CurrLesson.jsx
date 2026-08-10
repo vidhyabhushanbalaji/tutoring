@@ -31,7 +31,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
             console.log("here3")
             try{
             const session = await supabase.auth.getSession()
-            await axios.post("https://localhost:443/getlesson",
+            await axios.post("https://helpmetutor-backend.vercel.app:443/getlesson",
                 {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
                     user: session.data.session.user.id, 
                     lessonid: lessonID}).then(res =>{
@@ -80,7 +80,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
         console.log(newChanges.current);
         console.log(changes);
         const session = await supabase.auth.getSession()
-            await axios.post("https://localhost:443/updatelesson",
+            await axios.post("https://helpmetutor-backend.vercel.app:443/updatelesson",
             {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id, 
             "lessonid": lessonID,
@@ -123,7 +123,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
     async function deleteLesson(){
         console.log("reached delete lesson")
         const session = await supabase.auth.getSession()
-        axios.post("https://localhost:443/deletelesson",
+        axios.post("https://helpmetutor-backend.vercel.app:443/deletelesson",
             {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id,
             lessonid: lessonID,

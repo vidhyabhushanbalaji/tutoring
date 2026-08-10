@@ -426,6 +426,7 @@ app.post('/updatelesson', async(req,res1)=>{
     }
 })
 
+/* Local HTTPS Code
 const options = {
     key: config.PRIVATE_KEY,
     cert: config.CERTIFICATE,
@@ -434,7 +435,11 @@ const options = {
 
 }
 
-
 https.createServer(options, app).listen(443, ()=>{
     console.log('HTTPS Server runnning on 443')
 })
+    
+*/
+
+app.listen(443)
+

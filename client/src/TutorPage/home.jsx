@@ -48,7 +48,7 @@ function TutorHome(){
     const getStudents = async()=>{
             try{
             const session = await supabase.auth.getSession()
-            await axios.post("https://localhost:443/home/getstudents",
+            await axios.post("http://localhost:443/home/getstudents",
                 {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
                 user: session.data.session.user.id}).then(res =>{
             console.log("here")

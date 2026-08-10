@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Modal from '../Modal'
 import axios from 'axios'
 import { Save, Trash2, SquarePen, X } from 'lucide-react';
+import { supabase } from '../supabaseClient';
+
 
 
 function UpperDetails({ details, setPriceChange}){
@@ -48,12 +50,14 @@ function UpperDetails({ details, setPriceChange}){
     }, [details])
 
 
-    function updateClient(){
+    async function updateClient(){
         console.log("update");
         console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
+            const session = await supabase.auth.getSession()
             axios.post("https://localhost:443/updateclient",
-                {"tutor_id": userID,
+                {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+                user: session.data.session.user.id,
                 "clientlink": details.clientlink,
                 "changes": newChanges.current}).then(res=>{console.log("here")
             if("default_price" in newChanges.current){
@@ -214,7 +218,7 @@ function UpperDetails({ details, setPriceChange}){
                         value = {publicNote}
                         onChange = {e => {
                         setPublicNote(e.target.value);
-                        newChanges.current["publicNote"]=e.target.value;
+                        newChanges.current["public_note"]=e.target.value;
                     }}
                     />
 
@@ -226,7 +230,7 @@ function UpperDetails({ details, setPriceChange}){
                         value = {privateNote}
                         onChange = {e => {
                         setPrivateNote(e.target.value);
-                        newChanges.current["privateNote"]=e.target.value;
+                        newChanges.current["private_note"]=e.target.value;
                     }}
                     />
                 </div>

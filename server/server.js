@@ -1,5 +1,5 @@
 // https://www.youtube.com/watch?v=Ud5xKCYQTjM
-
+const { createClient } = require ('@supabase/supabase-js')
 const express = require ("express")
 const https = require("https")
 const fs = require('fs')
@@ -21,21 +21,22 @@ const client = new Client({
 
 client.connect();
 
-app.post('/users/login', async (req,res1) =>{
-    console.log("here")
-    try{
-        const login = await client.query("SELECT auth.id, auth.hashpassword, users.status from auth JOIN users ON auth.id = users.id WHERE email =$1;", [req.body.email])
-        if (bcrypt.compareSync(req.body.password, login.rows[0].hashpassword)){
-            res1.send({id: login.rows[0].id, status: login.rows[0].status})
-        }
-        else{
-            res1.status(400).send("Incorrect password or email")
-        }
+
+const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY)
+
+
+
+async function verifyUser(userID, token){
+    const {data: { user }, error }= await supabase.auth.getUser(token)
+    if (error || userID!= user.id){
+        return -1
     }
-    catch{
-        res1.status(400).send("Unexpected error")
+    else{
+        const {data: responses} = await supabase.from('users').select('id').eq('UUID', userID).limit(1)
+        return responses[0].id
     }
-})
+}
+
 
 function genJoinCode(){
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -71,28 +72,28 @@ app.post('/users/usersetup', async (req,res1) =>{
 const allowed_updateuser = new Set(["first_name", "last_name"]) 
 app.post('/users/updateuser', async (req,res1) =>{
     try{
-        console.log(req.body.changes)
-        var changes = " ";
-        var count = 1;
-        var params = [];
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+
         for (const key in req.body.changes){
             if (!(allowed_updateuser.has(key))){
-                console.log(key)
+                res1.status(500).send("error in keys provided")
             }
-            else{
-                changes = changes + `${key} = $${count++}, `
-                params.push(req.body.changes[key])}
         }
-        changes = changes.slice(0,-2) + " ";
-        console.log(changes.toString());
-        params.push(req.body.userID);
-        console.log((`UPDATE users SET${changes} WHERE id= $${count};`))
-        console.log(params)
-        await client.query(`UPDATE users SET${changes} WHEREid= $${count};`, params)
-        res1.status(200).send("success")
+        const { error } = await supabase.from('users').update(req.body.changes).eq('id', checkUser)
+        if (!error){
+            res1.status(200).send("success")
+        }
+        else{
+            res1.status(400).send("error on update")
+        }
     }
-        
-        
     catch{
         res1.status(500).send("error")
     }
@@ -101,10 +102,17 @@ app.post('/users/updateuser', async (req,res1) =>{
 
 app.post('/users/addclient', async(req,res1)=>{
     try{
-        console.log("INSERT INTO client_links (description, tutor_id, default_price, start) VALUES ($1, $2, $3, $4) RETURNING clientlink;")
-        const addclient = await client.query("INSERT INTO client_links (description, tutor_id, default_price, start) VALUES ($1, $2, $3, $4) RETURNING clientlink;", [req.body.description, req.body.tutor_id, req.body.price, (new Date()).toISOString()])
-        console.log(addclient)
-        const newID = addclient.rows[0].clientlink
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+        
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+
+        const addclient = await supabase.from('client_links').insert({...req.body.newStudent, tutor_id : checkUser}).select('clientlink')
+        const newID = addclient.data[0].clientlink
         res1.status(200).send({clientlink: newID})
     }
     catch{
@@ -144,29 +152,31 @@ app.post('/users/removeparent', async(req,res1)=>{
     }
 })
 
-const allowed_updateclient = new Set(["description", "default_price", "privateNote", "publicNote"])
+const allowed_updateclient = new Set(["description", "default_price", "private_note", "public_note"])
 app.post('/updateclient', async(req,res1)=>{
     try{
-        console.log(req.body.changes)
-        var changes = " ";
-        var count = 1;
-        var params = [];
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+
         for (const key in req.body.changes){
             if (!(allowed_updateclient.has(key))){
                 console.log(key)
+                res1.status(500).send("error in keys provided")
             }
-            else{
-                changes = changes + `${key} = $${count++}, `
-                params.push(req.body.changes[key])}
         }
-        changes = changes.slice(0,-2) + " ";
-        console.log(changes.toString());
-        params.push(req.body.clientlink);
-        params.push(req.body.tutor_id);
-        console.log((`UPDATE client_links SET${changes}WHERE clientlink= $${count} AND tutor_id =$${count+1};`))
-        console.log(params)
-        const lesson = await client.query(`UPDATE client_links SET${changes}WHERE clientlink= $${count} AND tutor_id =$${count+1};`, params)
-        res1.status(200).send("success")
+        const { error } = await supabase.from('client_links').update(req.body.changes).eq('clientlink', req.body.clientlink).eq('tutor_id', checkUser)
+        if (!error){
+            res1.status(200).send("success")
+        }
+        else{
+            res1.status(400).send("error on update")
+        }
     }
     catch{
         console.log("failedhere")
@@ -175,23 +185,48 @@ app.post('/updateclient', async(req,res1)=>{
 
 app.post('/home/getstudents', async(req,res1)=>{
     try{
-        const students = await client.query("SELECT clientlink, description, default_price, start from client_links WHERE tutor_id=$1 ORDER BY start ASC;", [req.body.tutor_id])
-        const tutor = await client.query("SELECT users.first_name, users.last_name, auth.email from auth JOIN users ON auth.id=users.id WHERE users.id =$1;", [req.body.tutor_id])
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        
+        const students = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('tutor_id', checkUser).order('start', { ascending: true})
+        console.log(students)
+        const tutor = await supabase.from('users').select('first_name, last_name').eq('id', checkUser).eq('is_tutor', true).limit(1)
         console.log(tutor)
-        const unpaid = await client.query("SELECT client_links.clientlink, client_links.description, lessons.lessonid, lessons.lessontime, lessons.title, lessons.price from lessons JOIN client_links ON lessons.clientlink = client_links.clientlink WHERE lessons.tutor_id = $1 AND lessons.paid=false  ORDER BY lessons.lessontime DESC;", [req.body.tutor_id])
-        res1.status(200).send({students: students.rows, tutor: tutor.rows[0], unpaid: unpaid.rows})
+        const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('paid', false).eq('tutor_id', checkUser).order('lessontime', { ascending: true})
+        console.log(unpaid.data)
+        res1.status(200).send({students: students.data, tutor: tutor.data[0], unpaid: unpaid.data})
     }
     catch{
-        console.log("fail")
+        res1.status(400).send("error in retrieving data on server side")
+        console.log("failed while finding user")
     }
 })
 
 app.post('/home/gettutors', async(req,res1)=>{
     try{
-        const students = await client.query("SELECT clientlink, description, default_price, start from client_links WHERE parent_id=$1 ORDER BY start ASC;", [req.body.parent_id])
-        const parent = await client.query("SELECT users.first_name, users.last_name, users.authcode, auth.email from auth JOIN users ON auth.id=users.id WHERE users.id =$1;", [req.body.parent_id])
-        const unpaid = await client.query("SELECT client_links.clientlink, client_links.description, lessons.lessonid, lessons.lessontime, lessons.title, lessons.price from lessons JOIN client_links ON lessons.clientlink = client_links.clientlink WHERE client_links.parent_id = $1 AND lessons.paid=false  ORDER BY lessons.lessontime DESC;", [req.body.parent_id])
-        res1.status(200).send({tutors: students.rows, parent: parent.rows[0], unpaid: unpaid.rows})
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        
+
+        const tutors = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('parent_id', checkUser).order('start', { ascending: true})
+        console.log(tutors)
+        const parent = await supabase.from('users').select('first_name, last_name').eq('id', checkUser).eq('is_tutor', false).limit(1)
+        console.log(parent)
+        const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('paid', false).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: true})
+        console.log(unpaid)
+        res1.status(200).send({tutors: tutors.data, parent: parent.data, unpaid: unpaid.data})
     }
     catch{
         console.log("fail")
@@ -200,14 +235,29 @@ app.post('/home/gettutors', async(req,res1)=>{
 
 app.post('/studentdetail', async(req,res1)=>{
     try{
-        const details = await client.query("SELECT * from client_links WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
-        const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE clientlink =$1 ORDER BY lessontime DESC;", [req.body.clientlink])
-        console.log(details)
-        var parent = {rows:[{}]}
-        if (details.rows[0].parent_id!=null){
-            parent = await client.query("SELECT users.first_name, users.last_name, auth.email from auth JOIN users ON auth.id=users.id WHERE users.id =$1;", [details.rows[0].parent_id])
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
         }
-        res1.status(200).send({details: {...details.rows[0], parent: {...parent.rows[0]}}, lessons: lessons.rows})
+
+
+        const details = await supabase.from('client_links').select('clientlink, description, parent_id, start, default_price, public_note, private_note').eq('tutor_id', checkUser).eq('clientlink', req.body.clientlink)
+        const lessons = await supabase.from('lessons').select('lessonid, lessontime, title, price, paid').eq('clientlink', req.body.clientlink).eq('tutor_id', checkUser).order('lessontime', { ascending: false })
+        var parent = {data:[{}]}
+        const parentid = details.data[0].parent_id
+        console.log(parentid)
+        if (parentid!=null){
+            parent = await supabase.from('users').select('first_name, last_name').eq('id', parentid)
+        }
+
+        console.log(details)
+        console.log(lessons)
+
+        res1.status(200).send({details: {...details.data[0]}, parent: {...parent.data[0]}, lessons: lessons.data})
     }
     catch{
         console.log("fail")
@@ -216,10 +266,23 @@ app.post('/studentdetail', async(req,res1)=>{
 
 app.post('/tutoringdetail', async(req,res1)=>{
     try{
-        const details = await client.query("SELECT clientlink, tutor_id, description, default_price, public_note, start from client_links WHERE clientlink =$1 AND parent_id = $2;", [req.body.clientlink, req.body.parent_id])
-        const lessons = await client.query("SELECT lessonid, lessontime, title, price, paid from lessons WHERE clientlink =$1 ORDER BY lessontime DESC;", [req.body.clientlink])
-        const tutor = await client.query("SELECT users.first_name, users.last_name, auth.email from auth JOIN users ON auth.id=users.id WHERE users.id =$1;", [details.rows[0].tutor_id])
-        res1.status(200).send({details: {...details.rows[0], tutor: {...tutor.rows[0]}}, lessons: lessons.rows})
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+
+        const details = await supabase.from('client_links').select('clientlink, tutor_id, description, default_price, public_note, start').eq('clientlink', req.body.clientlink).eq('parent_id', checkUser)
+        if (details.data.length>0){
+            const lessons = await supabase.from('lessons').select('lessonid, lessontime, title, price, paid from lessons').order('lessontime', {ascending: false})
+            let tutorID = details.data[0].tutor_id
+            const tutor = await supabase.from('users').select('first_name, last_name').eq('id', tutorID)
+            res1.status(200).send({details: {...details.data[0], tutor: {...tutor.data[0]}}, lessons: lessons.data})
+        }
+       res1.status(400).send("clientlink does not match user")
     }
     catch{
         console.log("fail")
@@ -228,9 +291,22 @@ app.post('/tutoringdetail', async(req,res1)=>{
 
 app.post('/deleteclient', async(req,res1)=>{
     try{
-        const details = await client.query("DELETE from client_links WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
-        const lessons = await client.query("DELETE from lessons WHERE tutor_id=$1 AND clientlink =$2;", [req.body.tutor_id, req.body.clientlink])
-        res1.status(200).send("deleted")
+
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+
+        const { error1 } = await supabase.from('client_links').delete().eq('tutor_id', checkUser).eq('clientlink', req.body.clientlink)
+        const { error2 } = await supabase.from('lessons').delete().eq('tutor_id', checkUser).eq('clientlink', req.body.clientlink)
+
+        if (!error1 && !error2){
+            res1.status(200).send("deleted")}
+        res1.status(204).send("error in deletion")
     }
     catch{
         console.log("fail")
@@ -240,24 +316,43 @@ app.post('/deleteclient', async(req,res1)=>{
 
 app.post('/addlesson', async(req,res1)=>{
     try{
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
 
-        console.log("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink, publicnotes, privatenotes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING lessonid")
-
-        newlesson = await client.query("INSERT INTO lessons (lessontime, title, price, paid, complete, tutor_id, clientlink, publicnotes, privatenotes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING lessonid",[req.body.lessontime, req.body.title, req.body.price, req.body.paid, req.body.complete, req.body.tutor_id, req.body.clientlink, "", ""])
-        console.log(newlesson);
-        const newID = newlesson.rows[0].lessonid;
-        res1.status(200).send({lessonID: newID});
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        
+        const client_check = await supabase.from('client_links').select('*', {count: 'exact', head:true}).eq('tutor_id', checkUser).eq('clientlink', req.body.newLesson.clientlink)
+        if (client_check.count>0){
+            const newlesson = await supabase.from('lessons').insert({...req.body.newLesson, tutor_id: checkUser}).select('lessonid')
+            let newlessonID = newlesson.data[0].lessonid
+            res1.status(200).send({lessonID: newlessonID})
+        }
+        
+        res1.status(204).send("user not authenticated to add lesson to that client")
     }
     catch{
-        console.log("failhere2")
+        console.log("failhere")
     }
     
 })
 
 app.post('/getlesson', async(req,res1)=>{
     try{
-        const lesson = await client.query("SELECT * from lessons WHERE lessonid=$1 AND tutor_id =$2;", [req.body.lessonid, req.body.tutor_id])
-        res1.status(200).send(lesson.rows[0])
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        const lesson = await supabase.from('lessons').select('lessontime, title, publicnotes, privatenotes, price, paid, complete').eq('lessonid', req.body.lessonid).eq('tutor_id', checkUser)
+        console.log(lesson)
+        res1.status(200).send(lesson.data[0])
     }
     catch{
         console.log("failedhere")
@@ -276,38 +371,55 @@ app.post('/tutoring/getlesson', async(req,res1)=>{
 
 app.post('/deletelesson', async(req,res1)=>{
     try{
-        console.log("delete ran")
-        const lessons = await client.query("DELETE from lessons WHERE tutor_id=$1 AND clientlink =$2 AND lessonid=$3;", [req.body.tutor_id, req.body.clientlink, req.body.lessonid])
-        res1.status(200).send("deleted")
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+
+        const { error } = await supabase.from('lessons').delete().eq('lessonid', req.body.lessonid).eq('tutor_id', checkUser).eq('clientlink', req.body.clientlink)
+        if (!error){
+            res1.status(200).send("deleted")
+        }
+        else{
+            res1.status(400).send("error on delete")
+        }
     }
     catch{
         console.log("fail")
     }
 })
 
-const allowed_updatelesson = new Set(["lessonid", "lessontime", "title", "privateNotes", "publicNotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
+const allowed_updatelesson = new Set(["lessonid", "lessontime", "title", "privatenotes", "publicnotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
 app.post('/updatelesson', async(req,res1)=>{
     try{
-        console.log(req.body.changes)
-        var changes = " ";
-        var count = 1;
-        var params = [];
+        
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+
         for (const key in req.body.changes){
             if (!(allowed_updatelesson.has(key))){
-                console.log(key)
+                res1.status(400).send("error in keys provided")
             }
-            else{
-                changes = changes + `${key} = $${count++}, `
-                params.push(req.body.changes[key])}
         }
-        changes = changes.slice(0,-2) + " ";
-        console.log(changes.toString());
-        params.push(req.body.lessonid);
-        params.push(req.body.tutor_id);
-        console.log((`UPDATE lessons SET${changes}WHERE lessonid= $${count} AND tutor_id =$${count+1};`))
-        console.log(params)
-        const lesson = await client.query(`UPDATE lessons SET${changes}WHERE lessonid= $${count} AND tutor_id =$${count+1};`, params)
-        res1.status(200).send("success")
+
+        const { error } = await supabase.from('lessons').update(req.body.changes).eq('tutor_id', checkUser).eq('lessonid', req.body.lessonid)
+
+        if (!error){
+            res1.status(200).send("success")
+        }
+        else{
+            res1.status(400).send("error on update")
+        }
     }
     catch{
         console.log("failedhere")
@@ -319,7 +431,7 @@ const options = {
     cert: config.CERTIFICATE,
     secureOptions: require('constants').SSL_OP_NO_SSLv3,
     minVersion: 'TLSv1.2',
-    
+
 }
 
 

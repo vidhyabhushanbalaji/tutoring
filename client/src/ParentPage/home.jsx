@@ -4,12 +4,30 @@ import Modal from '../Modal'
 import axios from 'axios'
 import { Link, useNavigate } from "react-router-dom"
 import NavBar from '../NavBar'
+import { supabase } from '../supabaseClient';
 import { Edit, Save } from 'lucide-react'
 
 function ParentHome(){
     const nav = useNavigate()
-    const userID = localStorage.getItem("id")
-    console.log(userID)
+    
+    const [fetched, setFetched] = useState(false)
+    const [userID, setUser] = useState("")
+    
+    useEffect(()=>{
+        if (!fetched){
+            const getUser = async()=> {
+            const { data, error } = await supabase.auth.getUser()
+            if (error){
+                return "error"
+            }
+            else{
+                return data.user.id
+            }
+            }
+            setUser(getUser())
+            setFetched(true)}
+        },[])
+
     const [allTutors, setTutors] = useState([])
     const [unpaidLessons,setUnpaidLessons] = useState([])
     const [parentFirstName, setParentFirstName] =useState("") 
@@ -25,16 +43,18 @@ function ParentHome(){
 
     const getTutors = async()=>{
             try{
-            await axios.post("https://localhost:443/home/gettutors",
-                {parent_id: userID}).then(res =>{
-            console.log("here")
-            console.log(res.data)
-            setTutors(res.data.tutors)
-            setUnpaidLessons(res.data.unpaid)
-            setParentFirstName(res.data.parent.first_name)
-            setParentLastName(res.data.parent.last_name)
-            setParentEmail(res.data.parent.email)
-            setParentShareCode(res.data.parent.authcode)
+                const session = await supabase.auth.getSession()
+                await axios.post("https://localhost:443/home/gettutors",
+                    {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+                    user: session.data.session.user.id}).then(res =>{
+                console.log("here")
+                console.log(res.data)
+                setTutors(res.data.tutors)
+                setUnpaidLessons(res.data.unpaid)
+                setParentFirstName(res.data.parent.first_name)
+                setParentLastName(res.data.parent.last_name)
+                setParentEmail(res.data.parent.email)
+                setParentShareCode(res.data.parent.authcode)
             })}
         catch{
             console.log("error")

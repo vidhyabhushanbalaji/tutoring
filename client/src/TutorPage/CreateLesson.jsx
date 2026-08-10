@@ -1,30 +1,34 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 import axios from 'axios'
 
 function CreateLesson({ default_price, clientlink, onAdd}){
+    
     console.log(default_price)
     let setprice = false
     const nav = useNavigate()  
-    const userID = localStorage.getItem("id")
     const [time, setTime] = useState('')
     // update with default price
     const [price, setPrice] = useState(default_price)
     const [paid, setPaid] = useState(false)
     const [title, setTitle] = useState('')
     const [complete, setComplete] = useState(false)
+
     
-    function handleSubmit(event){
+    async function handleSubmit(event){
         event.preventDefault();
-        // when possible add parent id as well
+        const session = await supabase.auth.getSession()
         axios.post("https://localhost:443/addlesson",
-        {"lessontime": time,
+        {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+        user: session.data.session.user.id,
+        newLesson:
+            {"lessontime": time,
             "title": title,
             "price": price,
             "paid": paid,
-            "tutor_id": userID,
             "clientlink": clientlink,
-            "complete": complete}).then(res=> 
+            "complete": complete}}).then(res=> 
             {if (res.status == 200){
                 console.log("added")
                 onAdd({lessonid: res.data.lessonID, lessontime: time, title: title})
@@ -43,7 +47,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
        <section id="newLesson">
           <div class="flex flex-col ">
             <p className='justify-center h-min w-full text-white text-4xl pb-6 bg-blue-400 rounded-xl content-center border-black p-4 mb-8'>New Lesson:</p>
-            <form>
+            <form onSubmit={handleSubmit}>
                     <input 
                         class = "w-full text-6xl h-auto font-semibold bg-transparent border-none mb-10 pl-4 pr-4"
                         name ="title"

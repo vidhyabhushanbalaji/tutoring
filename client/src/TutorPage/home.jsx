@@ -5,12 +5,34 @@ import AddStudent from './addstudent'
 import axios from 'axios'
 import { Link, useNavigate } from "react-router-dom"
 import NavBar from '../NavBar'
+import { supabase } from '../supabaseClient';
 import { Edit, Save } from 'lucide-react'
 
 function TutorHome(){
     const nav = useNavigate()
-    const userID = localStorage.getItem("id")
-    console.log(userID)
+
+    const [fetched, setFetched] = useState(false)
+    const [userID, setUser] = useState("")
+
+    useEffect(()=>{
+        if (!fetched){
+            const getUser = async()=> {
+            const { data, error } = await supabase.auth.getUser()
+            if (error){
+                return "error"
+            }
+            else{
+                return data.user.id
+            }
+            }
+            setUser(getUser())
+            setFetched(true)}
+        },[])
+
+
+
+
+
     const [addStudentOpen, setAddStudentOpen] = useState(false)
     const [allStudents, setStudents] = useState([])
     const [unpaidLessons,setUnpaidLessons] = useState([])
@@ -25,7 +47,10 @@ function TutorHome(){
 
     const getStudents = async()=>{
             try{
-            await axios.post("https://localhost:443/home/getstudents",{tutor_id: userID}).then(res =>{
+            const session = await supabase.auth.getSession()
+            await axios.post("https://localhost:443/home/getstudents",
+                {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+                user: session.data.session.user.id}).then(res =>{
             console.log("here")
             console.log(res.data)
             setStudents(res.data.students)
@@ -46,13 +71,18 @@ function TutorHome(){
             getStudents();}
     }, [])
 
-    function updateUser(){
+    async function updateUser(){
         console.log("update");
         console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
+            const session = await supabase.auth.getSession()
             axios.post("https://localhost:443/users/updateuser",
-                {"userID": userID,
-                "changes": newChanges.current}).then(res=>{console.log("here")
+                {headers:
+                    {Authorization: `Bearer: ${session.data.session.access_token}`},
+                user: session.data.session.user.id,
+                
+                "changes": newChanges.current})
+                .then(res=>{console.log("here")
             
             }
         )
@@ -182,13 +212,13 @@ function TutorHome(){
                                     <th>Price</th>
                                 </thead>
                                 <tbody>
-                                    {unpaidLessons.map(({ clientlink, description, lessontime, price, title}) =>(
+                                    {unpaidLessons.map(({ clientlink, client_links, lessontime, price, title}) =>(
                                     
                                     <tr 
                                         onClick={() => nav(`/student/${clientlink}`)}
                                         className="hover:text-blue-600">
                                         
-                                        <th>{description}</th>
+                                        <th>{client_links.description}</th>
                                         <th>{title}</th>
                                         <th>{(new Date(lessontime).toUTCString().slice(0,-7))}</th>
                                         

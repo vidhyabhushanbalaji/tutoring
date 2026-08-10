@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 
 import Modal from '../Modal'
 import axios from 'axios'
+import { supabase } from '../supabaseClient';
+
 import { Link } from "react-router-dom"
 import CreateLesson from './CreateLesson'
 
 function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
-    console.log("lessonID"+lessonID)
-    const userID = localStorage.getItem("id")
-    console.log(userID)
+    
     let lessonDetails = {}
     let gotLesson = false;
 
@@ -30,7 +30,11 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
         if (lessonID!=-1){
             console.log("here3")
             try{
-            await axios.post("https://localhost:443/getlesson",{tutor_id: userID, lessonid: lessonID}).then(res =>{
+            const session = await supabase.auth.getSession()
+            await axios.post("https://localhost:443/getlesson",
+                {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+                    user: session.data.session.user.id, 
+                    lessonid: lessonID}).then(res =>{
                 console.log("here")
                 setTime(res.data.lessontime.substring(0,16))
                 setPrice(res.data.price)
@@ -75,9 +79,11 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
         console.log("i got called");
         console.log(newChanges.current);
         console.log(changes);
+        const session = await supabase.auth.getSession()
             await axios.post("https://localhost:443/updatelesson",
-            {"lessonid": lessonID,
-            "tutor_id": userID,
+            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+            user: session.data.session.user.id, 
+            "lessonid": lessonID,
             "changes": newChanges.current}).then(res=> 
             {if (res.status == 200){
                 console.log("updated");
@@ -114,12 +120,14 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
         debouncedUpdate();
     }
 
-    function deleteLesson(){
+    async function deleteLesson(){
         console.log("reached delete lesson")
+        const session = await supabase.auth.getSession()
         axios.post("https://localhost:443/deletelesson",
-            {"tutor_id": userID,
-            "lessonid": lessonID,
-            "clientlink": clientlink})
+            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+            user: session.data.session.user.id,
+            lessonid: lessonID,
+            clientlink: clientlink})
         .then(res=>{
             removeLesson(lessonID);
     })}
@@ -212,7 +220,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                         className='h-40 w-full'
                         onChange = {e => {
                             setPubNotes(e.target.value);
-                            newChanges.current["publicNotes"]=e.target.value;
+                            newChanges.current["publicnotes"]=e.target.value;
                             alertChange();
                         }}
                     >
@@ -229,7 +237,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                         value = {privateNotes}
                         onChange = {e => {
                             setPrivNotes(e.target.value);
-                            newChanges.current["privateNotes"]=e.target.value;
+                            newChanges.current["privatenotes"]=e.target.value;
                             alertChange();
                         }}
                         className='h-32 w-full'

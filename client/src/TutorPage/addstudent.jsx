@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
+import { supabase } from '../supabaseClient';
+
 
 
 function AddStudent(){
@@ -8,14 +10,17 @@ function AddStudent(){
     const [desc, setDesc] = useState('')
     const [price, setPrice] = useState(0.00)
 
-    const userID = localStorage.getItem("id")
 
-    function handleSubmit(event){
+    async function handleSubmit(event){
         event.preventDefault();
+        const session = await supabase.auth.getSession()
         axios.post("https://localhost:443/users/addclient/",
-            {description: desc, 
-             tutor_id: userID,
-             price: price})
+            {headers:
+                {Authorization: `Bearer: ${session.data.session.access_token}`}, 
+            user: session.data.session.user.id,
+            newStudent:
+                {description: desc, 
+                default_price: price}})
         .then(res=> {
             console.log(res)
             const clientstudentID = res.data.clientlink

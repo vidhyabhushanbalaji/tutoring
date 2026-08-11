@@ -49,19 +49,14 @@ function genJoinCode(){
 
 app.post('/users/usersetup', async (req,res1) =>{
     try{
-        const hashed = await bcrypt.hashSync(req.body.password, 10)
-        // salt for hash is within hashed, don't need to store separately
-        console.log(req.body.email)
-        const newIDreq = await client.query("INSERT INTO auth (email, hashpassword) VALUES ($1, $2) RETURNING id;", [req.body.email, hashed])
-        const newID = newIDreq.rows[0].id
         if (req.body.status=='P'){
             const authcode = genJoinCode()
-            await client.query("INSERT INTO users (id, first_name, last_name, status, authcode) VALUES ($1, $2, $3, $4, $5);", [newID, req.body.first_name, req.body.last_name, req.body.status, authcode])
+            const usersetup = await supabase.from('users').insert({...req.body, authcode: genJoinCode()})
         }
         else{
-            await client.query("INSERT INTO users (id, first_name, last_name, status) VALUES ($1, $2, $3, $4);", [newID, req.body.first_name, req.body.last_name, req.body.status])
+            const usersetup = await supabase.from('users').insert({...req.body})
             }
-        res1.status(200).send({id: newID})
+        res1.status(200).send({status: "success"})
         }
         
     catch{
@@ -309,7 +304,7 @@ app.post('/deleteclient', async(req,res1)=>{
         res1.status(204).send("error in deletion")
     }
     catch{
-        console.log("fail")
+        res1.status(500).send("error on deleting client")
     }
 })
 
@@ -335,7 +330,7 @@ app.post('/addlesson', async(req,res1)=>{
         res1.status(204).send("user not authenticated to add lesson to that client")
     }
     catch{
-        console.log("failhere")
+        res1.status(500).send("error on adding lesson")
     }
     
 })
@@ -355,17 +350,25 @@ app.post('/getlesson', async(req,res1)=>{
         res1.status(200).send(lesson.data[0])
     }
     catch{
-        console.log("failedhere")
+        res1.status(500).send("error on getting lesson")
     }
 })
 
 app.post('/tutoring/getlesson', async(req,res1)=>{
     try{
-        const lesson = await client.query("SELECT lessontime, title, price, paid, complete, tutor_id, clientlink, publicnotes from lessons WHERE lessonid=$1 AND clientlink =$2;", [req.body.lessonid, req.body.clientlink])
-        res1.status(200).send(lesson.rows[0])
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        const lesson = await supabase.from('lessons').select('lessontime, title, price, paid, complete, tutor_id, clientlink, publicnotes, client_links!inner()').eq(lessonid, req.body.lessonid).eq('client_links.parent_id', checkUser)
+        res1.status(200).send(lesson.data[0])
     }
     catch{
-        console.log("failedhere")
+        res1.status(500).send("error on lesson fetch")
     }
 })
 
@@ -389,7 +392,7 @@ app.post('/deletelesson', async(req,res1)=>{
         }
     }
     catch{
-        console.log("fail")
+        res1.status(500).send("error on delete")
     }
 })
 
@@ -422,7 +425,7 @@ app.post('/updatelesson', async(req,res1)=>{
         }
     }
     catch{
-        console.log("failedhere")
+        res1.status(500).send("error on update")
     }
 })
 
@@ -438,7 +441,7 @@ const options = {
 https.createServer(options, app).listen(443, ()=>{
     console.log('HTTPS Server runnning on 443')
 })
-    
+
 */
 
 app.listen(443)

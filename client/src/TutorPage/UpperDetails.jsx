@@ -69,9 +69,11 @@ function UpperDetails({ details, setPriceChange}){
     }
     }
 
-    function deleteClient(){
+    async function deleteClient(){
+        const session = await supabase.auth.getSession()
         axios.post("https://helpmetutor-backend.vercel.app:443/deleteclient",
-            {"tutor_id": userID,
+            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+            user: session.data.session.user.id,
             "clientlink": details.clientlink})
         .then(res=>{
             nav('/home')

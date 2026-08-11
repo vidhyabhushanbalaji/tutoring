@@ -93,10 +93,8 @@ function TutorHome(){
     
 
     return(
-        <div className='h-screen w-screen overflow-y-auto flex flex-col overflow-y-auto'>
-            
-
-            
+        <div className='h-screen w-screen overflow-y-auto flex flex-col overflow-y-auto'>            
+        
             
             <NavBar/>
             <div class="w-full flex flex-col h-1/5">

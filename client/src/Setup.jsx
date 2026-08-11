@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import './App.css'
 import axios from 'axios'
+import { supabase } from './supabaseClient';
 
 function Setup(){
 
@@ -13,36 +14,27 @@ function Setup(){
     const [pwd2, setPwd2] = useState('')
     const [status, setStatus] = useState('')
 
-    function handleSubmit(event){
+    async function handleSubmit(event){
         if (pwd1!=pwd2){
             setPwd1("")
             setPwd2("")
             alert("passwords don't match, retry those")
             return;
         }
-    event.preventDefault();
-    axios.post("http://localhost:3000/users/usersetup",
-      { "email" : email,
-        "password" : pwd2,
-        "first_name" : fn,
-        "last_name": ln,
-        "status": status})
-    .then(res=> 
-      {if (res.status == 200){
-          localStorage.setItem("id", res.data.id)
-          localStorage.setItem("status", status)
-          nav('/home')}
-      
-    }).catch(err =>
-      {
-        console.log("unsuccesful entry attempt")
-        setfn("")
-        setln("")
-      }
-    );
+      event.preventDefault();
+      const { data, error } = await supabase.auth.signUp({
+          email: email,
+          password: pwd1,
+      })
+      if(!error){
+        axios.post("localhost:443/users/usersetup", {
+          UUID: data.id,
+          isTutor: (status==="T"),
+          first_name: fn, 
+          last_name: ln
+        })
+      }   
   }
-
-
     return (
     <>
       <section id="top">

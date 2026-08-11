@@ -131,16 +131,40 @@ app.post('/users/addclient', async(req,res1)=>{
 
 app.post('/users/joinparent', async(req,res1)=>{
     try{
-        console.log()
-        const findparent = await client.query("SELECT users.id, users.first_name, users.last_name from auth JOIN users ON auth.id = users.id WHERE auth.email=$1 AND users.authcode=$2 AND users.status='P' ", [req.body.parent_email, req.body.authcode]);
-        let newParent = findparent.rows[0];
-        await client.query("UPDATE users SET authcode=$1 WHERE id=$2", [genJoinCode(), newParent.id]);
-        const addparent = await client.query("UPDATE client_links SET parent_id = $1 WHERE clientlink=$2 and tutor_id=$3;", [newParent.id, req.body.clientlink, req.body.tutor_id]);
-        res1.status(200).send({...newParent, email: req.body.parent_email});
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+        
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(204).send("user does not match")
+        }
+
+        console.log('here1')
+        console.log(req.body.parent_email)
+        console.log(req.body.authcode)
+        const findparent = await supabase.from('users').select('id, first_name, last_name').eq('email', req.body.parent_email).eq('authcode', req.body.authcode).eq('is_tutor', false)
+
+        console.log(findparent)
+        if (findparent.data.length==0){
+            res1.status(400).send("no parent with these details exists")
+        }
+
+        
+        const joinparent = await supabase.from('client_links').update({parent_id: findparent.data[0].id}).eq("clientlink", req.body.clientlink).eq("tutor_id", checkUser)
+
+        const updateparent = await supabase.from('users').update({authcode: genJoinCode()}).eq("id", findparent.data[0].id)
+        console.log(updateparent)
+
+        if(!joinparent.error && !updateparent.error){
+            res1.status(200).send({first_name: findparent.data[0].first_name, last_name: findparent.data[0].last_name});
+        }
+
+        res1.status(500).send("error on updating")
 
     }
     catch{
-        console.log("fail")
+        res1.status(500).send("failed to complete request")
     }
 })
 
@@ -239,7 +263,7 @@ app.post('/homepage', async(req,res1)=>{
     }
         
     catch{
-        //res1.status(400).send("error in retrieving data on server side")
+        res1.status(400).send("error in retrieving data on server side")
         console.log("failed while finding user")
     }
 })
@@ -445,20 +469,6 @@ app.post('/updatelesson', async(req,res1)=>{
     }
 })
 
-/* Local HTTPS Code
-const options = {
-    key: config.PRIVATE_KEY,
-    cert: config.CERTIFICATE,
-    secureOptions: require('constants').SSL_OP_NO_SSLv3,
-    minVersion: 'TLSv1.2',
-
-}
-
-https.createServer(options, app).listen(443, ()=>{
-    console.log('HTTPS Server runnning on 443')
-})
-
-*/
 
 app.listen(443)
 

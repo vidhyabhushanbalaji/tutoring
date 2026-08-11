@@ -79,24 +79,24 @@ function UpperDetails({ details, setPriceChange}){
             nav('/home')
     })}
 
-    function linkParent(){
+    async function linkParent(){
+        const session = await supabase.auth.getSession()
         axios.post("https://helpmetutor-backend.vercel.app:443/users/joinparent",
-            {
-                
-                "tutor_id": userID,
-                "clientlink": details.clientlink,
-                "parent_email": parentEmail,
-                "authcode": authCode,
+            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+            user: session.data.session.user.id,
+            "clientlink": details.clientlink,
+            "parent_email": parentEmail,
+            "authcode": authCode,
 
-            })
-        .then(res=>{
-            console.log(res.data);
-            setParentEmail(res.data.email);
-            setAuthCode("")
-            setParentFirstName(res.data.first_name);
-            setParentLastName(res.data.last_name);
-            setParentLinked(true);
-            console.log(parentLinked)
+        })
+    .then(res=>{
+        console.log(res.data);
+        setParentEmail(parentEmail);
+        setAuthCode("")
+        setParentFirstName(res.data.first_name);
+        setParentLastName(res.data.last_name);
+        setParentLinked(true);
+        console.log(parentLinked)
     })}
 
     function removeParent(){

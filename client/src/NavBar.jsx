@@ -27,8 +27,8 @@ function NavBar({ userType }){
     
     const nav = useNavigate()  
 
-    function logOut(){
-        localStorage.clear();
+    async function logOut(){
+        const { error } = await supabase.auth.signOut()
         nav('/login')
     }
 

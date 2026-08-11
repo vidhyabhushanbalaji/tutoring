@@ -191,7 +191,7 @@ app.post('/updateclient', async(req,res1)=>{
     }
 })
 
-app.post('/home/homepage', async(req,res1)=>{
+app.post('/homepage', async(req,res1)=>{
     try{
         console.log("here")
         token = req.body.headers.Authorization.split(" ")[1]

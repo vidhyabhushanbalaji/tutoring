@@ -57,7 +57,7 @@ app.post('/users/usersetup', async (req,res1) =>{
         }
 
         var usersetup;
-        if (!req.body.isTutor){
+        if (!req.body.is_tutor){
             const authcode = genJoinCode()
             usersetup = await supabase.from('users').insert({...req.body.userData, UUID: reqUUID, authcode: genJoinCode()})
         }

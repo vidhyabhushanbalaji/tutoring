@@ -49,7 +49,7 @@ function Setup(){
           headers:{Authorization: `Bearer: ${session.data.session.access_token}`},
           user: data.user.id,
           userData:{
-            isTutor: (status==="T"),
+            is_tutor: (status==="T"),
             first_name: fn, 
             last_name: ln,
             email: email}

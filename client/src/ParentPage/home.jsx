@@ -7,7 +7,7 @@ import NavBar from '../NavBar'
 import { supabase } from '../supabaseClient';
 import { Edit, Save } from 'lucide-react'
 
-function ParentHome(){
+function ParentHome({ data }){
     const nav = useNavigate()
     
     const [fetched, setFetched] = useState(false)
@@ -42,24 +42,13 @@ function ParentHome(){
     var gotTutors = false;
 
     const getTutors = async()=>{
-            try{
-                const session = await supabase.auth.getSession()
-                await axios.post("https://localhost:443/home/gettutors",
-                    {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                    user: session.data.session.user.id}).then(res =>{
-                console.log("here")
-                console.log(res.data)
-                setTutors(res.data.tutors)
-                setUnpaidLessons(res.data.unpaid)
-                setParentFirstName(res.data.parent.first_name)
-                setParentLastName(res.data.parent.last_name)
-                setParentEmail(res.data.parent.email)
-                setParentShareCode(res.data.parent.authcode)
-            })}
-        catch{
-            console.log("error")
-        }
-        }
+        setTutors(data.tutors)
+        setUnpaidLessons(data.unpaid)
+        setParentFirstName(data.parent.first_name)
+        setParentLastName(data.parent.last_name)
+        setParentEmail(data.parent.email)
+        setParentShareCode(data.parent.authcode)
+    }
     
 
     useEffect(()=> {

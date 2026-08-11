@@ -10,6 +10,7 @@ import Student from './TutorPage/student'
 import Test from './test';
 import Tutoring from './ParentPage/tutoring'
 import SupabaseLogin from './SupabaseLogin';
+import Home from './home';
 import axios from 'axios'
 //import AuthProvider from './hooks/AuthProvider';
 
@@ -20,6 +21,7 @@ function App() {
           <Routes>
             <Route exact path="/login" element={<Login/>}/>
             <Route exact path="/setup" element={<Setup/>}/>
+            <Route exact path="/home" element={<Home/>}/>
             <Route exact path="/tutor/home" element={<TutorHome/>}/>
             <Route exact path="/parent/home" element={<ParentHome/>}/>
             <Route exact path="/" element={<SupabaseLogin/>}/>

@@ -8,30 +8,8 @@ import NavBar from '../NavBar'
 import { supabase } from '../supabaseClient';
 import { Edit, Save } from 'lucide-react'
 
-function TutorHome(){
+function TutorHome({ data }){
     const nav = useNavigate()
-
-    const [fetched, setFetched] = useState(false)
-    const [userID, setUser] = useState("")
-
-    useEffect(()=>{
-        if (!fetched){
-            const getUser = async()=> {
-            const { data, error } = await supabase.auth.getUser()
-            if (error){
-                return "error"
-            }
-            else{
-                return data.user.id
-            }
-            }
-            setUser(getUser())
-            setFetched(true)}
-        },[])
-
-
-
-
 
     const [addStudentOpen, setAddStudentOpen] = useState(false)
     const [allStudents, setStudents] = useState([])
@@ -46,23 +24,14 @@ function TutorHome(){
     let gotStudents = false;
 
     const getStudents = async()=>{
-            try{
-            const session = await supabase.auth.getSession()
-            await axios.post("https://helpmetutor-backend.vercel.app:443/home/getstudents",
-                {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                user: session.data.session.user.id}).then(res =>{
-            console.log("here")
-            console.log(res.data)
-            setStudents(res.data.students)
-            setUnpaidLessons(res.data.unpaid)
-            setTutorFirstName(res.data.tutor.first_name)
-            setTutorLastName(res.data.tutor.last_name)
-            setTutorEmail(res.data.tutor.email)
-            })}
-        catch{
-            console.log("error")
-        }
-        }
+        console.log("here")
+        console.log(data)
+        setStudents(data.students)
+        setUnpaidLessons(data.unpaid)
+        setTutorFirstName(data.tutor.first_name)
+        setTutorLastName(data.tutor.last_name)
+        setTutorEmail(data.tutor.email)
+    }
     
 
     useEffect(()=> {

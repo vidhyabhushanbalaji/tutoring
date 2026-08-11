@@ -16,7 +16,7 @@ export default function AuthLayout({ title, subtitle, children }) {
         </svg>
 
         <div className="relative z-10">
-          <span className="text-white text-xl font-semibold tracking-tight">Lessonly</span>
+          <span className="text-white text-xl font-semibold tracking-tight">HelpMeTutor!</span>
         </div>
 
         <div className="relative z-10 max-w-sm">

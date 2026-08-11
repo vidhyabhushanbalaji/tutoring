@@ -56,14 +56,18 @@ app.post('/users/usersetup', async (req,res1) =>{
             res1.status(204).send("user credentials do not match")
         }
 
+        console.log("here1")
         var usersetup;
-        if (!req.body.is_tutor){
+        if (!req.body.userData.is_tutor){
             const authcode = genJoinCode()
             usersetup = await supabase.from('users').insert({...req.body.userData, UUID: reqUUID, authcode: genJoinCode()})
         }
         else{
+            console.log("here2")
             usersetup = await supabase.from('users').insert({...req.body.userData, UUID: reqUUID})
             }
+        console.log(usersetup)
+        console.log("here3")
         if(!usersetup.error) res1.status(200).send({status: "success"})
         else res1.status(204).send({status: "error in adding details"})
     }
@@ -71,6 +75,7 @@ app.post('/users/usersetup', async (req,res1) =>{
         res1.status(500).send("error")
     }
 })
+
 
 const allowed_updateuser = new Set(["first_name", "last_name"]) 
 app.post('/users/updateuser', async (req,res1) =>{
@@ -186,8 +191,9 @@ app.post('/updateclient', async(req,res1)=>{
     }
 })
 
-app.post('/home/getstudents', async(req,res1)=>{
+app.post('/home', async(req,res1)=>{
     try{
+        console.log("here")
         token = req.body.headers.Authorization.split(" ")[1]
         reqUUID = req.body.user
 
@@ -196,43 +202,45 @@ app.post('/home/getstudents', async(req,res1)=>{
             console.log(error)
             res1.status(400).send("user does not match")
         }
-        
-        const students = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('tutor_id', checkUser).order('start', { ascending: true})
-        console.log(students)
-        const tutor = await supabase.from('users').select('first_name, last_name').eq('id', checkUser).eq('is_tutor', true).limit(1)
-        console.log(tutor)
-        const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('paid', false).eq('tutor_id', checkUser).order('lessontime', { ascending: true})
-        console.log(unpaid.data)
-        res1.status(200).send({students: students.data, tutor: tutor.data[0], unpaid: unpaid.data})
+
+        var checkUser;
+        var isTutor;
+        console.log("here3")
+        const {data: { user }, error }= await supabase.auth.getUser(token)
+        if (error || reqUUID != user.id){
+            res1.status(400).send("user does not match")
+        }
+        else{
+            const {data: responses} = await supabase.from('users').select('id, is_tutor').eq('UUID', reqUUID).limit(1)
+            console.log(responses)
+            checkUser= responses[0].id
+            isTutor = responses[0].is_tutor
+        }
+        console.log("here4")
+
+        if(isTutor){
+            const students = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('tutor_id', checkUser).order('start', { ascending: true})
+            console.log(students)
+            const tutor = await supabase.from('users').select('first_name, last_name, email').eq('id', checkUser).eq('is_tutor', true).limit(1)
+            console.log(tutor)
+            const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('paid', false).eq('tutor_id', checkUser).order('lessontime', { ascending: true})
+            console.log(unpaid.data)
+            res1.status(200).send({is_tutor: true, students: students.data, tutor: tutor.data[0], unpaid: unpaid.data})}
+        else{
+            const tutors = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('parent_id', checkUser).order('start', { ascending: true})
+            console.log(tutors)
+            const parent = await supabase.from('users').select('first_name, last_name, email').eq('id', checkUser).eq('is_tutor', false).limit(1)
+            console.log(parent)
+            const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('paid', false).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: true})
+            console.log(unpaid)
+            res1.status(200).send({is_tutor: false, tutors: tutors.data, parent: parent.data, unpaid: unpaid.data})
+        }
+        res1.status(204).send("error in retrieving data, user confirmed")
     }
+        
     catch{
-        res1.status(400).send("error in retrieving data on server side")
+        //res1.status(400).send("error in retrieving data on server side")
         console.log("failed while finding user")
-    }
-})
-
-app.post('/home/gettutors', async(req,res1)=>{
-    try{
-        token = req.body.headers.Authorization.split(" ")[1]
-        reqUUID = req.body.user
-
-        checkUser = await verifyUser(reqUUID, token)
-        if (checkUser==-1){
-            console.log(error)
-            res1.status(400).send("user does not match")
-        }
-        
-
-        const tutors = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('parent_id', checkUser).order('start', { ascending: true})
-        console.log(tutors)
-        const parent = await supabase.from('users').select('first_name, last_name').eq('id', checkUser).eq('is_tutor', false).limit(1)
-        console.log(parent)
-        const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('paid', false).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: true})
-        console.log(unpaid)
-        res1.status(200).send({tutors: tutors.data, parent: parent.data, unpaid: unpaid.data})
-    }
-    catch{
-        console.log("fail")
     }
 })
 

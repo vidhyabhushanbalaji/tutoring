@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { useCookies } from 'react-cookie';
 import { Eye, EyeOff } from 'lucide-react';
 import AuthLayout from './AuthLayout';
+import { supabase } from './supabaseClient';
+
 
 
 import './App.css'
@@ -13,32 +14,20 @@ function Login() {
   const [email, setEmail] = useState('')
   const [pwd, setPwd] = useState('')
   const [showPassword, setShowPassword] = useState(false);
-  const [cookies, setCookies, removeCookie] = useCookies(["userID"])
 
   
-  function handleSubmit(event){
+  async function handleSubmit(event){
     event.preventDefault();
-    axios.post("https://localhost:443/users/login",
-      {email: email, password: pwd})
-    .then(res=> {
-        localStorage.setItem("id", res.data.id)
-        setCookies("userID", res.data.id, { path: "/" })
-        if (res.data.status=="T"){
-          nav('/tutor/home')
-        }
-        else{
-          nav('/parent/home')
-        }
-        }
-    ).catch(err =>
-      {
-        console.log("unsuccesful login attempt")
-        setPwd("")
-        setEmail("")
-      }
-    )}
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: pwd,
+    })
+    if (!error){
+      nav('/home')
+    }
+  }
 
-    function setupAccount(){
+  function setupAccount(){
         console.log("cliicked")
         nav('/setup')
     }

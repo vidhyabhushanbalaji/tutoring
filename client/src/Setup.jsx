@@ -45,7 +45,9 @@ function Setup(){
       if(!error){
         console.log(data)
         const session = await supabase.auth.getSession()
-        axios.post("https://helpmetutor-backend.vercel.app:443/users/usersetup", {
+        axios.post(
+          "https://helpmetutor-backend.vercel.app:443/users/usersetup"
+          , {
           headers:{Authorization: `Bearer: ${session.data.session.access_token}`},
           user: data.user.id,
           userData:{
@@ -54,6 +56,7 @@ function Setup(){
             last_name: ln,
             email: email}
         })
+
       }   
   }
     return (

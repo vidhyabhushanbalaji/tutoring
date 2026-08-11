@@ -29,7 +29,7 @@ function Setup(){
       event.preventDefault();
       const { data, error } = await supabase.auth.signUp({
           email: email,
-          password: pwd1,
+          password: password,
       })
       if(!error){
         console.log(data)

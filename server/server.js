@@ -49,16 +49,24 @@ function genJoinCode(){
 
 app.post('/users/usersetup', async (req,res1) =>{
     try{
-        if (req.body.status=='P'){
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+        const {data: { user }, error }= await supabase.auth.getUser(token)
+        if (error || reqUUID != user.id){
+            res1.status(204).send("user credentials do not match")
+        }
+
+        var usersetup;
+        if (!req.body.isTutor){
             const authcode = genJoinCode()
-            const usersetup = await supabase.from('users').insert({...req.body, authcode: genJoinCode()})
+            usersetup = await supabase.from('users').insert({...req.body.userData, UUID: reqUUID, authcode: genJoinCode()})
         }
         else{
-            const usersetup = await supabase.from('users').insert({...req.body})
+            usersetup = await supabase.from('users').insert({...req.body.userData, UUID: reqUUID})
             }
-        res1.status(200).send({status: "success"})
-        }
-        
+        if(!usersetup.error) res1.status(200).send({status: "success"})
+        else res1.status(204).send({status: "error in adding details"})
+    }
     catch{
         res1.status(500).send("error")
     }

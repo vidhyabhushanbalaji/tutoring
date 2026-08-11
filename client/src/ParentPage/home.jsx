@@ -57,16 +57,17 @@ function ParentHome({ data }){
             getTutors();}
     }, [])
 
-    function updateUser(){
+    async function updateUser(){
         console.log("update");
         console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
-            axios.post("https://localhost:443/users/updateuser",
-                {"userID": userID,
-                "changes": newChanges.current}).then(res=>{console.log("here")
-            
-            }
-        )
+            const session = await supabase.auth.getSession()
+            axios.post("https://helpmetutor-backend.vercel.app:443/users/updateuser",
+                {headers:
+                    {Authorization: `Bearer: ${session.data.session.access_token}`},
+                user: session.data.session.user.id,
+                
+                "changes": newChanges.current})
         newChanges.current= {};
     }
     }

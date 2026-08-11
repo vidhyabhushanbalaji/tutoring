@@ -31,7 +31,7 @@ function Home() {
         console.log("here1")
         const session = await supabase.auth.getSession()
         console.log("here2")
-        await axios.post("http://localhost:443/home",
+        await axios.post("https://helpmetutor-backend.vercel.app:443/home",
             {headers:
                 {Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id}).

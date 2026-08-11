@@ -6,7 +6,7 @@ import axios from 'axios'
 import { Link, useNavigate } from "react-router-dom"
 import NavBar from '../NavBar'
 import { supabase } from '../supabaseClient';
-import { Edit, Save } from 'lucide-react'
+import { Edit, Save} from 'lucide-react'
 
 function TutorHome({ data }){
     const nav = useNavigate()
@@ -18,6 +18,8 @@ function TutorHome({ data }){
     const [tutorLastName, setTutorLastName] =useState("") 
     const [tutorEmail, setTutorEmail] =useState("") 
     const [editDetails, setEditDetails] = useState(false)
+
+    
 
     const newChanges = useRef({});
     
@@ -79,7 +81,6 @@ function TutorHome({ data }){
                 
                     <div class="w-1/3 pl-2 flex flex-col text-left h-full pr-5 text-black overflow-y-auto overflow-x-auto">
 
-                        
                             
                          
 
@@ -163,7 +164,7 @@ function TutorHome({ data }){
                 </div>
                 <div class="flex flex-col w-2/3 h-full min-h-0">
                         <div class="h-2/3">
-
+                                
                         </div>
                         
                         <div id ="unpaid" className='h-1/3 w-full flex flex-col'>
@@ -203,6 +204,7 @@ function TutorHome({ data }){
         <Modal open={addStudentOpen} onClose={()=> setAddStudentOpen(false)}>
             <AddStudent />
         </Modal>
+        
         
         </div>
 

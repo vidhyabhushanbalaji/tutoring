@@ -4,17 +4,19 @@ import { supabase } from '../supabaseClient';
 import axios from 'axios'
 
 function CreateLesson({ default_price, clientlink, onAdd}){
-    
+
     console.log(default_price)
-    let setprice = false
     const nav = useNavigate()  
     const [time, setTime] = useState('')
     // update with default price
-    const [price, setPrice] = useState(default_price)
+    const [price, setPrice] = useState(0)
     const [paid, setPaid] = useState(false)
     const [title, setTitle] = useState('')
     const [complete, setComplete] = useState(false)
 
+    useEffect(()=>{
+        setPrice(default_price)
+    }, [default_price])
     
     async function handleSubmit(event){
         event.preventDefault();
@@ -61,6 +63,8 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                             }}
                         ></input> 
 
+                    
+
                     <div class="flex flex-row gap-4 pt-4 justify-center h-full mb-10">
                         <input 
                         name ="date"
@@ -72,7 +76,6 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                             setTime(e.target.value);
                             newChanges.current["lessontime"]=e.target.value;
                             alertChange();}}/>
-                    
                     
                         <input 
                         name ="price"

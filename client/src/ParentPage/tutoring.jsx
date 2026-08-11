@@ -5,6 +5,7 @@ import axios from 'axios'
 import CurrLesson from "./CurrLesson";
 import NavBar from "../NavBar";
 import UpperDetails from "./UpperDetails";
+import { supabase } from '../supabaseClient';
 
 
 
@@ -28,14 +29,17 @@ function Tutoring(){
 
     const getLessons = async()=>{
         try{
-        console.log("clientlink "+clientlink)
-        await axios.post("https://localhost:443/tutoringdetail",{
-            clientlink: clientlink,
-            parent_id: userID}).then(res =>{
+        const session = await supabase.auth.getSession()
+        axios.post("https://helpmetutor-backend.vercel.app:443/tutoringdetail",
+            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+            user: session.data.session.user.id,
+            clientlink: clientlink,})
+        .then(res =>{
             console.log(res)
             setSD(res.data.details)
             setPrice(res.data.details.default_price)
             console.log("set the details")
+            
             setLessons(res.data.lessons)
         })}
         catch{

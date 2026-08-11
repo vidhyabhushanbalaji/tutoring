@@ -7,26 +7,18 @@ import NavBar from '../NavBar'
 import { supabase } from '../supabaseClient';
 import { Edit, Save } from 'lucide-react'
 
+
 function ParentHome({ data }){
     const nav = useNavigate()
     
-    const [fetched, setFetched] = useState(false)
-    const [userID, setUser] = useState("")
-    
     useEffect(()=>{
-        if (!fetched){
-            const getUser = async()=> {
-            const { data, error } = await supabase.auth.getUser()
-            if (error){
-                return "error"
-            }
-            else{
-                return data.user.id
-            }
-            }
-            setUser(getUser())
-            setFetched(true)}
-        },[])
+        setTutors(data.tutors)
+        setUnpaidLessons(data.unpaid)
+        setParentFirstName(data.parent.first_name)
+        setParentLastName(data.parent.last_name)
+        setParentEmail(data.parent.email)
+        setParentShareCode(data.parent.authcode)
+        },[data])
 
     const [allTutors, setTutors] = useState([])
     const [unpaidLessons,setUnpaidLessons] = useState([])
@@ -66,7 +58,6 @@ function ParentHome({ data }){
                 {headers:
                     {Authorization: `Bearer: ${session.data.session.access_token}`},
                 user: session.data.session.user.id,
-                
                 "changes": newChanges.current})
         newChanges.current= {};
     }

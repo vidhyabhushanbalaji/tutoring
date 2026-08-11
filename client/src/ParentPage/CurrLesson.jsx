@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react'
 import Modal from '../Modal'
 import axios from 'axios'
 import { Link } from "react-router-dom"
+import { supabase } from '../supabaseClient';
+
 
 function CurrLesson({ lessonID, clientlink}){
     console.log("lessonID"+lessonID)
@@ -29,21 +31,24 @@ function CurrLesson({ lessonID, clientlink}){
         if (lessonID!=-1){
             console.log("here3")
             try{
-            await axios.post("https://localhost:443/tutoring/getlesson",{
-                    tutor_id: userID, 
-                    lessonid: lessonID, 
-                    clientlink: clientlink}).then(res =>{
-                console.log("here")
-                setTime(res.data.lessontime.substring(0,16))
-                setPrice(res.data.price)
-                setPaid(res.data.paid)
-                setPrivNotes(res.data.privatenotes)
-                setPubNotes(res.data.publicnotes)
-                setTitle(res.data.title)
-                setComplete(res.data.complete)
+            const session = await supabase.auth.getSession()
+            await axios.post("https://helpmetutor-backend.vercel.app:443/tutoring/getlesson",{
+                headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+                user: session.data.session.user.id,
+                lessonid: lessonID, 
+                clientlink: clientlink}).then(res =>
+                {
+                    console.log("here")
+                    setTime(res.data.lessontime.substring(0,16))
+                    setPrice(res.data.price)
+                    setPaid(res.data.paid)
+                    setPrivNotes(res.data.privatenotes)
+                    setPubNotes(res.data.publicnotes)
+                    setTitle(res.data.title)
+                    setComplete(res.data.complete)
 
-                console.log(lessonDetails)
-            })}
+                    console.log(lessonDetails)
+                })}
             catch{
                 console.log("error")
             }}

@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import Modal from '../Modal'
 import axios from 'axios'
 import { SquareArrowRightExit } from 'lucide-react';
+import { supabase } from '../supabaseClient';
+
 
 
 function UpperDetails({ title, details, setPriceChange}){
     let detailsSet = false;
     const nav = useNavigate()  
-    const userID = localStorage.getItem("id")
     const [desc, setDesc] = useState("")
     const [price, setPrice] = useState("")
     const [publicNote, setPublicNote] =useState("")
@@ -32,11 +33,13 @@ function UpperDetails({ title, details, setPriceChange}){
                     setTutorEmail(details.tutor.email)}
     }, [details])
 
-    function removeParent(){
-        axios.post("https://localhost:443/users/removeparent",
-            {
-                "clientlink": details.clientlink,
-                "parent_id": userID,
+    async function removeParent(){
+        const session = await supabase.auth.getSession()
+        axios.post("https://helpmetutor-backend.vercel.app:443/users/removeparent",
+            {   headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+                is_tutor: false,
+                user: session.data.session.user.id,
+                clientlink: details.clientlink
             })
         .then(res=>{
             nav('/home')

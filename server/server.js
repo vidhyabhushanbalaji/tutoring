@@ -124,7 +124,7 @@ app.post('/users/addclient', async(req,res1)=>{
         res1.status(200).send({clientlink: newID})
     }
     catch{
-        console.log("fail")
+        res1.status(500).send("error on adding the client, try again")
     }
 })
 
@@ -170,17 +170,31 @@ app.post('/users/joinparent', async(req,res1)=>{
 
 app.post('/users/removeparent', async(req,res1)=>{
     try{
-        console.log("this ran")
-        console.log(req.body)
-        if("tutor_id" in req.body){
-            await client.query("UPDATE client_links SET parent_id = $1 WHERE clientlink=$2 AND tutor_id= $3", [null, req.body.clientlink, req.body.tutor_id])}
-        else{
-            await client.query("UPDATE client_links SET parent_id = $1 WHERE clientlink=$2 AND parent_id=$3", [null, req.body.clientlink, req.body.parent_id])}
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+        
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
 
-        res1.status(200).send("success")
+        console.log("here1")
+        var query;
+        if(req.body.is_tutor){
+            console.log("here2")
+            query = await supabase.from('client_links').update({parent_id: null}).eq('clientlink', req.body.clientlink).eq('tutor_id', checkUser)}
+        else{
+            query = await supabase.from('client_links').update({parent_id: null}).eq('clientlink', req.body.clientlink).eq('parent_id', checkUser)}
+        
+        console.log(query)
+
+        if(!query.error){
+            res1.status(200).send("success")}
+        res1.status(500).send("error on removing parent from the record")
         }
     catch{
-        console.log("fail")
+        res1.status(500).send("error on removing parent from the record")
     }
 })
 
@@ -286,13 +300,13 @@ app.post('/studentdetail', async(req,res1)=>{
         const parentid = details.data[0].parent_id
         console.log(parentid)
         if (parentid!=null){
-            parent = await supabase.from('users').select('first_name, last_name').eq('id', parentid)
+            parent = await supabase.from('users').select('first_name, last_name, email').eq('id', parentid)
         }
 
         console.log(details)
         console.log(lessons)
 
-        res1.status(200).send({details: {...details.data[0]}, parent: {...parent.data[0]}, lessons: lessons.data})
+        res1.status(200).send({details: {...details.data[0], parent_id:-1,  parent: {...parent.data[0]}}, lessons: lessons.data})
     }
     catch{
         console.log("fail")

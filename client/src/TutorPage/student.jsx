@@ -31,7 +31,7 @@ function Student(){
         try{
         console.log("clientlink "+clientlink)
         const session = await supabase.auth.getSession()
-        await axios.post("https://helpmetutor-backend.vercel.app:443/studentdetail",
+        await axios.post("http://localhost:443/studentdetail",
             {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id, 
             clientlink: clientlink}).then(res =>{

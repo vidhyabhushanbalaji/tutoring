@@ -99,17 +99,20 @@ function UpperDetails({ details, setPriceChange}){
         console.log(parentLinked)
     })}
 
-    function removeParent(){
+    async function removeParent(){
+        const session = await supabase.auth.getSession()
         axios.post("https://helpmetutor-backend.vercel.app:443/users/removeparent",
-            {
-                "clientlink": details.clientlink,
-                "tutor_id": userID,
+            {   headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+                is_tutor: true,
+                user: session.data.session.user.id,
+                "clientlink": details.clientlink
             })
-        .then(res=>{
+        .then((res)=>{
             setParentEmail("");
             setParentFirstName("");
             setParentLastName("");
             setParentLinked(false);
+            setRemoveParentOpen(false);
     })}
     
 

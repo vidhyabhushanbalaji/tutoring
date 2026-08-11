@@ -36,15 +36,15 @@ function Login() {
 
   return (
     <>
-      <AuthLayout
+      <AuthLayout 
       title="Welcome back."
-      subtitle="Pick up right where you left off — your students, schedule, and notes are all waiting."
-    >
+      subtitle="No more spreadsheets. One simple solution. HelpMeTutor.">
+
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-900">Log in</h2>
         <p className="text-sm text-gray-500 mt-1">
           New here?{' '}
-          <a href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+          <a href="/setup" className="text-blue-600 hover:text-blue-700 font-medium">
             Create an account
           </a>
         </p>
@@ -81,9 +81,8 @@ function Login() {
             />
             <button
               type="button"
-              onClick={() => setShowPassword((s) => !s)}
+              onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              tabIndex={-1}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -98,53 +97,6 @@ function Login() {
         </button>
       </form>
     </AuthLayout>
-
-
-
-      <div className='w-screen h-screen flex flex-row'>
-
-        <div className='w-1/2 h-full bg-blue-200'>
-        
-        </div>
-
-        <div className='w-1/2 h-full bg-blue-300'>
-          
-          <div id="top">
-        <div>  
-          <h1>Welcome</h1>
-          <p>
-            Login below
-          </p>
-        </div>
-        
-      </div>
-
-      <div id="login">
-        <div id="login">
-          <form onSubmit={handleSubmit}>
-            <input name ="email"
-            value = {email}
-            onChange = {e => setEmail(e.target.value)}></input> 
-            <br></br>
-            <input name ="pwd" 
-                    value = {pwd}
-                    type="password"
-                    onChange = {e => setPwd(e.target.value)}
-            ></input>
-            
-            <br></br>
-
-
-            <button>Login</button>
-          </form>
-          <button onClick={setupAccount}>setup</button>
-        </div>
-        
-      </div>
-
-        </div>
-
-      </div>
 
       
     </>

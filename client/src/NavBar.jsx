@@ -4,26 +4,6 @@ import { supabase } from './supabaseClient';
 import { useState, useEffect } from 'react'
 
 function NavBar({ userType }){
-    const [fetched, setFetched] = useState(false)
-    const [user, setUser] = useState("")
-
-    useEffect(()=>{
-        if (!fetched){
-            const getUser = async()=> {
-            const { data, error } = await supabase.auth.getUser()
-            if (error){
-                return "error"
-            }
-            else{
-                return data.user.id
-            }
-            }
-            setUser(getUser())
-            setFetched(true)}
-        
-    },[])
-
-    
     
     const nav = useNavigate()  
 

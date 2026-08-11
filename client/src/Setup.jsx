@@ -10,11 +10,12 @@ function Setup(){
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [role, setRole] = useState('student'); // 'student' | 'tutor'
+  const [isTutor, setTutor] = useState(false); // 'student' | 'tutor'
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [email, setEmail] = useState('');
 
   const passwordsMatch = password.length > 0 && password === confirmPassword;
   const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword;
@@ -23,20 +24,8 @@ function Setup(){
     firstName.trim() && lastName.trim() && email.trim() && passwordsMatch;
 
     const nav = useNavigate()  
-    const [fn, setfn] = useState('')
-    const [ln, setln] = useState('')
-    const [email, setEmail] = useState('')
-    const [pwd1, setPwd1] = useState('')
-    const [pwd2, setPwd2] = useState('')
-    const [status, setStatus] = useState('')
 
     async function handleSubmit(event){
-        if (pwd1!=pwd2){
-            setPwd1("")
-            setPwd2("")
-            alert("passwords don't match, retry those")
-            return;
-        }
       event.preventDefault();
       const { data, error } = await supabase.auth.signUp({
           email: email,
@@ -51,20 +40,20 @@ function Setup(){
           headers:{Authorization: `Bearer: ${session.data.session.access_token}`},
           user: data.user.id,
           userData:{
-            is_tutor: (status==="T"),
-            first_name: fn, 
-            last_name: ln,
+            is_tutor: isTutor,
+            first_name: firstName, 
+            last_name: lastName,
             email: email}
         })
-
+        nav('/home')
       }   
   }
     return (
     <>
 
       <AuthLayout
-      title="Keep every lesson organized."
-      subtitle="Track students, schedules, and payments in one place — built for tutors who'd rather teach than manage spreadsheets."
+      title="Calendar, spreadsheet, documents... there has to be a better way"
+      subtitle="Built by a tutor for tutors. All your admin in one place so you can focus on helping your students."
       >
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-gray-900">Create your account</h2>
@@ -114,15 +103,14 @@ function Setup(){
           />
         </div>
 
-        {/* Role toggle */}
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">I am a</label>
           <div className="grid grid-cols-2 gap-2 bg-gray-100 rounded-lg p-1">
             <button
               type="button"
-              onClick={() => setRole('student')}
+              onClick={() => setTutor(false)}
               className={`py-1.5 rounded-md text-sm font-medium transition-colors ${
-                role === 'student'
+                !isTutor
                   ? 'bg-white text-blue-700 shadow-sm'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
@@ -131,9 +119,9 @@ function Setup(){
             </button>
             <button
               type="button"
-              onClick={() => setRole('tutor')}
+              onClick={() => setTutor(true)}
               className={`py-1.5 rounded-md text-sm font-medium transition-colors ${
-                role === 'tutor'
+                isTutor
                   ? 'bg-white text-blue-700 shadow-sm'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
@@ -210,61 +198,7 @@ function Setup(){
       </form>
     </AuthLayout>
 
-      <section id="top">
-        <div>  
-          <h1>Setup your details below</h1>
-        </div>
-        
-      </section>
-
-      <section id="details">
-        <div id="details">
-
-          <form onSubmit={handleSubmit}>
-            <input name ="fn"
-            placeholder = "first name"
-            value = {fn}
-            onChange = {e => setfn(e.target.value)}></input> 
-            <br></br>
-
-            <input name ="ln"
-            placeholder = "last name"
-            value = {ln}
-            onChange = {e => setln(e.target.value)}></input> 
-            <br></br>
-
-            <input name ="status"
-            placeholder = "status letter"
-            maxLength="1"
-            value = {status}
-            onChange = {e => setStatus(e.target.value)}></input> 
-            <br></br>
-
-            <br></br>
-
-            <input name ="email"
-            placeholder = "email"
-            value = {email}
-            onChange = {e => setEmail(e.target.value)}></input> 
-            <br></br>
-            <input name ="pwd1" 
-                    value = {pwd1}
-                    type="password"
-                    placeholder = "choose a secure password"
-                    onChange = {e => setPwd1(e.target.value)}
-            ></input>
-            <br></br>
-            <input name ="pwd2" 
-                    value = {pwd2}
-                    placeholder = "confirm password"
-                    type="password"
-                    onChange = {e => setPwd2(e.target.value)}
-            ></input>
-            <br></br>
-            <button>Let's go!</button>
-          </form>
-        </div>
-      </section>
+    
     </>
   )
 }

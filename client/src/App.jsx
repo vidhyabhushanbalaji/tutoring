@@ -19,12 +19,13 @@ function App() {
     <>
         <BrowserRouter>
           <Routes>
+            <Route exact path="/" element={<Login/>}/>
             <Route exact path="/login" element={<Login/>}/>
             <Route exact path="/setup" element={<Setup/>}/>
             <Route exact path="/home" element={<Home/>}/>
             <Route exact path="/tutor/home" element={<TutorHome/>}/>
             <Route exact path="/parent/home" element={<ParentHome/>}/>
-            <Route exact path="/" element={<SupabaseLogin/>}/>
+            <Route exact path="/supabaselogin" element={<SupabaseLogin/>}/>
             <Route exact path="/student/:clientlink" element={<Student />}/>
             <Route exact path="/tutoring/:clientlink" element={<Tutoring />}/>
             <Route exact path="/test" element={<Test/>}/>

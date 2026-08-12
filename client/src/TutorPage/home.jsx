@@ -18,6 +18,7 @@ function TutorHome({ data }){
     const [tutorLastName, setTutorLastName] =useState("") 
     const [tutorEmail, setTutorEmail] =useState("") 
     const [editDetails, setEditDetails] = useState(false)
+    const [nextLessons, setNextLessons] = useState([])
     const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
     
 
@@ -33,6 +34,7 @@ function TutorHome({ data }){
         setTutorFirstName(data.tutor.first_name)
         setTutorLastName(data.tutor.last_name)
         setTutorEmail(data.tutor.email)
+        setNextLessons(data.next3)
     }
     
 
@@ -164,7 +166,29 @@ function TutorHome({ data }){
                 </div>
                 <div class="flex flex-col w-2/3 h-full min-h-0">
                         <div class="h-2/3">
+                                <div className='flex flex-row w-full'>
+                                    <div className='w-1/2'>
+
+                                    </div>
+                                    <div className='flex flex-col w-1/2'>
+                                        <div className='text-3xl m-4'>Your next lessons:</div>
+                                            {nextLessons.map(({ clientlink, client_links, lessontime, price, title, lessonid}) =>(
+                                            
+                                            <div
+                                                onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
+                                                className="hover:text-blue-600">
+                                                
+                                                <h2>{client_links.description}</h2>
+                                                <h2>{title}</h2>
+                                                <p>{(new Date(lessontime).toUTCString().slice(0,-7))}</p>
+                                                
+                                                <p>{formatter.format(price)}</p>
+                                            </div>
+                                            
+                                        ))}
+                                    </div>
                                 
+                                </div>
                         </div>
                         
                         <div id ="unpaid" className='h-1/3 w-full flex flex-col'>

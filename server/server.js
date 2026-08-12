@@ -235,12 +235,6 @@ app.post('/homepage', async(req,res1)=>{
         token = req.body.headers.Authorization.split(" ")[1]
         reqUUID = req.body.user
 
-        checkUser = await verifyUser(reqUUID, token)
-        if (checkUser==-1){
-            console.log(error)
-            res1.status(400).send("user does not match")
-        }
-
         var checkUser;
         var isTutor;
         console.log("here3")
@@ -261,9 +255,15 @@ app.post('/homepage', async(req,res1)=>{
             console.log(students)
             const tutor = await supabase.from('users').select('first_name, last_name, email').eq('id', checkUser).eq('is_tutor', true).limit(1)
             console.log(tutor)
-            const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('paid', false).eq('tutor_id', checkUser).order('lessontime', { ascending: true})
-            console.log(unpaid.data)
-            res1.status(200).send({is_tutor: true, students: students.data, tutor: tutor.data[0], unpaid: unpaid.data})}
+            const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('paid', false).eq('tutor_id', checkUser)
+            const timefrom = new Date(new Date() - 60*60*1000).toISOString()
+            console.log(timefrom)
+            //const {data, error} = await supabase.from('lessons').select('price.sum()').eq('paid', true).gte('lessontime', new Date(now.getFullYear(), now.getMonth()))
+            //console.log(error)
+
+            const next3 = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', timefrom).limit(3).order('lessontime', { ascending: true})
+
+            res1.status(200).send({is_tutor: true, students: students.data, tutor: tutor.data[0], unpaid: unpaid.data, next3: next3.data})}
         else{
             const tutors = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('parent_id', checkUser).order('start', { ascending: true})
             console.log(tutors)

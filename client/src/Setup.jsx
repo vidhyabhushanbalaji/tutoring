@@ -115,7 +115,7 @@ function Setup(){
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Student
+              Parent
             </button>
             <button
               type="button"

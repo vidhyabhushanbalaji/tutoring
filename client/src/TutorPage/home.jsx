@@ -6,7 +6,7 @@ import axios from 'axios'
 import { Link, useNavigate } from "react-router-dom"
 import NavBar from '../NavBar'
 import { supabase } from '../supabaseClient';
-import { Edit, Save} from 'lucide-react'
+import { Edit, Save, Plus} from 'lucide-react'
 
 function TutorHome({ data }){
     const nav = useNavigate()
@@ -66,16 +66,13 @@ function TutorHome({ data }){
     
 
     return(
-        <div className='h-screen w-screen overflow-y-auto flex flex-col overflow-y-auto'>            
-        
-            
-            <NavBar/>
-            <div class="w-full flex flex-col h-1/5">
-            
-                
-                <div class="pr-5 h-full w-full flex flex-row bg-blue-300">
+    <div className="h-screen w-screen flex flex-col bg-gray-50 overflow-hidden">
+        <NavBar />
+    
+    <div className='h-1/10'>
+        <div class="pr-5 h-full w-full flex flex-row bg-blue-200 pb-2">
                     <div class="pl-4 pr-10 flex flex-col text-left h-full w-2/3">
-                        <h1 >Hi {tutorFirstName}!</h1>
+                        <h1 className='text 2xl' >Hi {tutorFirstName}!</h1>
                         <h3 className='text-black w-full min-w-fit'>Welcome to the tutor homepage!</h3>
                         
                     </div>
@@ -101,7 +98,7 @@ function TutorHome({ data }){
                                     onChange = {e => {
                                         setTutorFirstName(e.target.value)
                                         newChanges.current["first_name"]=e.target.value}}
-                                    className='h-min text-medium m-px'
+                                    className='h-min text-medium m-px w-full rounded-md px-2 py-1 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white'
                                 />
                                 
                                 <input
@@ -110,7 +107,7 @@ function TutorHome({ data }){
                                     onChange = {e => {
                                         setTutorLastName(e.target.value)
                                         newChanges.current["last_name"]=e.target.value}}
-                                    className='text-medium m-px'
+                                    className='text-medium m-px w-full rounded-md px-2 py-1 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white'
                                 />
 
                             </>
@@ -137,101 +134,112 @@ function TutorHome({ data }){
                     
 
                 </div>
+    </div>
+  
 
-            </div>
-            
-            
-            <div class="flex flex-row h-4/5 min-h-0 gap-4">
-                <div class="flex flex-col w-1/3 h-full pt-2">
-                        <div id="addstudent" className='mb-2'>
-                            <button 
-                                onClick = {()=> setAddStudentOpen(true)}
-                                className='w-4/5 justify-center bg-blue-400 hover:bg-blue-600 text-white font-medium border-none'>Add a student</button>
-                        </div>
-                        <div className='overflow-y-auto' >
-                            <ul className='space-y-2'>
-                                {allStudents.map(({ clientlink, description, default_price, start}) =>(
-                                    <li className='rounded-lg hover:bg-gray-200 p-2 transition-colors'>
-                                        <Link to={`../student/${clientlink}`}>
-                                            <h2>{description}</h2>
-                                            <div className='justify-between'>
-                                                <p>Default price: {formatter.format(default_price)}</p>
-                                                <p>Tutoring Since: {(new Date(start).toUTCString().slice(5,-13))}</p>
-                                            </div>
-                                            </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                    </div>
+  <div className="flex-1 min-h-0 flex flex-row gap-4 p-4">
+
+    <div className="w-1/3 h-full min-h-0 flex flex-col bg-white rounded-xl shadow-sm p-4">
+      <button
+        onClick={() => setAddStudentOpen(true)}
+        className="w-full flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg shadow-sm mb-3"
+      >
+        <Plus size={16} /> Add a student
+      </button>
+
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <ul className="space-y-2">
+          {allStudents.map(({ clientlink, description, default_price, start }) => (
+            <li key={clientlink} className="rounded-lg hover:bg-gray-50 border border-gray-100 p-3 transition-colors">
+              <Link to={`../student/${clientlink}`}>
+                <h2 className="font-medium text-gray-800">{description}</h2>
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>Default: {formatter.format(default_price)}</span>
+                  <span>Since {(new Date(start).toUTCString().slice(5, -13))}</span>
                 </div>
-                <div class="flex flex-col w-2/3 h-full min-h-0">
-                        <div class="h-2/3">
-                                <div className='flex flex-row w-full'>
-                                    <div className='w-1/2'>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
 
-                                    </div>
-                                    <div className='flex flex-col w-1/2'>
-                                        <div className='text-3xl m-4'>Your next lessons:</div>
-                                            {nextLessons.map(({ clientlink, client_links, lessontime, price, title, lessonid}) =>(
-                                            
-                                            <div
-                                                onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
-                                                className="hover:text-blue-600">
-                                                
-                                                <h2>{client_links.description}</h2>
-                                                <h2>{title}</h2>
-                                                <p>{(new Date(lessontime).toUTCString().slice(0,-7))}</p>
-                                                
-                                                <p>{formatter.format(price)}</p>
-                                            </div>
-                                            
-                                        ))}
-                                    </div>
-                                
-                                </div>
-                        </div>
-                        
-                        <div id ="unpaid" className='h-1/3 w-full flex flex-col'>
-                            <div id="unpaid_title" className='flex flex-row justify-between'>
-                                <h3 className='w-1/2'>Unpaid lessons: {unpaidLessons.length}</h3>
-                                <h3 className='w-1/2'> Total Unpaid: {formatter.format(unpaidLessons.reduce((acc, cur)=>cur.price+acc, 0))}</h3>
-                            </div>
-                            <div className='overflow-y-auto'>
-                            <table class="w-full text-sm text-left rtl:text-right text-body">
-                                <thead class="border-b">
-                                    <th>Client description</th>
-                                    <th>Lesson Title</th>
-                                    <th>Time</th>
-                                    <th>Price</th>
-                                </thead>
-                                <tbody>
-                                    {unpaidLessons.map(({ clientlink, client_links, lessontime, price, title, lessonid}) =>(
-                                    
-                                    <tr 
-                                        onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
-                                        className="hover:text-blue-600">
-                                        
-                                        <th>{client_links.description}</th>
-                                        <th>{title}</th>
-                                        <th>{(new Date(lessontime).toUTCString().slice(0,-7))}</th>
-                                        
-                                        <th>{formatter.format(price)}</th>
-                                    </tr>
-                                    
-                                ))}
-                                </tbody>
-                            </table>
-                            </div>
-                        </div>
+    <div className="w-2/3 h-full min-h-0 flex flex-col gap-4">
+    
+    <div className='flex flex-row h-2/3'>
+
+      <div className='w-1/2 h-full rounded-xl bg-white mx-4'>
+          
+      </div>
+
+      <div className="h-full w-1/2 min-h-0 bg-white rounded-xl shadow-sm p-4 flex flex-col">
+        
+        <h3 className="text-lg font-semibold text-gray-800 mb-3">Your next lessons</h3>
+        <div className="min-h-0 overflow-y-auto space-y-2">
+          {nextLessons.map(({ clientlink, client_links, lessontime, price, title, lessonid }) => (
+            <div
+              key={lessonid}
+              onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
+              className="cursor-pointer rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 px-3 py-2"
+            >
+              <div className="flex justify-between">
+                <div>
+                  <p className="font-medium text-gray-800">{client_links.description}</p>
+                  <p className="text-sm text-gray-500">{title}</p>
                 </div>
+                <span className="text-sm font-medium text-gray-700">{formatter.format(price)}</span>
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                {(new Date(lessontime).toUTCString().slice(0, -7))}
+              </p>
             </div>
-
-        <Modal open={addStudentOpen} onClose={()=> setAddStudentOpen(false)}>
-            <AddStudent />
-        </Modal>
-        
-        
+          ))}
         </div>
+      </div>
+      </div>
+
+      {/* Unpaid lessons */}
+      <div className="h-1/3 min-h-0 bg-white rounded-xl shadow-sm p-4 flex flex-col">
+        <div className="flex flex-row justify-between items-center mb-2 shrink-0">
+          <h3 className="text-sm font-semibold text-gray-800">Unpaid lessons: {unpaidLessons.length}</h3>
+          <h3 className="text-sm font-semibold text-red-600">
+            Total unpaid: {formatter.format(unpaidLessons.reduce((acc, cur) => cur.price + acc, 0))}
+          </h3>
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="border-b border-gray-200 text-xs text-gray-500 uppercase top-0 bg-white">
+              <tr>
+                <th className="py-1 font-medium">Client</th>
+                <th className="py-1 font-medium">Lesson</th>
+                <th className="py-1 font-medium">Time</th>
+                <th className="py-1 font-medium text-right">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              {unpaidLessons.map(({ clientlink, client_links, lessontime, price, title, lessonid }) => (
+                <tr
+                  key={lessonid}
+                  onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
+                  className="cursor-pointer hover:bg-red-50 border-b border-gray-50"
+                >
+                  <td className="py-2 text-gray-700">{client_links.description}</td>
+                  <td className="py-2 text-gray-700">{title}</td>
+                  <td className="py-2 text-gray-500">{(new Date(lessontime).toUTCString().slice(0, -7))}</td>
+                  <td className="py-2 text-right font-medium text-red-600">{formatter.format(price)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Modal open={addStudentOpen} onClose={() => setAddStudentOpen(false)}>
+    <AddStudent />
+  </Modal>
+</div>
 
     )
 }

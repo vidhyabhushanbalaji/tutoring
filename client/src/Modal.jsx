@@ -11,13 +11,14 @@ function Modal({ open, children, onClose}){
         transform: 'translate(-50%, -50%)',
         backgroundColor: '#FFF',
         padding: '50px',
+        
     }
 
     return ReactDom.createPortal(
         <>
         <div 
             style={popupstyle}
-            className='rounded-xl'>
+            className='rounded-xl border border-gray-300'>
             {children}
             <button onClick ={onClose}>
                 Close

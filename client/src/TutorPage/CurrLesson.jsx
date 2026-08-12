@@ -153,14 +153,15 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
         <>
         <div class="flex flex-col h-full ">
         
-        <p class="h-min text-white text-left" style ={{backgroundColor: saved ? '#6194FA' : 'red' }}>
+        <p class={`h-min text-white text-left bg-${saved ? 'blue-600' : 'red-600'}`}
+        >
             {`Saved Status: ${saved ? "All saved" : "Saving..."}`} </p>
 
         <div class="h-max overflow-y-auto bg-gray-50 p-5">
             <form >
                 <div class="flex flex-col ">
                     <input 
-                        class = "w-full text-6xl h-auto font-semibold bg-transparent border-none"
+                        class = "w-full text-6xl h-auto font-semibold bg-white border border-gray-300 "
                         name ="title"
                         placeholder = "Title for session"
                         maxLength="127"
@@ -173,20 +174,30 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
                         ></input> 
 
                     <div class="flex flex-row gap-4 pt-4">
-                        <input 
-                        name ="date"
-                        class="w-1/3 rounded-md border border-gray-400"
-                        placeholder = "session date YYYY-MM-DD"
-                        type="datetime-local"
-                        value = {time}
-                        onChange = {e => {
-                            setTime(e.target.value);
-                            newChanges.current["lessontime"]=e.target.value;
-                            alertChange();}}/>
+                        
+                        <div className='w-1/3 flex flex-col'>
+                            <span className='text-left'>Lesson Start Date and Time</span>
+                            <input 
+                            name ="date"
+                            class="rounded-md border border-gray-400"
+                            placeholder = "session date YYYY-MM-DD"
+                            type="datetime-local"
+                            value = {time}
+                            onChange = {e => {
+                                setTime(e.target.value);
+                                newChanges.current["lessontime"]=e.target.value;
+                                alertChange();}}/>
+
+                        </div>
+                        
                     
+                        <div className='w-1/3 flex flex-col'>
+                            <span className='text-left'>Lesson Price</span>
+                        <div className='flex flex-row'>
+                        <span className='text-xl mr-1'>£</span>
                         <input 
                         name ="price"
-                        class="w-1/3 rounded-md border border-gray-400"
+                        class="rounded-md border border-gray-400"
                         placeholder = "price"
                         value = {price}
                         onChange = {e => {
@@ -198,6 +209,8 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
                                 alert("price has to be a number only")
                             }    
                         }}/>
+                        </div>
+                        </div>
                     </div>
 
                     <div class="flex flex-row gap-4 pt-4">
@@ -236,7 +249,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
                         placeholder = "general notes"
                         maxLength="3000"
                         value = {publicNotes}
-                        className='h-40 w-full'
+                        className='h-40 w-full bg-white border border-grey-300'
                         onChange = {e => {
                             setPubNotes(e.target.value);
                             newChanges.current["publicnotes"]=e.target.value;
@@ -259,7 +272,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
                             newChanges.current["privatenotes"]=e.target.value;
                             alertChange();
                         }}
-                        className='h-32 w-full'
+                        className='h-32 w-full bg-white border border-grey-300'
                     >
                     </textarea>
                     <br></br>

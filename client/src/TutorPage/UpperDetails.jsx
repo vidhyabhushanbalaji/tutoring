@@ -199,18 +199,21 @@ function UpperDetails({ details, setPriceChange}){
                         style={{"fontSize":"32px"}}/>
 
 
-                    <div class="flex flex-row">
-                            <h2 class="w-full">
+                    <div class="flex flex-row content-start">
+                            <h2 class="mr-1">
                                 Default Price:£
-                                <input name = "price" 
-                                    placeholder = "Default price"
-                                    value = {price}
-                                    onChange = {
-                                        e => {if (!isNaN(e.target.value)){
-                                            setPrice(e.target.value)}
-                                            newChanges.current["default_price"]=e.target.value}}
-                                    />
+                            <input name = "price" 
+                                placeholder = "Default price"
+                                value = {price}
+                                onChange = {
+                                    e => {if (!isNaN(e.target.value)){
+                                        setPrice(e.target.value)}
+                                        newChanges.current["default_price"]=e.target.value}}
+                                />    
+                                
                             </h2>
+                            
+                            
                     </div>
                     <h2>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
                     

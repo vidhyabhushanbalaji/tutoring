@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import axios from 'axios'
+import Modal from '../Modal'
+import { Loader } from 'lucide-react';
+
 
 function CreateLesson({ default_price, clientlink, onAdd}){
 
@@ -13,6 +16,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     const [paid, setPaid] = useState(false)
     const [title, setTitle] = useState('')
     const [complete, setComplete] = useState(false)
+    const [loadingOpen, setLoadingOpen] = useState(false)
     const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
 
     useEffect(()=>{
@@ -21,6 +25,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     
     async function handleSubmit(event){
         event.preventDefault();
+        setLoadingOpen(true)
         const session = await supabase.auth.getSession()
         axios.post("https://helpmetutor-backend.vercel.app:443/addlesson",
         {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
@@ -48,11 +53,13 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     return(
        
        <section id="newLesson">
-          <div class="flex flex-col ">
-            <p className='justify-center h-min w-full text-white text-4xl pb-6 bg-blue-400 rounded-xl content-center border-black p-4 mb-8'>New Lesson:</p>
-            <form onSubmit={handleSubmit}>
+          <div class="flex flex-col w-full h-full p-2">
+            <p className='justify-center h-min w-full text-white text-2xl bg-blue-600 rounded-xl text-left border-black p-4 mb-4'>New Lesson:</p>
+            <form onSubmit={handleSubmit} className='px-4'>
+
+                <div class="flex flex-col gap-4 pt-4">
                     <input 
-                        class = "w-full text-6xl h-auto font-semibold bg-transparent border-none mb-10 pl-4 pr-4"
+                        class = "w-full text-6xl h-auto font-semibold bg-white border border-gray-300"
                         name ="title"
                         placeholder = "Title for the new session"
                         maxLength="127"
@@ -66,33 +73,44 @@ function CreateLesson({ default_price, clientlink, onAdd}){
 
                     
 
-                    <div class="flex flex-row gap-4 pt-4 justify-center h-full mb-10">
-                        <input 
-                        name ="date"
-                        class="w-1/3 rounded-md border border-gray-400"
-                        placeholder = "session date YYYY-MM-DD"
-                        type="datetime-local"
-                        value = {time}
-                        onChange = {e => {
-                            setTime(e.target.value);
-                            newChanges.current["lessontime"]=e.target.value;
-                            alertChange();}}/>
-                    
-                        <input 
-                        name ="price"
-                        class="w-1/3 rounded-md border border-gray-400"
-                        placeholder = "price"
-                        value = {price}
-                        onChange = {e => {
-                            if(!isNaN(e.target.value)){
-                                setPrice(e.target.value);
-                                newChanges.current["price"] = e.target.value;
-                                alertChange();}
-                            else{
-                                alert("price has to be a number only")
-                            }    
-                        }}
-                        />
+                        <div class="flex flex-row gap-4 pt-4 h-full mb-10">
+                        
+                            <div className='w-1/3 flex flex-col'>
+                                <span className='text-left'>Lesson Start Date and Time</span>
+                                <input 
+                                name ="date"
+                                class="rounded-md border border-gray-400"
+                                placeholder = "session date YYYY-MM-DD"
+                                type="datetime-local"
+                                value = {time}
+                                onChange = {e => {
+                                    setTime(e.target.value);
+                                    newChanges.current["lessontime"]=e.target.value;
+                                    alertChange();}}/>
+                            </div>
+                        
+                        <div className='w-1/3 flex flex-col'>
+                            <span className='text-left'>Lesson Price</span>
+                            <div className='flex flex-row'>
+                                <span className='text-xl mr-1'>£</span>
+                                    <input 
+                                    name ="price"
+                                    class="rounded-md border border-gray-400"
+                                    placeholder = "price"
+                                    value = {price}
+                                    onChange = {e => {
+                                        if(!isNaN(e.target.value)){
+                                            setPrice(e.target.value);
+                                            newChanges.current["price"] = e.target.value;
+                                            alertChange();}
+                                        else{
+                                            alert("price has to be a number only")
+                                        }    
+                                    }}
+                                    />
+                            </div>
+                        </div>
+                    </div>
                     </div>
 
                     <div class="flex flex-row gap-4 pt-4 pb-4 mb-10 mr-5 ml-5">
@@ -122,12 +140,16 @@ function CreateLesson({ default_price, clientlink, onAdd}){
 
                     </div>
             <div className=''></div>
-            <button class="bg-blue-400 w-5/6 text-white text-xl ml-5">
+            <button class="bg-blue-600 w-5/6 text-white text-xl ml-5">
               Add this lesson!
             </button>
           </form>
           
         </div>
+        <Modal open={loadingOpen} onClose={()=>{setLoadingOpen(false)}}>
+                <h1>Loading</h1>
+                <Loader className="animate-bounce" size={300}/>
+            </Modal>
       </section>
     )
 }

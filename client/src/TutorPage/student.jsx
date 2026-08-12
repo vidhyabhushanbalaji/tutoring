@@ -182,11 +182,11 @@ function Student(){
                 <div class="h-4/5 w-screen flex flex-row bg-gray-50">
 
                         <div class="flex flex-col w-1/5 pt-4 pl-4">
-                            <div class="h-min mb-2 content-center">
+                            <div class="h-min content-center">
                                 <h2 className="font-semibold">Lessons</h2>
-                                <button 
-                                onClick={()=>setCurrLesson(-1)}
-                                className="w-4/5 justify-center bg-blue-400 hover:bg-blue-600 text-white font-medium border-black">
+                                    <button 
+                                        onClick={()=>setCurrLesson(-1)}
+                                        className="w-4/5 justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white font-medium pt-1 rounded-lg shadow-sm mb-3 border-black">
                                     <span className="text-lg">+</span> Add a new lesson
                                 </button>
                             </div>
@@ -198,17 +198,17 @@ function Student(){
                                     : 
                                     (
                                         lessons.map(({ lessontime, title, lessonid }) =>(
-                                        <div 
-                                            onClick={() => setCurrLesson(lessonid)} 
-                                            key={lessonid}
-                                            className={`w-full cursor-pointed rounded-xl shadow-sm content-center mb-2 border
-                                            ${currLesson===lessonid ?
-                                                'bg-blue-200 ring-2 ring-blue-300'
-                                                :"bg-blue-50 hover:translate-y-0.5"
-                                            }`}>
-                                                <b>{title}</b>
-                                                <p>{(new Date(lessontime).toUTCString().slice(0,-7))}</p>
-                                        </div>
+                                            <div 
+                                                onClick={() => setCurrLesson(lessonid)} 
+                                                key={lessonid}
+                                                className={`w-full cursor-pointer rounded-lg border border-x border-gray-300 p-3 my-2 transition-colors
+                                                ${currLesson===lessonid ?
+                                                    'bg-gray-200'
+                                                    :"hover:translate-y-0.5"
+                                                }`}>
+                                                    <b>{title}</b>
+                                                    <p>{(new Date(lessontime).toUTCString().slice(0,-7))}</p>
+                                            </div>
 
                                     )))
                                     

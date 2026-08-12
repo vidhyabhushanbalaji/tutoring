@@ -13,9 +13,10 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     const [paid, setPaid] = useState(false)
     const [title, setTitle] = useState('')
     const [complete, setComplete] = useState(false)
+    const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
 
     useEffect(()=>{
-        setPrice(default_price)
+        setPrice(formatter.format(default_price).slice(1))
     }, [default_price])
     
     async function handleSubmit(event){
@@ -83,10 +84,15 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                         placeholder = "price"
                         value = {price}
                         onChange = {e => {
-                            setPrice(e.target.value);
-                            newChanges.current["price"] = e.target.value; 
-                            alertChange();           
-                        }}/>
+                            if(!isNaN(e.target.value)){
+                                setPrice(e.target.value);
+                                newChanges.current["price"] = e.target.value;
+                                alertChange();}
+                            else{
+                                alert("price has to be a number only")
+                            }    
+                        }}
+                        />
                     </div>
 
                     <div class="flex flex-row gap-4 pt-4 pb-4 mb-10 mr-5 ml-5">
@@ -120,6 +126,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
               Add this lesson!
             </button>
           </form>
+          
         </div>
       </section>
     )

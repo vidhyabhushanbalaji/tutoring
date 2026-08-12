@@ -25,6 +25,7 @@ function CurrLesson({ lessonID, clientlink}){
     const newChanges = useRef({});
 
     var changes = {};
+    const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
 
     const getLD = async(lessonID)=>{
         console.log("here2")
@@ -33,7 +34,8 @@ function CurrLesson({ lessonID, clientlink}){
             try{
             const session = await supabase.auth.getSession()
             await axios.post("https://helpmetutor-backend.vercel.app:443/tutoring/getlesson",{
-                headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+                headers:{
+                    Authorization: `Bearer: ${session.data.session.access_token}`}, 
                 user: session.data.session.user.id,
                 lessonid: lessonID, 
                 clientlink: clientlink}).then(res =>

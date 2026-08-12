@@ -29,6 +29,7 @@ function UpperDetails({ details, setPriceChange}){
 
 
     const newChanges = useRef({});
+    const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
 
     useEffect(()=> {
                 console.log("recieved details")
@@ -168,7 +169,7 @@ function UpperDetails({ details, setPriceChange}){
                     <h3>{parentFirstName}</h3>
                     <h3>{parentLastName}</h3>
                     <a href={`mailto:${parentEmail}`}>
-                    <h3 className='hover:text-blue-500 '>{parentEmail}</h3></a>
+                    <h3 className='hover:text-blue-500 text-xs'>{parentEmail}</h3></a>
                     <Modal open={removeParentOpen} onClose={()=>{setRemoveParentOpen(false)}}>
                         <h2>Sure you want to unlink this parent?</h2>
                         The parent will be unable to access the lesson records <br/>
@@ -250,7 +251,7 @@ function UpperDetails({ details, setPriceChange}){
                 <button class="h-full w-10 bg-green-300 mr-1" onClick={()=>
                     {   setEditsOpen(false);
                         updateClient();
-                        setPrice("£"+price);
+                        
                     }}>
                     <Save size={16}/>
                 </button>
@@ -270,7 +271,7 @@ function UpperDetails({ details, setPriceChange}){
                     <h1>{desc}</h1>
                     <div class="flex flex-row">
                             <h2 class="w-full">
-                                Default Price: {price}
+                                Default Price: {formatter.format(price)}
                             </h2>
                     </div>
                     <h2>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
@@ -300,7 +301,7 @@ function UpperDetails({ details, setPriceChange}){
 
                 <button class="h-full w-10 bg-green-300" onClick={()=>
                         {setEditsOpen(true);
-                        setPrice(price.slice(1))
+                        
                     }}>
                     <SquarePen />
                 </button>

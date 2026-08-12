@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Modal from '../Modal'
 import axios from 'axios'
 import { supabase } from '../supabaseClient';
+import { Loader } from 'lucide-react';
+
 
 import { Link } from "react-router-dom"
 import CreateLesson from './CreateLesson'
@@ -22,6 +24,8 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
     const [title, setTitle] = useState('')
     const [saved, setSaved] = useState(true)
     const newChanges = useRef({});
+    const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
+    const [loadingOpen, setLoadingOpen] = useState(true)
 
     var changes = {};
 
@@ -37,13 +41,13 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                     lessonid: lessonID}).then(res =>{
                 console.log("here")
                 setTime(res.data.lessontime.substring(0,16))
-                setPrice(res.data.price)
+                setPrice(formatter.format(res.data.price).slice(1))
                 setPaid(res.data.paid)
                 setPrivNotes(res.data.privatenotes)
                 setPubNotes(res.data.publicnotes)
                 setTitle(res.data.title)
                 setComplete(res.data.complete)
-
+                setLoadingOpen(false)
                 console.log(lessonDetails)
             })}
             catch{
@@ -175,9 +179,13 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                         placeholder = "price"
                         value = {price}
                         onChange = {e => {
-                            setPrice(e.target.value);
-                            newChanges.current["price"] = e.target.value; 
-                            alertChange();           
+                            if(!isNaN(e.target.value)){
+                                setPrice(e.target.value);
+                                newChanges.current["price"] = e.target.value;
+                                alertChange();}
+                            else{
+                                alert("price has to be a number only")
+                            }    
                         }}/>
                     </div>
 
@@ -257,6 +265,10 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                 Your student and parent will be unable to access the lesson as well. <br/><br/>
                 <button class="bg-red-600 text-black" onClick={()=>deleteLesson()}>I am certain I want to permanently delete this lesson</button>
                 <br/>
+            </Modal>
+            <Modal open={loadingOpen} onClose={()=>{setLoadingOpen(false)}}>
+                <h1>Loading</h1>
+                <Loader className="animate-bounce" size={300}/>
             </Modal>
         </div>
         </>

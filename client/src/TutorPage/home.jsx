@@ -18,7 +18,7 @@ function TutorHome({ data }){
     const [tutorLastName, setTutorLastName] =useState("") 
     const [tutorEmail, setTutorEmail] =useState("") 
     const [editDetails, setEditDetails] = useState(false)
-
+    const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
     
 
     const newChanges = useRef({});
@@ -153,7 +153,7 @@ function TutorHome({ data }){
                                         <Link to={`../student/${clientlink}`}>
                                             <h2>{description}</h2>
                                             <div className='justify-between'>
-                                                <p>Default price: {default_price}</p>
+                                                <p>Default price: {formatter.format(default_price)}</p>
                                                 <p>Tutoring Since: {(new Date(start).toUTCString().slice(5,-13))}</p>
                                             </div>
                                             </Link>
@@ -190,7 +190,7 @@ function TutorHome({ data }){
                                         <th>{title}</th>
                                         <th>{(new Date(lessontime).toUTCString().slice(0,-7))}</th>
                                         
-                                        <th>{price}</th>
+                                        <th>{formatter.format(price)}</th>
                                     </tr>
                                     
                                 ))}

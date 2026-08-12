@@ -7,6 +7,10 @@ import CurrLesson from "./CurrLesson";
 import CreateLesson from "./CreateLesson";
 import NavBar from "../NavBar";
 import UpperDetails from "./UpperDetails";
+import { Loader } from 'lucide-react';
+import Modal from '../Modal'
+
+
 
 function Student(){
     const nav = useNavigate()  
@@ -14,6 +18,7 @@ function Student(){
     const [price, setPrice]=useState("")
     const [lessons, setLessons] = useState([])
     const [currLesson, setCurrLesson] = useState(-1)
+    const [loadingOpen, setLoadingOpen] = useState(true)
     
     useEffect(()=> {
         if (!gotLessons){
@@ -23,8 +28,9 @@ function Student(){
 
 
     const clientlink  = useParams().clientlink;
-    const tutorID = localStorage.getItem("id")
+    
     let gotLessons = false;
+
     
 
     const getLessons = async()=>{
@@ -40,6 +46,7 @@ function Student(){
             setPrice(res.data.details.default_price)
             console.log("set the details")
             setLessons(res.data.lessons)
+            setLoadingOpen(false)
         })}
         catch{
             console.log("error")
@@ -86,9 +93,6 @@ function Student(){
         setLessons(newLessons)
         setCurrLesson(-2)
     }
-
-    console.log(studentDetails)
-    console.log(lessons)
 
     function LessonArea(currLesson){
         if (currLesson==-1){
@@ -212,6 +216,11 @@ function Student(){
                 </div>
                     
             </div>
+            <Modal open={loadingOpen} onClose={()=>{setLoadingOpen(false)}}>
+                <h1>Loading</h1>
+                <Loader className="animate-bounce" size={300}/>
+            </Modal>
+
         </>
     )
 }

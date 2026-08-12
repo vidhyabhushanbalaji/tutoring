@@ -27,6 +27,7 @@ function App() {
             <Route exact path="/parent/home" element={<ParentHome/>}/>
             <Route exact path="/supabaselogin" element={<SupabaseLogin/>}/>
             <Route exact path="/student/:clientlink" element={<Student />}/>
+            <Route exact path="/student/:clientlink/lesson/:lesson" element={<Student />}/>
             <Route exact path="/tutoring/:clientlink" element={<Tutoring />}/>
             <Route exact path="/test" element={<Test/>}/>
           </Routes>

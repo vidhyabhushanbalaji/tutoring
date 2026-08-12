@@ -9,7 +9,7 @@ import { Loader } from 'lucide-react';
 import { Link } from "react-router-dom"
 import CreateLesson from './CreateLesson'
 
-function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
+function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details, clearDetails}){
     
     let lessonDetails = {}
     let gotLesson = false;
@@ -31,9 +31,20 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
 
     const getLD = async(lessonID)=>{
         console.log("here2")
-        if (lessonID!=-1){
-            console.log("here3")
+        console.log(details)
+        if (Object.keys(details).length!=0){
+            console.log(details)
+            setTime(details.lessontime.substring(0,16))
+            setPrice(details.price)
+            setPaid(details.paid)
+            setTitle(details.title)
+            setComplete(details.complete)
+            setLoadingOpen(false)
+            clearDetails()
+        }
+        else if (lessonID!=-1){
             try{
+            setLoadingOpen(true)
             const session = await supabase.auth.getSession()
             await axios.post("https://helpmetutor-backend.vercel.app:443/getlesson",
                 {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
@@ -51,7 +62,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson}){
                 console.log(lessonDetails)
             })}
             catch{
-                console.log("error")
+                console.log("error getting that lesson")
             }}
         }
     

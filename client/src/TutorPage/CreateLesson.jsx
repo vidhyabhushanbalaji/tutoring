@@ -34,7 +34,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
             "complete": complete}}).then(res=> 
             {if (res.status == 200){
                 console.log("added")
-                onAdd({lessonid: res.data.lessonID, lessontime: time, title: title})
+                onAdd({lessonid: res.data.lessonID, lessontime: time, title: title, paid: paid, complete: complete})
             }
             
             }).catch(err =>

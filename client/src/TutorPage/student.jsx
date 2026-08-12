@@ -19,6 +19,7 @@ function Student(){
     const [lessons, setLessons] = useState([])
     const [currLesson, setCurrLesson] = useState(-1)
     const [loadingOpen, setLoadingOpen] = useState(true)
+    const [newLessonDetails, setNewLessonDetails] = useState({})
     
     useEffect(()=> {
         if (!gotLessons){
@@ -26,8 +27,9 @@ function Student(){
             getLessons();}
         }, [])
 
-
-    const clientlink  = useParams().clientlink;
+    let params = useParams()
+    const clientlink  = params.clientlink;
+    const lesson = params.lesson;
     
     let gotLessons = false;
 
@@ -47,6 +49,8 @@ function Student(){
             console.log("set the details")
             setLessons(res.data.lessons)
             setLoadingOpen(false)
+            if (lesson){
+                setCurrLesson(lesson)}
         })}
         catch{
             console.log("error")
@@ -85,6 +89,7 @@ function Student(){
             newLessons.push(lessons[count++])
         }
         setLessons(newLessons)
+        setNewLessonDetails(newLesson)
         setCurrLesson(newLesson.lessonid)
     }
 
@@ -140,6 +145,8 @@ function Student(){
                         lessons={lessons} 
                         changeLesson={(changedLesson)=>{updateList(changedLesson)}}
                         removeLesson={(lessonID)=>{removeFromLessons(lessonID)}}
+                        details = {newLessonDetails}
+                        clearDetails={()=>{setNewLessonDetails({})}}
                     />
                 
                 )

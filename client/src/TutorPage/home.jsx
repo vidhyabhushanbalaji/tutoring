@@ -168,8 +168,9 @@ function TutorHome({ data }){
                         </div>
                         
                         <div id ="unpaid" className='h-1/3 w-full flex flex-col'>
-                            <div id="unpaid_title">
-                                <h3>Unpaid lessons: {unpaidLessons.length}</h3>
+                            <div id="unpaid_title" className='flex flex-row justify-between'>
+                                <h3 className='w-1/2'>Unpaid lessons: {unpaidLessons.length}</h3>
+                                <h3 className='w-1/2'> Total Unpaid: {formatter.format(unpaidLessons.reduce((acc, cur)=>cur.price+acc, 0))}</h3>
                             </div>
                             <div className='overflow-y-auto'>
                             <table class="w-full text-sm text-left rtl:text-right text-body">
@@ -180,10 +181,10 @@ function TutorHome({ data }){
                                     <th>Price</th>
                                 </thead>
                                 <tbody>
-                                    {unpaidLessons.map(({ clientlink, client_links, lessontime, price, title}) =>(
+                                    {unpaidLessons.map(({ clientlink, client_links, lessontime, price, title, lessonid}) =>(
                                     
                                     <tr 
-                                        onClick={() => nav(`/student/${clientlink}`)}
+                                        onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
                                         className="hover:text-blue-600">
                                         
                                         <th>{client_links.description}</th>

@@ -56,7 +56,7 @@ function UpperDetails({ details, setPriceChange}){
         console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
             const session = await supabase.auth.getSession()
-            axios.post("https://helpmetutor-backend.vercel.app:443/updateclient",
+            axios.post(`${import.meta.env.VITE_BACKEND_URL}/updateclient`,
                 {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
                 user: session.data.session.user.id,
                 "clientlink": details.clientlink,
@@ -72,7 +72,7 @@ function UpperDetails({ details, setPriceChange}){
 
     async function deleteClient(){
         const session = await supabase.auth.getSession()
-        axios.post("https://helpmetutor-backend.vercel.app:443/deleteclient",
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/deleteclient`,
             {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id,
             "clientlink": details.clientlink})
@@ -82,7 +82,7 @@ function UpperDetails({ details, setPriceChange}){
 
     async function linkParent(){
         const session = await supabase.auth.getSession()
-        axios.post("https://helpmetutor-backend.vercel.app:443/users/joinparent",
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/joinparent`,
             {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id,
             "clientlink": details.clientlink,
@@ -102,7 +102,7 @@ function UpperDetails({ details, setPriceChange}){
 
     async function removeParent(){
         const session = await supabase.auth.getSession()
-        axios.post("https://helpmetutor-backend.vercel.app:443/users/removeparent",
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/removeparent`,
             {   headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
                 is_tutor: true,
                 user: session.data.session.user.id,
@@ -121,8 +121,8 @@ function UpperDetails({ details, setPriceChange}){
         if (!parentLinked){
             return(
                 <>
-                    <button className='mt-1 w-full bg-green-300' onClick={()=>setAddParentOpen(true)}>Add a parent!</button>
-                    <p className='text-xs'>Give access to a parent to view all lesson records.<br/>
+                    <button className='mt-1 w-full bg-green-200' onClick={()=>setAddParentOpen(true)}>Add a parent!</button>
+                    <p className='text-xs text-white'>Give access to a parent to view all lesson records.<br/>
                     They need to have an account signed up already, and you will need their email address.</p>
                     <Modal open={addParentOpen} onClose={()=>{setAddParentOpen(false)}}>
                         <h2>Add a parent</h2>
@@ -160,16 +160,16 @@ function UpperDetails({ details, setPriceChange}){
             return(
                 <>
                 <div className='flex flex-row justify-between text-left mt-1'>
-                <h2>Parent:</h2>
+                <h2 className='text-white'>Parent:</h2>
                 {editsOpen ? <button className='bg-red-500' onClick={()=>setRemoveParentOpen(true)}>
                     <X />
                 </button>: `` }
                 
                 </div>
-                    <h3>{parentFirstName}</h3>
-                    <h3>{parentLastName}</h3>
+                    <h3 className='text-gray-100'>{parentFirstName}</h3>
+                    <h3 className='text-gray-100'>{parentLastName}</h3>
                     <a href={`mailto:${parentEmail}`}>
-                    <h3 className='hover:text-blue-500 text-xs'>{parentEmail}</h3></a>
+                    <h3 className='text-gray-100 hover:text-gray-300 text-xs'>{parentEmail}</h3></a>
                     <Modal open={removeParentOpen} onClose={()=>{setRemoveParentOpen(false)}}>
                         <h2>Sure you want to unlink this parent?</h2>
                         The parent will be unable to access the lesson records <br/>
@@ -200,28 +200,29 @@ function UpperDetails({ details, setPriceChange}){
 
 
                     <div class="flex flex-row content-start">
-                            <h2 class="mr-1">
+                            <h2 class="mr-1 text-white">
                                 Default Price:£
                             <input name = "price" 
                                 placeholder = "Default price"
+                                className='text-black'
                                 value = {price}
                                 onChange = {
                                     e => {if (!isNaN(e.target.value)){
                                         setPrice(e.target.value)}
                                         newChanges.current["default_price"]=e.target.value}}
-                                />    
+                            />    
                                 
                             </h2>
                             
                             
                     </div>
-                    <h2>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
+                    <h2 className='text-white'>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
                     
                 </div>
                 <div class="w-full flex flex-col text-left h-full pr-5">
                     <textarea
                         id="client-publicnotes" 
-                        placeholder='public note' 
+                        placeholder='parent viewable notes' 
                         class="h-1/2 w-full"
                         maxLength="256"
                         value = {publicNote}
@@ -271,26 +272,26 @@ function UpperDetails({ details, setPriceChange}){
             <>
             <div class="pr-5 h-full w-full flex flex-row">
                 <div class="pr-10 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
-                    <h1>{desc}</h1>
+                   <p className='text-white text-6xl font-semibold'>{desc}</p>
                     <div class="flex flex-row">
-                            <h2 class="w-full">
+                            <h2 class="w-full text-white text-left">
                                 Default Price: {formatter.format(price)}
                             </h2>
                     </div>
-                    <h2>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
+                    <h2 className='text-white text-left'>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
                     
                 </div>
                 <div class="w-full flex flex-col text-left h-full pr-5">
                     <p
                         id="client-publicnotes" 
-                        class="h-1/2 w-full"
+                        className="h-1/2 w-full text-white"
                     >
-                        <b>Public Notes: </b>{publicNote}
+                        <b>Notes: </b>{publicNote}
                     </p>
 
                     <p
                         id="client-privatenotes" 
-                        class="h-1/2 w-full"
+                        className="h-1/2 w-full text-white"
                     >
                         <b>Private Notes: </b>{privateNote}
                     </p>
@@ -302,7 +303,7 @@ function UpperDetails({ details, setPriceChange}){
                     </div>
 
 
-                <button class="h-full w-10 bg-green-300" onClick={()=>
+                <button className="h-4/5 w-10 bg-gray-300 my-2" onClick={()=>
                         {setEditsOpen(true);
                         
                     }}>

@@ -37,7 +37,7 @@ function CurrLesson({ lessonID, clientlink}){
             try{
             setLoadingOpen(true)
             const session = await supabase.auth.getSession()
-            await axios.post("https://helpmetutor-backend.vercel.app:443/tutoring/getlesson",{
+            await axios.post(`${VITE_BACKEND_URL}/tutoring/getlesson`,{
                 headers:{
                     Authorization: `Bearer: ${session.data.session.access_token}`}, 
                 user: session.data.session.user.id,

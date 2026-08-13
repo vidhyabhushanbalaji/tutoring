@@ -38,7 +38,7 @@ function Home() {
         const session = await supabase.auth.getSession()
         console.log("here2")
         await axios.post(
-            "http://localhost:443/homepage",
+            `${import.meta.env.VITE_BACKEND_URL}/homepage`,
             {headers:
                 {Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id}).

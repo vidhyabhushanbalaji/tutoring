@@ -42,7 +42,7 @@ function ParentHome({ data }){
         console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
             const session = await supabase.auth.getSession()
-            axios.post("https://helpmetutor-backend.vercel.app:443/users/updateuser",
+            axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/updateuser`,
                 {headers:
                     {Authorization: `Bearer: ${session.data.session.access_token}`},
                 user: session.data.session.user.id,

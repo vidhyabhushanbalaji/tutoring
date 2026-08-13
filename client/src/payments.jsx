@@ -27,7 +27,7 @@ function Payments() {
         try{
         const session = await supabase.auth.getSession()
         await axios.post(
-            "http://localhost:443/payments",
+            `${import.meta.env.VITE_BACKEND_URL}/payments`,
             {headers:
                 {Authorization: `Bearer: ${session.data.session.access_token}`}, 
                 user: session.data.session.user.id}).

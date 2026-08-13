@@ -39,7 +39,7 @@ function Student(){
         try{
         console.log("clientlink "+clientlink)
         const session = await supabase.auth.getSession()
-        await axios.post("https://helpmetutor-backend.vercel.app:443/studentdetail",
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/studentdetail`,
             {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id, 
             clientlink: clientlink}).then(res =>{
@@ -164,7 +164,7 @@ function Student(){
                 <NavBar
                     userType = "tutor"
                 />
-                <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-100">
+                <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-600">
                     {()=>{console.log("student side details");console.log(studentDetails)}}
                     <UpperDetails
                                 details = {studentDetails}
@@ -232,4 +232,4 @@ function Student(){
     )
 }
 
-export default Student
+export default Student;

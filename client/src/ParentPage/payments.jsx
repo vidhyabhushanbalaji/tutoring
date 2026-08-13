@@ -46,7 +46,7 @@ function ParentPayments({ data }){
 
             const session = await supabase.auth.getSession()
             await axios.post(
-                "http://localhost:443/parent/payments/bytutor",
+                `${import.meta.env.VITE_BACKEND_URL}/parent/payments/bytutor`,
                 {headers:
                     {Authorization: `Bearer: ${session.data.session.access_token}`}, 
                     user: session.data.session.user.id,
@@ -70,7 +70,7 @@ function ParentPayments({ data }){
         else{
             const session = await supabase.auth.getSession()
             await axios.post(
-                "http://localhost:443/parent/payments/byrange",
+                `${import.meta.env.VITE_BACKEND_URL}/parent/payments/byrange`,
                 {headers:
                     {Authorization: `Bearer: ${session.data.session.access_token}`}, 
                     user: session.data.session.user.id,
@@ -94,7 +94,7 @@ function ParentPayments({ data }){
         try{
             const session = await supabase.auth.getSession()
             await axios.post(
-                "http://localhost:443/parent/payments/allunpaid",
+                `${import.meta.env.VITE_BACKEND_URL}/parent/payments/allunpaid`,
                 {headers:
                     {Authorization: `Bearer: ${session.data.session.access_token}`}, 
                     user: session.data.session.user.id,

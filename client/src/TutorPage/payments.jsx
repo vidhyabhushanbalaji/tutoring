@@ -46,7 +46,7 @@ function TutorPayments({ data }){
 
             const session = await supabase.auth.getSession()
             await axios.post(
-                "http://localhost:443/tutor/payments/byclient",
+                `${import.meta.env.VITE_BACKEND_URL}/tutor/payments/byclient`,
                 {headers:
                     {Authorization: `Bearer: ${session.data.session.access_token}`}, 
                     user: session.data.session.user.id,
@@ -71,7 +71,7 @@ function TutorPayments({ data }){
         else{
             const session = await supabase.auth.getSession()
             await axios.post(
-                "http://localhost:443/tutor/payments/byrange",
+                `${import.meta.env.VITE_BACKEND_URL}/tutor/payments/byrange`,
                 {headers:
                     {Authorization: `Bearer: ${session.data.session.access_token}`}, 
                     user: session.data.session.user.id,
@@ -95,7 +95,7 @@ function TutorPayments({ data }){
         try{
             const session = await supabase.auth.getSession()
             await axios.post(
-                "http://localhost:443/tutor/payments/allunpaid",
+                `${import.meta.env.VITE_BACKEND_URL}/allunpaid`,
                 {headers:
                     {Authorization: `Bearer: ${session.data.session.access_token}`}, 
                     user: session.data.session.user.id,
@@ -121,7 +121,7 @@ function TutorPayments({ data }){
             <NavBar />
             <div className='flex flex-row'>
             <div className='w-1/2'>
-                <h1 className='text-5xl text-left pl-4'>Payments</h1>
+                <h1 className='text-5xl text-left pl-4 text-white'>Payments</h1>
             </div>
             <div className="px-6 pb-5 pt-2 flex flex-col w-1/2">
                     <span className="text-white text-lg font-semibold mb-3 text-right">{shown}</span>

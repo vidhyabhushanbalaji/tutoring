@@ -35,7 +35,7 @@ function UpperDetails({ title, details, setPriceChange}){
 
     async function removeParent(){
         const session = await supabase.auth.getSession()
-        axios.post("https://helpmetutor-backend.vercel.app:443/users/removeparent",
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/removeparent`,
             {   headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
                 is_tutor: false,
                 user: session.data.session.user.id,
@@ -63,7 +63,7 @@ function UpperDetails({ title, details, setPriceChange}){
                 <div class="w-full flex flex-col text-left h-full pr-5">
                     <p
                         id="client-publicnotes" 
-                        class="h-1/2 w-full text-white"
+                        className="h-1/2 w-full text-white"
                     >
                         <b>Notes: </b>{publicNote}
                     </p>
@@ -83,7 +83,7 @@ function UpperDetails({ title, details, setPriceChange}){
                 </div>
                     
 
-                <button class="h-4/5 w-10 bg-gray-300 my-2" onClick={()=>
+                <button className="h-4/5 w-10 bg-gray-300 my-2" onClick={()=>
                         {setDeleteOpen(true);
                 }}>
                     <X />

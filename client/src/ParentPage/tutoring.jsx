@@ -17,7 +17,6 @@ function Tutoring(){
     const [price, setPrice]=useState("")
     const [lessons, setLessons] = useState([])
     const [currLesson, setCurrLesson] = useState(-2)
-    const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
     const [loadingOpen, setLoadingOpen] = useState(true)
 
 
@@ -37,7 +36,7 @@ function Tutoring(){
     const getLessons = async()=>{
         try{
         const session = await supabase.auth.getSession()
-        axios.post("https://helpmetutor-backend.vercel.app:443/tutoringdetail",
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/tutoringdetail`,
             {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id,
             clientlink: clientlink,})

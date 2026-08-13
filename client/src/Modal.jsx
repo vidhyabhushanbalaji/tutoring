@@ -11,7 +11,7 @@ function Modal({ open, children, onClose}){
         transform: 'translate(-50%, -50%)',
         backgroundColor: '#FFF',
         padding: '50px',
-        
+        zindex : 100,
     }
 
     return ReactDom.createPortal(

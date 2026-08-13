@@ -19,6 +19,7 @@ function TutorHome({ data }){
     const [tutorEmail, setTutorEmail] =useState("") 
     const [editDetails, setEditDetails] = useState(false)
     const [nextLessons, setNextLessons] = useState([])
+    const [thisWeek, setThisWeek] = useState([])
     const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
     
 
@@ -35,6 +36,7 @@ function TutorHome({ data }){
         setTutorLastName(data.tutor.last_name)
         setTutorEmail(data.tutor.email)
         setNextLessons(data.next3)
+        setThisWeek(data.thisWeek)
     }
     
 
@@ -70,10 +72,10 @@ function TutorHome({ data }){
         <NavBar />
     
     <div className='h-1/10'>
-        <div class="pr-5 h-full w-full flex flex-row bg-blue-200 pb-2">
+        <div class="pr-5 h-full w-full flex flex-row bg-blue-600 pb-2">
                     <div class="pl-4 pr-10 flex flex-col text-left h-full w-2/3">
-                        <h1 className='text 2xl' >Hi {tutorFirstName}!</h1>
-                        <h3 className='text-black w-full min-w-fit'>Welcome to the tutor homepage!</h3>
+                        <h1 className='text 2xl text-white' >Hi {tutorFirstName}!</h1>
+                        <h3 className='text-white w-full min-w-fit'>Welcome to the tutor homepage!</h3>
                         
                     </div>
 
@@ -127,7 +129,7 @@ function TutorHome({ data }){
                             </>    
                         }
                         <h3>Email: {tutorEmail}</h3>
-                        <p className='pt-1 text-xs text-gray-600'>Parents can see this when they view a linked student's page</p>
+                        <p className='pt-1 text-xs text-gray-400'>Parents can see this when they view a linked student's page</p>
 
                     </div>
 
@@ -168,8 +170,29 @@ function TutorHome({ data }){
     
     <div className='flex flex-row h-2/3'>
 
-      <div className='w-1/2 h-full rounded-xl bg-white mx-4'>
-          
+      <div className='w-1/2 h-full rounded-xl bg-white mr-4 p-4'>
+          <h3 className="text-lg font-semibold text-gray-800">This Week</h3>
+          <span className='text-xs font-semibold'>Total this week: {formatter.format(thisWeek.reduce((acc, cur) => cur.price + acc, 0))} <br></br>(including unpaid and incomplete lessons)</span>
+        <div className="min-h-0 h-4/5 overflow-y-auto space-y-2">
+          {thisWeek.map(({ clientlink, client_links, lessontime, price, title, lessonid }) => (
+            <div
+              key={lessonid}
+              onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
+              className="cursor-pointer rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 px-3 py-2"
+            >
+              <div className="flex justify-between">
+                <div>
+                  <p className="texl-xl text-gray-800">{client_links.description}</p>
+                  <p className="text-sm text-gray-500">{title}</p>
+                </div>
+                <span className="text-sm font-medium text-gray-700">{formatter.format(price)}</span>
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                {(new Date(lessontime).toUTCString().slice(0, -7))}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="h-full w-1/2 min-h-0 bg-white rounded-xl shadow-sm p-4 flex flex-col">
@@ -198,7 +221,6 @@ function TutorHome({ data }){
       </div>
       </div>
 
-      {/* Unpaid lessons */}
       <div className="h-1/3 min-h-0 bg-white rounded-xl shadow-sm p-4 flex flex-col">
         <div className="flex flex-row justify-between items-center mb-2 shrink-0">
           <h3 className="text-sm font-semibold text-gray-800">Unpaid lessons: {unpaidLessons.length}</h3>
@@ -208,7 +230,7 @@ function TutorHome({ data }){
         </div>
         <div className="flex-1 min-h-0 overflow-y-auto">
           <table className="w-full text-sm text-left">
-            <thead className="border-b border-gray-200 text-xs text-gray-500 uppercase top-0 bg-white">
+            <thead className="border-b border-gray-200 text-xs text-gray-500 uppercase bg-white">
               <tr>
                 <th className="py-1 font-medium">Client</th>
                 <th className="py-1 font-medium">Lesson</th>

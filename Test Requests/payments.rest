@@ -1,0 +1,6 @@
+POST http://localhost:443/tutor/payments
+Content-Type: application/json
+
+{
+    
+}

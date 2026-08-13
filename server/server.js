@@ -257,13 +257,23 @@ app.post('/homepage', async(req,res1)=>{
             console.log(tutor)
             const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('paid', false).eq('tutor_id', checkUser)
             const timefrom = new Date(new Date() - 60*60*1000).toISOString()
-            console.log(timefrom)
-            //const {data, error} = await supabase.from('lessons').select('price.sum()').eq('paid', true).gte('lessontime', new Date(now.getFullYear(), now.getMonth()))
-            //console.log(error)
+
+            // find the start of this week, and the start of next week
+            const now = new Date()
+            const weekStartDate = new Date()
+            weekStartDate.setDate(now.getDate()-((now.getDay()+5)%6))
+            weekStartString = weekStartDate.toISOString().slice(0,11)+"00:00:00.000Z"
+            const nextWeekDate = new Date()
+            nextWeekDate.setDate(weekStartDate.getDate()+7)
+            nextWeekString = nextWeekDate.toISOString().slice(0,11)+"00:00:00.000Z"
+            console.log(nextWeekString)
+
+            const thisWeek = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', weekStartString).lt('lessontime', nextWeekString).order('lessontime', { ascending: true})
+            console.log(error)
 
             const next3 = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', timefrom).limit(3).order('lessontime', { ascending: true})
 
-            res1.status(200).send({is_tutor: true, students: students.data, tutor: tutor.data[0], unpaid: unpaid.data, next3: next3.data})}
+            res1.status(200).send({is_tutor: true, students: students.data, tutor: tutor.data[0], unpaid: unpaid.data, next3: next3.data, thisWeek: thisWeek.data})}
         else{
             const tutors = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('parent_id', checkUser).order('start', { ascending: true})
             console.log(tutors)
@@ -280,6 +290,105 @@ app.post('/homepage', async(req,res1)=>{
         console.log("failed while finding user")
     }
 })
+
+app.post('/payments', async(req, res1)=>{
+    
+    try{
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        var checkUser;
+        var isTutor;
+        const {data: { user }, error }= await supabase.auth.getUser(token)
+        if (error || reqUUID != user.id){
+            res1.status(400).send("user does not match")
+        }
+        else{
+            const {data: responses} = await supabase.from('users').select('id, is_tutor').eq('UUID', reqUUID).limit(1)
+            checkUser= responses[0].id
+            isTutor = responses[0].is_tutor
+        }
+        
+        const now = new Date()
+        const startOfMonth = now.toISOString().slice(0,8)+"01T00:00:00.000Z"
+        const dateStartOfMonth = new Date(startOfMonth)
+        const nextMonth = new Date(dateStartOfMonth)
+        nextMonth.setMonth(dateStartOfMonth.getMonth() +1)
+
+        const thisMonth = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', startOfMonth).lt('lessontime', nextMonth.toISOString()).order('lessontime', { ascending: false})
+        const clients = await supabase.from('client_links').select('description, clientlink').eq('tutor_id', checkUser)
+
+
+        res1.status(200).send({is_tutor: isTutor, thisMonth: thisMonth.data, clients: clients.data})
+    }
+    catch{
+        res1.status(500).send("error fetching data")
+    }
+})
+
+app.post('/tutor/payments/allunpaid', async(req, res1)=>{
+    
+    try{
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        
+        const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, paid, clientlink, client_links(description)').eq('paid', false).eq('tutor_id', checkUser).order('lessontime', { ascending: false})
+        res1.status(200).send({unpaid: unpaid.data})
+    }
+    catch{
+        res1.status(500).send("error fetching data")
+    }
+})
+
+app.post('/tutor/payments/byclient', async(req, res1)=>{
+    
+    try{
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        
+        const byclient = await supabase.from('lessons').select('lessonid, lessontime, title, price, paid, clientlink, client_links(description)').eq('clientlink', req.body.clientlink).eq('tutor_id', checkUser).order('lessontime', { ascending: false})
+        res1.status(200).send(byclient.data)
+    }
+    catch{
+        res1.status(500).send("error fetching data")
+    }
+})
+
+app.post('/tutor/payments/byrange', async(req, res1)=>{
+    
+    try{
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        
+        const rangeStart = `${req.body.start}T00:00:00.000Z`
+        const rangeEnd = `${req.body.end}T23:59:59.999Z`
+
+        const inRange = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', rangeStart).lte('lessontime',rangeEnd).order('lessontime', { ascending: false})
+        res1.status(200).send(inRange.data)
+    }
+    catch{
+        res1.status(500).send("error fetching data")
+    }
+})
+
 
 app.post('/studentdetail', async(req,res1)=>{
     try{

@@ -186,7 +186,7 @@ function ParentHome({ data }){
                                 {nextLessons.map(({ clientlink, client_links, lessontime, price, title, lessonid }) => (
                                     <div
                                     key={lessonid}
-                                    onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
+                                    onClick={() => nav(`/tutoring/${clientlink}/lesson/${lessonid}`)}
                                     className="cursor-pointer rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 px-3 py-2"
                                     >
                                     <div className="flex justify-between">

@@ -29,7 +29,8 @@ function Tutoring(){
 
 
     const clientlink  = useParams().clientlink;
-    const userID = localStorage.getItem("id")
+    const lesson = useParams().lesson;
+    console.log("lesson" + lesson)
     let gotLessons = false;
     
 
@@ -45,6 +46,8 @@ function Tutoring(){
             setPrice(res.data.details.default_price)
             setLessons(res.data.lessons)
             setLoadingOpen(false)
+            if (lesson){
+                setCurrLesson(lesson)}
         })}
         catch{
             console.log("error")
@@ -59,15 +62,15 @@ function Tutoring(){
         if (currLesson==-2){
             return(
                 <>
-                    <div className="w-full h-full p-2 bg-blue-700">
-                        <p className="text-4xl text-white pb-2">
+                    <div className="w-full h-full p-2 ">
+                        <p className="text-4xl text-black pb-2">
                             Hi!<br/>
                         </p>
-                        <p className="text-2xl text-white text-left pb-2">
+                        <p className="text-2xl text-black text-left pb-2">
                             HelpMeTutor lets students and tutors keep an easier record of lessons, scheduling and payments. A tutor myself, I know how confusing all the spreadsheets, texts and meeting links can get so I built this for both tutors and parents. 
                         </p>
                         
-                        <p className="text-2xl text-left text-white">
+                        <p className="text-2xl text-black mt-20">
                             Look for lessons your tutor has added on the left side of the screen!
                         </p>
                     </div>
@@ -100,7 +103,7 @@ function Tutoring(){
                 <NavBar
                     userType="parent"
                 />
-                <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-100">
+                <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-600">
                     {()=>{console.log("student side details");console.log(studentDetails)}}
                     <UpperDetails
                                 details = {studentDetails}

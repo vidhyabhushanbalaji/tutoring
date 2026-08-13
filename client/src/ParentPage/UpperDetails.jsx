@@ -2,13 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Modal from '../Modal'
 import axios from 'axios'
-import { SquareArrowRightExit } from 'lucide-react';
+import { X } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 
 
 function UpperDetails({ title, details, setPriceChange}){
-    let detailsSet = false;
     const nav = useNavigate()  
     const [desc, setDesc] = useState("")
     const [price, setPrice] = useState("")
@@ -52,19 +51,19 @@ function UpperDetails({ title, details, setPriceChange}){
             <>
             <div class="pr-5 h-full w-full flex flex-row">
                 <div class="pr-10 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
-                    <h1>{desc}</h1>
+                    <p className='text-white text-6xl font-semibold'>{desc}</p>
                     <div class="flex flex-row">
-                            <h2 class="w-full">
+                            <h2 className="w-full text-white text-left">
                                 Default Price: {formatter.format(price)}
                             </h2>
                     </div>
-                    <h2>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
+                    <h2 className='text-white text-left'>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
                     
                 </div>
                 <div class="w-full flex flex-col text-left h-full pr-5">
                     <p
                         id="client-publicnotes" 
-                        class="h-1/2 w-full"
+                        class="h-1/2 w-full text-white"
                     >
                         <b>Notes: </b>{publicNote}
                     </p>
@@ -72,11 +71,11 @@ function UpperDetails({ title, details, setPriceChange}){
                     
                 </div>
                 <div className='min-w-52 pr-4 text-left mt-1'>
-                <h2>Tutor:</h2>
-                <h3>{tutorFirstName}</h3>
-                <h3>{tutorLastName}</h3>
+                <h2 className='text-white'>Tutor:</h2>
+                <h3 className='text-gray-100'>{tutorFirstName}</h3>
+                <h3 className='text-gray-100'>{tutorLastName}</h3>
                 <a href={`mailto:`}>
-                    <h3 className='hover:text-blue-500 '>
+                    <h3 className='text-gray-100 hover:text-gray-300 '>
                         {tutorEmail}
                     </h3>
                 </a>
@@ -84,10 +83,10 @@ function UpperDetails({ title, details, setPriceChange}){
                 </div>
                     
 
-                <button class="h-full w-10 bg-red-500" onClick={()=>
+                <button class="h-4/5 w-10 bg-gray-300 my-2" onClick={()=>
                         {setDeleteOpen(true);
                 }}>
-                    <SquareArrowRightExit />
+                    <X />
                 </button>
 
             </div>

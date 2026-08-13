@@ -1,4 +1,3 @@
-// https://www.youtube.com/watch?v=Ud5xKCYQTjM
 const { createClient } = require ('@supabase/supabase-js')
 const express = require ("express")
 const https = require("https")
@@ -10,21 +9,8 @@ app.use(express.json())
 const bcrypt = require('bcrypt')
 const cors = require('cors')
 app.use(cors())
-const { Client } = require("pg")
-const client = new Client({
-    host: "localhost",
-    user: "postgres",
-    port: "5432",
-    password : "",
-    database: "tutoring"
-})
-
-client.connect();
-
 
 const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY)
-
-
 
 async function verifyUser(userID, token){
     const {data: { user }, error }= await supabase.auth.getUser(token)
@@ -315,11 +301,18 @@ app.post('/payments', async(req, res1)=>{
         const nextMonth = new Date(dateStartOfMonth)
         nextMonth.setMonth(dateStartOfMonth.getMonth() +1)
 
-        const thisMonth = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', startOfMonth).lt('lessontime', nextMonth.toISOString()).order('lessontime', { ascending: false})
-        const clients = await supabase.from('client_links').select('description, clientlink').eq('tutor_id', checkUser)
-
-
-        res1.status(200).send({is_tutor: isTutor, thisMonth: thisMonth.data, clients: clients.data})
+        if(isTutor){
+            const thisMonth = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', startOfMonth).lt('lessontime', nextMonth.toISOString()).order('lessontime', { ascending: false})
+            const clients = await supabase.from('client_links').select('description, clientlink').eq('tutor_id', checkUser)
+            res1.status(200).send({is_tutor: true, thisMonth: thisMonth.data, clients: clients.data})
+        }
+        else{
+            const thisMonth = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links!inner(description)').eq('client_links.parent_id', checkUser).gte('lessontime', startOfMonth).lt('lessontime', nextMonth.toISOString()).order('lessontime', { ascending: false})
+            console.log(thisMonth)
+            const clients = await supabase.from('client_links').select('description, clientlink').eq('parent_id', checkUser)
+            res1.status(200).send({is_tutor: false, thisMonth: thisMonth.data, tutors: clients.data})
+        }
+        
     }
     catch{
         res1.status(500).send("error fetching data")
@@ -377,11 +370,87 @@ app.post('/tutor/payments/byrange', async(req, res1)=>{
             console.log(error)
             res1.status(400).send("user does not match")
         }
+
+        const gap = (new Date(req.body.end)) - (new Date(req.body.start))
+        if (gap>60*60*24*366*1000 || gap <0){
+            res1.status(204).send("Invalid date range")
+        }
         
         const rangeStart = `${req.body.start}T00:00:00.000Z`
         const rangeEnd = `${req.body.end}T23:59:59.999Z`
 
         const inRange = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', rangeStart).lte('lessontime',rangeEnd).order('lessontime', { ascending: false})
+        res1.status(200).send(inRange.data)
+    }
+    catch{
+        res1.status(500).send("error fetching data")
+    }
+})
+
+app.post('/parent/payments/allunpaid', async(req, res1)=>{
+    
+    try{
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        
+        const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('paid', false).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: false})
+        res1.status(200).send({unpaid: unpaid.data})
+    }
+    catch{
+        res1.status(500).send("error fetching data")
+    }
+})
+
+app.post('/parent/payments/bytutor', async(req, res1)=>{
+    
+    try{
+        console.log("recieveded")
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        
+        const bytutor = await supabase.from('lessons').select('lessonid, lessontime, title, price, paid, clientlink, client_links(description)').eq('clientlink', req.body.clientlink).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: false})
+        res1.status(200).send(bytutor.data)
+    }
+    catch{
+        res1.status(500).send("error fetching data")
+    }
+})
+
+app.post('/parent/payments/byrange', async(req, res1)=>{
+    
+    try{
+        token = req.body.headers.Authorization.split(" ")[1]
+        reqUUID = req.body.user
+
+        checkUser = await verifyUser(reqUUID, token)
+        if (checkUser==-1){
+            console.log(error)
+            res1.status(400).send("user does not match")
+        }
+        
+        const gap = (new Date(req.body.end)) - (new Date(req.body.start))
+        if (gap>60*60*24*366*1000 || gap <0){
+            res1.status(204).send("Invalid date range")
+        }
+
+        const rangeStart = `${req.body.start}T00:00:00.000Z`
+        const rangeEnd = `${req.body.end}T23:59:59.999Z`
+
+        console.log(rangeStart)
+
+        const inRange = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links(description)').eq('client_links.parent_id', checkUser).gte('lessontime', rangeStart).lte('lessontime',rangeEnd).order('lessontime', { ascending: false})
         res1.status(200).send(inRange.data)
     }
     catch{

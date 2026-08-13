@@ -276,12 +276,12 @@ app.post('/homepage', async(req,res1)=>{
             res1.status(200).send({is_tutor: true, students: students.data, tutor: tutor.data[0], unpaid: unpaid.data, next3: next3.data, thisWeek: thisWeek.data})}
         else{
             const tutors = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('parent_id', checkUser).order('start', { ascending: true})
-            console.log(tutors)
             const parent = await supabase.from('users').select('first_name, last_name, email, authcode').eq('id', checkUser).eq('is_tutor', false).limit(1)
-            console.log(parent)
             const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('paid', false).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: true})
-            console.log(unpaid)
-            res1.status(200).send({is_tutor: false, tutors: tutors.data, parent: parent.data[0], unpaid: unpaid.data})
+            const timefrom = new Date(new Date() - 60*60*1000).toISOString()
+            const next3 = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('client_links.parent_id', checkUser).gte('lessontime', timefrom).limit(3).order('lessontime', { ascending: true})
+
+            res1.status(200).send({is_tutor: false, tutors: tutors.data, parent: parent.data[0], unpaid: unpaid.data, next3: next3.data})
         }
     }
         

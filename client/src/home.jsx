@@ -20,7 +20,8 @@ function Home() {
 
     const [data, setData] = useState({
         tutors:[], 
-        unpaid:[], 
+        unpaid:[],
+        next3:[],
         first_name:'', 
         last_name:'',
         email: '', 
@@ -37,7 +38,7 @@ function Home() {
         const session = await supabase.auth.getSession()
         console.log("here2")
         await axios.post(
-            "https://helpmetutor-backend.vercel.app:443/homepage",
+            "http://localhost:443/homepage",
             {headers:
                 {Authorization: `Bearer: ${session.data.session.access_token}`}, 
             user: session.data.session.user.id}).

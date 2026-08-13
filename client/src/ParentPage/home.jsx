@@ -10,7 +10,7 @@ import { Edit, Save } from 'lucide-react'
 
 function ParentHome({ data }){
     const nav = useNavigate()
-    
+    const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
     useEffect(()=>{
         setTutors(data.tutors)
         setUnpaidLessons(data.unpaid)
@@ -18,6 +18,7 @@ function ParentHome({ data }){
         setParentLastName(data.parent.last_name)
         setParentEmail(data.parent.email)
         setParentShareCode(data.parent.authcode)
+        setNextLessons(data.next3)
         },[data])
 
     const [allTutors, setTutors] = useState([])
@@ -27,27 +28,14 @@ function ParentHome({ data }){
     const [parentLastName, setParentLastName] =useState("") 
     const [parentShareCode, setParentShareCode] = useState("")
     const [editDetails, setEditDetails] = useState(false)
+    const [nextLessons, setNextLessons] = useState([])
 
 
     const newChanges = useRef({});
     
     var gotTutors = false;
 
-    const getTutors = async()=>{
-        setTutors(data.tutors)
-        setUnpaidLessons(data.unpaid)
-        setParentFirstName(data.parent.first_name)
-        setParentLastName(data.parent.last_name)
-        setParentEmail(data.parent.email)
-        setParentShareCode(data.parent.authcode)
-    }
     
-
-    useEffect(()=> {
-        if (!gotTutors){
-            gotTutors = true;
-            getTutors();}
-    }, [])
 
     async function updateUser(){
         console.log("update");
@@ -66,7 +54,7 @@ function ParentHome({ data }){
     
 
     return(
-        <div className='h-screen w-screen overflow-y-auto flex flex-col overflow-y-auto'>
+        <div className='h-screen w-screen overflow-y-auto flex flex-col bg-gray-50 overflow-hidden'>
             
 
             
@@ -76,10 +64,10 @@ function ParentHome({ data }){
             <div class="w-full flex flex-col h-1/5">
             
                 
-                <div class="pr-5 h-full w-full flex flex-row bg-blue-300">
+                <div class="pr-5 h-full w-full flex flex-row bg-blue-600">
                     <div class="pl-4 pr-10 flex flex-col text-left h-full w-2/3">
-                        <h1 >Hi {parentFirstName}!</h1>
-                        <h3 className='text-black w-full min-w-fit'>Welcome to the parent homepage!</h3>
+                        <h1 className='text-white' >Hi {parentFirstName}!</h1>
+                        <h3 className='text-black w-full min-w-fit text-white'>Welcome to the parent homepage!</h3>
                         
                     </div>
 
@@ -134,7 +122,7 @@ function ParentHome({ data }){
                             </>    
                         }
                         <h3>Email: {parentEmail}</h3>
-                        <p className='pt-1 text-xs text-gray-600'>Tutors can see this when they view a linked student's page</p>
+                        <p className='pt-1 text-xs text-gray-400'>Tutors can see this when they view a linked student's page</p>
 
                     </div>
 
@@ -146,18 +134,18 @@ function ParentHome({ data }){
             
             
             <div class="flex flex-row h-4/5 min-h-0 gap-4">
-                <div class="flex flex-col w-1/3 h-full pt-2">
-                        <div id="addstudent" className='mb-2'>
+                <div class="w-1/3 h-full min-h-0 flex flex-col bg-white rounded-xl shadow-sm p-4">
+                        <div id="tutors_titles">
                             <h1 className='text-4xl'>All linked tutoring sessions</h1>
                         </div>
-                        <div className='overflow-y-auto'>
+                         <div className="flex-1 min-h-0 overflow-y-auto">
                             <ul className='space-y-2'>
                                 {allTutors.map(({ clientlink, description, default_price, start}) =>(
-                                    <li className='rounded-lg hover:bg-gray-200 p-2 transition-colors'>
+                                    <li className="rounded-lg hover:bg-gray-50 border border-gray-300 p-3 transition-colors">
                                         <Link to={`../tutoring/${clientlink}`}>
-                                            <h2>{description}</h2>
+                                            <h2 className="font-medium text-gray-800">{description}</h2>
                                             <div className='justify-between'>
-                                                <p>Default price: {default_price}</p>
+                                                <p>Default price: {formatter.format(default_price)}</p>
                                                 <p>Tutoring Since: {(new Date(start).toUTCString().slice(5,-13))}</p>
                                             </div>
                                             </Link>
@@ -167,14 +155,16 @@ function ParentHome({ data }){
                     </div>
                 </div>
                 <div class="flex flex-col w-2/3 h-full min-h-0">
-                        <div class="h-2/3 overflow-y-auto">
-                                <div className='border border-blue-300 my-5 mx-1'>
-                                    <h2 className='text-3xl text-black'>Your Share Code: {parentShareCode}</h2>
-                                    <h2 className='text-3xl text-black'>Your Email: {parentEmail}</h2>
+                        <div class="h-2/3 flex flex-row">
+
+                            <div className='w-1/2 h-full rounded-xl bg-white mr-4 p-4 flex flex-col'>
+                                <div className='border border-blue-600 my-5 mx-1 rounded-xl'>
+                                    <p className='text-2xl text-black'>Your Share Code: {parentShareCode}</p>
+                                    <p className='text-2xl text-black'>Your Email: {parentEmail}</p>
                                     
                                 </div>
                                 <h2 className='text-2xl text-left mx-1'>So what do I do with this?</h2>
-                                <p className='text-xl text-left'>
+                                <p className='text-xs text-left'>
                                     Tutors need your email and share code to add you onto a student's records.<br/>
                                     Copy the details above and send to the tutor to allow them to join you onto the student's records.
                                 </p>
@@ -187,47 +177,75 @@ function ParentHome({ data }){
                                     Generate an email with these details for me
                                     </a>
                                 </div>
-                                
-                                
-                                
-                                
-                        </div>
-                        
-                        <div id ="unpaid" className='h-1/3 w-full flex flex-col'>
-                            <div id="unpaid_title">
-                                <h3>Unpaid lessons: {unpaidLessons.length}</h3>
                             </div>
-                            <div className='overflow-y-auto'>
-                            <table class="w-full text-sm text-left rtl:text-right text-body">
-                                <thead class="border-b">
-                                    <th>Client description</th>
-                                    <th>Lesson Title</th>
-                                    <th>Time</th>
-                                    <th>Price</th>
+
+                            <div className="h-full w-1/2 bg-white rounded-xl shadow-sm p-4 flex flex-col">
+                                
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3">Your next lessons</h3>
+                                <div className="min-h-0 overflow-y-auto space-y-2">
+                                {nextLessons.map(({ clientlink, client_links, lessontime, price, title, lessonid }) => (
+                                    <div
+                                    key={lessonid}
+                                    onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
+                                    className="cursor-pointer rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 px-3 py-2"
+                                    >
+                                    <div className="flex justify-between">
+                                        <div>
+                                        <p className="font-medium text-gray-800">{client_links.description}</p>
+                                        <p className="text-sm text-gray-500">{title}</p>
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-700">{formatter.format(price)}</span>
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        {(new Date(lessontime).toUTCString().slice(0, -7))}
+                                    </p>
+                                    </div>
+                                ))}
+                                </div>
+                                </div>
+                                
+                            </div>
+                                
+                        
+    
+                        <div className="h-1/3 min-h-0 bg-white rounded-xl shadow-sm p-4 mt-2 flex flex-col">
+                            <div className="flex flex-row justify-between items-center my-1 shrink-0">
+                            <h3 className="text-sm font-semibold text-gray-800">Unpaid lessons: {unpaidLessons.length}</h3>
+                            <h3 className="text-sm font-semibold text-red-600">
+                                Total unpaid: {formatter.format(unpaidLessons.reduce((acc, cur) => cur.price + acc, 0))}
+                            </h3>
+                            </div>
+                            <div className="flex-1 min-h-0 overflow-y-auto">
+                            <table className="w-full text-sm text-left">
+                                <thead className="border-b border-gray-200 text-xs text-gray-500 uppercase bg-white">
+                                <tr>
+                                    <th className="py-1 font-medium">Client</th>
+                                    <th className="py-1 font-medium">Lesson</th>
+                                    <th className="py-1 font-medium">Time</th>
+                                    <th className="py-1 font-medium text-right">Price</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    {unpaidLessons.map(({ clientlink, description, lessontime, price, title}) =>(
-                                    
+                                {unpaidLessons.map(({ clientlink, client_links, lessontime, price, title, lessonid }) => (
                                     <tr
-                                        onClick={() => nav(`/student/${clientlink}`)}
-                                        className="hover:text-blue-600">
-                                        
-                                        <th>{description}</th>
-                                        <th>{title}</th>
-                                        <th>{(new Date(lessontime).toUTCString().slice(0,-7))}</th>
-                                        
-                                        <th>{price}</th>
+                                    key={lessonid}
+                                    onClick={() => nav(`/student/${clientlink}/lesson/${lessonid}`)}
+                                    className="cursor-pointer hover:bg-red-50 border-b border-gray-50"
+                                    >
+                                    <td className="py-2 text-gray-700">{client_links.description}</td>
+                                    <td className="py-2 text-gray-700">{title}</td>
+                                    <td className="py-2 text-gray-500">{(new Date(lessontime).toUTCString().slice(0, -7))}</td>
+                                    <td className="py-2 text-right font-medium text-red-600">{formatter.format(price)}</td>
                                     </tr>
-                                    
                                 ))}
                                 </tbody>
                             </table>
                             </div>
                         </div>
+                    </div>
+                    </div>
                 </div>
-            </div>
-        
-        </div>
+
 
     )
 }

@@ -1,11 +1,13 @@
 import {BrowserRouter as Router, Link, Route, Routes, useParams} from "react-router-dom"
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import Modal from '../Modal'
 import axios from 'axios'
 import CurrLesson from "./CurrLesson";
 import NavBar from "../NavBar";
 import UpperDetails from "./UpperDetails";
 import { supabase } from '../supabaseClient';
+import { Loader } from 'lucide-react';
 
 
 
@@ -15,6 +17,10 @@ function Tutoring(){
     const [price, setPrice]=useState("")
     const [lessons, setLessons] = useState([])
     const [currLesson, setCurrLesson] = useState(-2)
+    const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
+    const [loadingOpen, setLoadingOpen] = useState(true)
+
+
     useEffect(()=> {
         if (!gotLessons){
             gotLessons = true;
@@ -35,12 +41,10 @@ function Tutoring(){
             user: session.data.session.user.id,
             clientlink: clientlink,})
         .then(res =>{
-            console.log(res)
             setSD(res.data.details)
             setPrice(res.data.details.default_price)
-            console.log("set the details")
-            
             setLessons(res.data.lessons)
+            setLoadingOpen(false)
         })}
         catch{
             console.log("error")
@@ -55,26 +59,18 @@ function Tutoring(){
         if (currLesson==-2){
             return(
                 <>
-                        <h2>Total Number of Lessons : {lessons.length}</h2>
-                        <h2>Unpaid Lessons: {lessons.filter((lesson)=>(!lesson.paid)).length}</h2>
-                        <table class="w-full text-sm text-left rtl:text-right text-body">
-                            <thead class="border-b">
-                                <th>lessontime</th>
-                                <th>title</th>
-                                <th>price</th>
-                                <th>lessonid</th>
-                            </thead>
-                            <tbody>
-                                {lessons.filter((lesson)=>(!lesson.paid)).map(({ lessontime, title, price, lessonid }) =>(
-                                <tr onClick={() => setCurrLesson(lessonid)}>
-                                    <th>{(new Date(lessontime).toUTCString().slice(0,-7))}</th>
-                                    <th>{title}</th>
-                                    <th>{price}</th>
-                                    <th>{lessonid}</th>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
+                    <div className="w-full h-full p-2 bg-blue-700">
+                        <p className="text-4xl text-white pb-2">
+                            Hi!<br/>
+                        </p>
+                        <p className="text-2xl text-white text-left pb-2">
+                            HelpMeTutor lets students and tutors keep an easier record of lessons, scheduling and payments. A tutor myself, I know how confusing all the spreadsheets, texts and meeting links can get so I built this for both tutors and parents. 
+                        </p>
+                        
+                        <p className="text-2xl text-left text-white">
+                            Look for lessons your tutor has added on the left side of the screen!
+                        </p>
+                    </div>
                 </>
             )
         }
@@ -134,17 +130,17 @@ function Tutoring(){
                                     : 
                                     (
                                         lessons.map(({ lessontime, title, lessonid }) =>(
-                                        <div 
-                                            onClick={() => setCurrLesson(lessonid)} 
-                                            key={lessonid}
-                                            className={`w-full cursor-pointed rounded-xl shadow-sm content-center mb-2 border
-                                            ${currLesson===lessonid ?
-                                                'bg-blue-200 ring-2 ring-blue-300'
-                                                :"bg-blue-50 hover:translate-y-0.5"
-                                            }`}>
-                                                <b>{title}</b>
-                                                <p>{(new Date(lessontime).toUTCString().slice(0,-7))}</p>
-                                        </div>
+                                            <div 
+                                                onClick={() => setCurrLesson(lessonid)} 
+                                                key={lessonid}
+                                                className={`w-full cursor-pointer rounded-lg border border-x border-gray-300 p-3 my-2 transition-colors
+                                                ${currLesson===lessonid ?
+                                                    'bg-gray-200'
+                                                    :"hover:translate-y-0.5"
+                                                }`}>
+                                                    <b>{title}</b>
+                                                    <p>{(new Date(lessontime).toUTCString().slice(0,-7))}</p>
+                                            </div>
 
                                     )))
                                     
@@ -159,6 +155,10 @@ function Tutoring(){
                 </div>
                     
             </div>
+            <Modal open={loadingOpen} onClose={()=>{setLoadingOpen(false)}}>
+                <h1>Loading</h1>
+                <Loader className="animate-bounce" size={300}/>
+            </Modal>
         </>
     )
 }

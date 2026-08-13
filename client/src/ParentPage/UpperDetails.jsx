@@ -19,6 +19,7 @@ function UpperDetails({ title, details, setPriceChange}){
     const [tutorLastName, setTutorLastName] =useState("") 
     const [tutorEmail, setTutorEmail] =useState("") 
 
+    const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
 
     useEffect(()=> {
                 console.log("recieved details")
@@ -54,7 +55,7 @@ function UpperDetails({ title, details, setPriceChange}){
                     <h1>{desc}</h1>
                     <div class="flex flex-row">
                             <h2 class="w-full">
-                                Default Price: {price}
+                                Default Price: {formatter.format(price)}
                             </h2>
                     </div>
                     <h2>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 

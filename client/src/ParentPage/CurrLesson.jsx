@@ -4,6 +4,7 @@ import Modal from '../Modal'
 import axios from 'axios'
 import { Link } from "react-router-dom"
 import { supabase } from '../supabaseClient';
+import { Loader } from 'lucide-react'
 
 
 function CurrLesson({ lessonID, clientlink}){
@@ -22,7 +23,9 @@ function CurrLesson({ lessonID, clientlink}){
     const [publicNotes, setPubNotes] = useState('')
     const [title, setTitle] = useState('')
     const [saved, setSaved] = useState(true)
-    const newChanges = useRef({});
+    const [loadingOpen, setLoadingOpen] = useState(true)
+
+    
 
     var changes = {};
     const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
@@ -32,6 +35,7 @@ function CurrLesson({ lessonID, clientlink}){
         if (lessonID!=-1){
             console.log("here3")
             try{
+            setLoadingOpen(true)
             const session = await supabase.auth.getSession()
             await axios.post("https://helpmetutor-backend.vercel.app:443/tutoring/getlesson",{
                 headers:{
@@ -40,7 +44,6 @@ function CurrLesson({ lessonID, clientlink}){
                 lessonid: lessonID, 
                 clientlink: clientlink}).then(res =>
                 {
-                    console.log("here")
                     setTime(res.data.lessontime.substring(0,16))
                     setPrice(res.data.price)
                     setPaid(res.data.paid)
@@ -48,8 +51,8 @@ function CurrLesson({ lessonID, clientlink}){
                     setPubNotes(res.data.publicnotes)
                     setTitle(res.data.title)
                     setComplete(res.data.complete)
-
-                    console.log(lessonDetails)
+                    setLoadingOpen(false)
+                    
                 })}
             catch{
                 console.log("error")
@@ -84,20 +87,27 @@ function CurrLesson({ lessonID, clientlink}){
                         {title}
                     </span>
 
-                    <div class="flex flex-row gap-4 pt-4">
-                        <span 
-                        name ="time"
-                        class="w-1/3 rounded-md border border-gray-400"
-                        placeholder = "time"
-                        >
-                            {(new Date(time)).toUTCString().slice(0,-7)}</span>
+                    <div className="flex flex-row gap-4 pt-4">
+                        <div className='flex flex-col w-1/3'>
+                            <span>Lesson Time</span>
+                            <span 
+                            name ="time"
+                            class="rounded-md border border-gray-400"
+                            placeholder = "time"
+                            >
+                                {(new Date(time)).toUTCString().slice(0,-7)}</span>
+                        </div>
                     
+                        <div className='flex flex-col w-1/3'>
+                        <span>Lesson Price</span>
                         <span 
-                        name ="price"
-                        class="w-1/3 rounded-md border border-gray-400"
-                        placeholder = "price"
+                            name ="price"
+                            className="w-full rounded-md border border-gray-400"
+                            placeholder = "price"
                         >
-                            {price}</span>
+                            
+                            {formatter.format(price)}</span>
+                        </div>
                     </div>
 
                     <div class="flex flex-row gap-4 pt-4">
@@ -128,7 +138,7 @@ function CurrLesson({ lessonID, clientlink}){
                     <span className="text-xs text-gray-400">You can't edit these</span>
                     <textarea name ="publicNotes"
                         placeholder = "general notes"
-                        className='min-h-full h-svh w-full border'
+                        className='min-h-full h-svh w-full border bg-white'
                         value={publicNotes}
                     />
                         
@@ -143,6 +153,10 @@ function CurrLesson({ lessonID, clientlink}){
             
            
         </div>
+        <Modal open={loadingOpen} onClose={()=>{setLoadingOpen(false)}}>
+                <h1>Loading</h1>
+                <Loader className="animate-bounce" size={300}/>
+            </Modal>
         </>
     )
 }

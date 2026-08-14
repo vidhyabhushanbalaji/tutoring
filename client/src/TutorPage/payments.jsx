@@ -10,7 +10,7 @@ import NavBar from '../NavBar'
 function TutorPayments({ data }){
     const [thisMonth, setThisMonth] = useState([])
 
-    var unpaidFetched = false;
+    const [unpaidFetched, setUnpaidFetched] = useState(false);
     const [allUnpaid, setUnpaid] = useState([])
     const [shown, setShown] = useState("This Month")
 
@@ -95,7 +95,7 @@ function TutorPayments({ data }){
         try{
             const session = await supabase.auth.getSession()
             await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/allunpaid`,
+                `${import.meta.env.VITE_BACKEND_URL}/tutor/payments/allunpaid`,
                 {headers:
                     {Authorization: `Bearer: ${session.data.session.access_token}`}, 
                     user: session.data.session.user.id,
@@ -148,7 +148,7 @@ function TutorPayments({ data }){
                         if (!unpaidFetched) {
                             setFiltered([])
                             getAllUnpaid();
-                            unpaidFetched = true;
+                            setUnpaidFetched(true);
                         }
                         else{
                         setLessonsShown(allUnpaid)

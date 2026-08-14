@@ -173,7 +173,11 @@ function ParentHome({ data }){
                                 <div className=' rounded-xl my-5 mx-2 py-1 border border-blue-300 border-radius hover:bg-blue-300'>
                                     <a href={`mailto:
                                         ?subject=Please%20add%20me%20to%20a%20student's%20records
-                                        &body=Hi,%0D%0A%0D%0APlease%20add%20me%20to%20a%20student's%20records.%0D%0ATheir%20name%20is:[enter_name]%0D%0APlease%20see%20below%20my%20details:%0D%0A%0D%0AEmail:%20${parentEmail}%0D%0AShare%20Code:${parentShareCode}%20%0D%0A%0D%0AThanks,%0D%0A${parentFirstName}%20${parentLastName}`}>
+                                        &body=Hi,%0D%0A%0D%0APlease%20add%20me%20to%20a%20student's
+                                        %20records.%0D%0ATheir%20name%20is:[enter_name]%0D%0APlease
+                                        %20see%20below%20my%20details:%0D%0A%0D%0AEmail:%20${parentEmail}
+                                        %0D%0AShare%20Code:${parentShareCode}%20%0D%0A%0D%0AThanks,%0D%0A
+                                        ${parentFirstName}%20${parentLastName}`}>
                                     Generate an email with these details for me
                                     </a>
                                 </div>

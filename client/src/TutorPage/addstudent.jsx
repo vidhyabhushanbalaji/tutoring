@@ -13,28 +13,32 @@ function AddStudent(){
 
     async function handleSubmit(event){
         event.preventDefault();
-        const session = await supabase.auth.getSession()
-        axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/addclient/`,
-            {headers:
-                {Authorization: `Bearer: ${session.data.session.access_token}`}, 
-            user: session.data.session.user.id,
-            newStudent:
-                {description: desc, 
-                default_price: price}})
-        .then(res=> {
-            console.log(res)
-            const clientstudentID = res.data.clientlink
-            console.log("got id of"+clientstudentID)
-            const navlocation = '/student/'+clientstudentID
-            console.log(navlocation)
-            nav(navlocation)}
-        ).catch(err =>
-        {
-            console.log("unsuccesful add attempt")
-            setDesc("")
-            setPrice(0)
+        if(desc===""){
+            alert("Enter a description for this")
+            
         }
-    )}
+        else{
+            const session = await supabase.auth.getSession()
+            axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/addclient/`,
+                {headers:
+                    {Authorization: `Bearer: ${session.data.session.access_token}`}, 
+                user: session.data.session.user.id,
+                newStudent:
+                    {description: desc, 
+                    default_price: price}})
+            .then(res=> {
+                console.log(res)
+                const clientstudentID = res.data.clientlink
+                console.log("got id of"+clientstudentID)
+                const navlocation = '/student/'+clientstudentID
+                console.log(navlocation)
+                nav(navlocation)}
+            ).catch(err =>
+                {console.log("unsuccesful add attempt")
+                setDesc("")
+                setPrice(0)})
+            }
+        }
 
     return(
         <form onSubmit={handleSubmit}>
@@ -44,7 +48,7 @@ function AddStudent(){
                 placeholder = "Description for your new tutoring client"
                 value = {desc}
                 onChange = {e => setDesc(e.target.value)}
-                className='w-full'/>
+                className='w-full border border-gray-300'/>
             <p className='text-xs mb-4'>Note: you can link a parent to this student in the next page</p>    
             
             <div>
@@ -52,13 +56,14 @@ function AddStudent(){
                         placeholder = "Default price for a lesson"
                         value = {price}
                         onChange = {e => {if (!isNaN(e.target.value)){setPrice(e.target.value)}}}
+                        className='border border-gray-300'
                 />
             </div>
 
             <br/>            
 
 
-            <button className='my-4 hover:bg-blue-300'>Add new tutoring role</button>
+            <button className='my-4 hover:bg-blue-300 border border-gray-300'>Add new tutoring role</button>
             </div>
           </form>
     )

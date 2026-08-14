@@ -179,7 +179,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
                             <span className='text-left'>Lesson Start Date and Time</span>
                             <input 
                             name ="date"
-                            class="rounded-md border border-gray-400"
+                            className="rounded-md border border-gray-400 bg-white"
                             placeholder = "session date YYYY-MM-DD"
                             type="datetime-local"
                             value = {time}
@@ -197,7 +197,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
                         <span className='text-xl mr-1'>£</span>
                         <input 
                         name ="price"
-                        class="rounded-md border border-gray-400"
+                        className="rounded-md border border-gray-400 bg-white"
                         placeholder = "price"
                         value = {price}
                         onChange = {e => {

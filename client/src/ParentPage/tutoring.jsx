@@ -121,7 +121,7 @@ function Tutoring(){
 
                         <div class="flex flex-col w-1/5 pt-4 pl-4">
                             <div class="h-min mb-2 content-center">
-                                <h2 className="font-semibold">Lessons</h2>
+                                <h2 className="font-semibold text-black">Lessons</h2>
                                 
                             </div>
                             <div class="overflow-y-auto w-auto content-center mb-2">

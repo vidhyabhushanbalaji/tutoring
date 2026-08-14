@@ -100,7 +100,7 @@ function TutorHome({ data }){
                                     onChange = {e => {
                                         setTutorFirstName(e.target.value)
                                         newChanges.current["first_name"]=e.target.value}}
-                                    className='h-min text-medium m-px w-full rounded-md px-2 py-1 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white'
+                                    className='h-min text-medium m-px w-full rounded-md px-2 py-1 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white dark:text-white'
                                 />
                                 
                                 <input
@@ -109,7 +109,7 @@ function TutorHome({ data }){
                                     onChange = {e => {
                                         setTutorLastName(e.target.value)
                                         newChanges.current["last_name"]=e.target.value}}
-                                    className='text-medium m-px w-full rounded-md px-2 py-1 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white'
+                                    className='text-medium m-px w-full rounded-md px-2 py-1 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white dark:text-white'
                                 />
 
                             </>

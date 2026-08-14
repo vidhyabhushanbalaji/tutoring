@@ -31,13 +31,11 @@ function CurrLesson({ lessonID, clientlink}){
     const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
 
     const getLD = async(lessonID)=>{
-        console.log("here2")
         if (lessonID!=-1){
-            console.log("here3")
             try{
             setLoadingOpen(true)
             const session = await supabase.auth.getSession()
-            await axios.post(`${VITE_BACKEND_URL}/tutoring/getlesson`,{
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/tutoring/getlesson`,{
                 headers:{
                     Authorization: `Bearer: ${session.data.session.access_token}`}, 
                 user: session.data.session.user.id,
@@ -63,7 +61,6 @@ function CurrLesson({ lessonID, clientlink}){
     useEffect(()=> {
         if (lessonID!=-1 && !gotLesson){
             gotLesson = true;
-            console.log("here1")
             getLD(lessonID);}
     }, [lessonID])
 
@@ -112,8 +109,9 @@ function CurrLesson({ lessonID, clientlink}){
 
                     <div class="flex flex-row gap-4 pt-4">
                     <label className={`flex-1 flex items-center justify-center gap-2 rounded-lg font-medium cursor-pointer border transition-colors ${paid ? 'bg-green-100 border-green-300 text-green-800' : 'bg-gray-200 text-gray-500'}`}>
-                        paid
+                        paid?
                         <input name ="paid"
+                            className='accent-white bg-white'
                             type="checkbox"
                             checked = {paid}
                         />
@@ -122,6 +120,7 @@ function CurrLesson({ lessonID, clientlink}){
                         <label className={`flex-1 flex items-center justify-center gap-2 rounded-lg font-medium cursor-pointer border transition-colors ${complete ? 'bg-blue-100 border-blue-300 text-green-800' : 'bg-gray-200 text-gray-500'}`}>
                             complete?
                             <input name ="complete" 
+                                className='accent-white bg-white'
                                 type="checkbox"
                                 checked = {complete}
                             />

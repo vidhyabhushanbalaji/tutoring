@@ -192,6 +192,7 @@ function UpperDetails({ details, setPriceChange}){
                 <div class="pr-5 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
                     <input name ="description"
                         placeholder = "Title"
+                        className='text-black dark:text-white'
                         value = {desc}
                         onChange = {e => {
                             setDesc(e.target.value)
@@ -204,7 +205,7 @@ function UpperDetails({ details, setPriceChange}){
                                 Default Price:£
                             <input name = "price" 
                                 placeholder = "Default price"
-                                className='text-black'
+                                className='text-black dark:text-white'
                                 value = {price}
                                 onChange = {
                                     e => {if (!isNaN(e.target.value)){

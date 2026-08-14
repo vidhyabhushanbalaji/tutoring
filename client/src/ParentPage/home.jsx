@@ -93,7 +93,7 @@ function ParentHome({ data }){
                                     onChange = {e => {
                                         setParentFirstName(e.target.value)
                                         newChanges.current["first_name"]=e.target.value}}
-                                    className='h-min text-medium m-px'
+                                    className='h-min text-medium m-px dark:text-white'
                                 />
                                 
                                 <input
@@ -102,7 +102,7 @@ function ParentHome({ data }){
                                     onChange = {e => {
                                         setParentLastName(e.target.value)
                                         newChanges.current["last_name"]=e.target.value}}
-                                    className='text-medium m-px'
+                                    className='text-medium m-px dark:text-white'
                                 />
 
                             </>
@@ -136,7 +136,7 @@ function ParentHome({ data }){
             <div class="flex flex-row h-4/5 min-h-0 gap-4">
                 <div class="w-1/3 h-full min-h-0 flex flex-col bg-white rounded-xl shadow-sm p-4">
                         <div id="tutors_titles">
-                            <h1 className='text-4xl'>All linked tutoring sessions</h1>
+                            <h1 className='text-4xl text-black'>All linked tutoring sessions</h1>
                         </div>
                          <div className="flex-1 min-h-0 overflow-y-auto">
                             <ul className='space-y-2'>
@@ -163,7 +163,7 @@ function ParentHome({ data }){
                                     <p className='text-2xl text-black'>Your Email: {parentEmail}</p>
                                     
                                 </div>
-                                <h2 className='text-2xl text-left mx-1'>So what do I do with this?</h2>
+                                <h2 className='text-2xl text-left mx-1 text-black'>So what do I do with this?</h2>
                                 <p className='text-xs text-left'>
                                     Tutors need your email and share code to add you onto a student's records.<br/>
                                     Copy the details above and send to the tutor to allow them to join you onto the student's records.

@@ -59,7 +59,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
 
                 <div class="flex flex-col gap-4 pt-4">
                     <input 
-                        class = "w-full text-6xl h-auto font-semibold bg-white border border-gray-300"
+                        className = "w-full text-6xl h-auto font-semibold bg-white border border-gray-300 bg-white"
                         name ="title"
                         placeholder = "Title for the new session"
                         maxLength="127"
@@ -79,7 +79,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                                 <span className='text-left'>Lesson Start Date and Time</span>
                                 <input 
                                 name ="date"
-                                class="rounded-md border border-gray-400"
+                                className="rounded-md border border-gray-400 bg-white"
                                 placeholder = "session date YYYY-MM-DD"
                                 type="datetime-local"
                                 value = {time}
@@ -95,7 +95,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                                 <span className='text-xl mr-1'>£</span>
                                     <input 
                                     name ="price"
-                                    class="rounded-md border border-gray-400"
+                                    class="rounded-md border border-gray-400 bg-white"
                                     placeholder = "price"
                                     value = {price}
                                     onChange = {e => {

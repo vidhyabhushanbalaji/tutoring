@@ -88,7 +88,7 @@ function TutorHome({ data }){
                         {editDetails ? 
                             <>
                                 <div className='flex flex-row justify-between text-left mt-1'>
-                                    <h2>Your Details:</h2>
+                                    <h2 className='text-white'>Your Details:</h2>
                                     <button className='bg-green-300' onClick={()=>{updateUser(); setEditDetails(!editDetails)}}>
                                         <Save />
                                     </button>
@@ -118,18 +118,18 @@ function TutorHome({ data }){
                         : 
                              <>
                                 <div className='flex flex-row justify-between text-left mt-1'>
-                                    <h2>Your Details:</h2>
+                                    <h2 className='text-gray-100'>Your Details:</h2>
                                     <button onClick={()=>setEditDetails(!editDetails)}>
                                         <Edit />
                                     </button>
                                 </div>
-                                <h3>First Name: {tutorFirstName}</h3>
-                                <h3>Last Name: {tutorLastName}</h3>
+                                <h3 className='text-white'>First Name: {tutorFirstName}</h3>
+                                <h3 className='text-white'>Last Name: {tutorLastName}</h3>
                                 
                             </>    
                         }
-                        <h3>Email: {tutorEmail}</h3>
-                        <p className='pt-1 text-xs text-gray-400'>Parents can see this when they view a linked student's page</p>
+                        <h3 className='text-white'>Email: {tutorEmail}</h3>
+                        <p className='pt-1 text-xs text-white'>Parents can see this when they view a linked student's page</p>
 
                     </div>
 

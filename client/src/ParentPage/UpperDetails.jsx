@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Modal from '../Modal'
 import axios from 'axios'
 import { X } from 'lucide-react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 
 
 
@@ -34,11 +34,9 @@ function UpperDetails({ title, details, setPriceChange}){
     }, [details])
 
     async function removeParent(){
-        const session = await supabase.auth.getSession()
-        axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/removeparent`,
-            {   headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
+        axios.post(`/api/users/removeparent`,
+            {
                 is_tutor: false,
-                user: session.data.session.user.id,
                 clientlink: details.clientlink
             })
         .then(res=>{
@@ -49,10 +47,10 @@ function UpperDetails({ title, details, setPriceChange}){
     function Content(){
         return(
             <>
-            <div class="pr-5 h-full w-full flex flex-row">
-                <div class="pr-10 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
+            <div className="pr-5 h-full w-full flex flex-row">
+                <div className="pr-10 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
                     <p className='text-white text-6xl font-semibold'>{desc}</p>
-                    <div class="flex flex-row">
+                    <div className="flex flex-row">
                             <h2 className="w-full text-white text-left">
                                 Default Price: {formatter.format(price)}
                             </h2>
@@ -60,7 +58,7 @@ function UpperDetails({ title, details, setPriceChange}){
                     <h2 className='text-white text-left'>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
                     
                 </div>
-                <div class="w-full flex flex-col text-left h-full pr-5">
+                <div className="w-full flex flex-col text-left h-full pr-5">
                     <p
                         id="client-publicnotes" 
                         className="h-1/2 w-full text-white"
@@ -103,7 +101,7 @@ function UpperDetails({ title, details, setPriceChange}){
                 You will have to ask to be readded by the tutor.<br/>
                 You will lose access to all lesson records.<br/> 
                 <br/><br/>
-                <button class="bg-red-600 text-black mb-2" onClick={()=>removeParent()}>I am certain I want to exit this student record</button>
+                <button className="bg-red-600 text-black mb-2" onClick={()=>removeParent()}>I am certain I want to exit this student record</button>
                 <br/>
             </Modal>
         </>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Modal from '../Modal'
 import axios from 'axios'
 import { Save, Trash2, SquarePen, X } from 'lucide-react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 
 
 
@@ -52,14 +52,9 @@ function UpperDetails({ details, setPriceChange}){
 
 
     async function updateClient(){
-        console.log("update");
-        console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
-            const session = await supabase.auth.getSession()
-            axios.post(`${import.meta.env.VITE_BACKEND_URL}/updateclient`,
-                {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                user: session.data.session.user.id,
-                "clientlink": details.clientlink,
+            axios.post(`/api/updateclient`,
+                {"clientlink": details.clientlink,
                 "changes": newChanges.current}).then(res=>{console.log("here")
             if("default_price" in newChanges.current){
                 setPriceChange("£"+newChanges.current.default_price);
@@ -71,20 +66,15 @@ function UpperDetails({ details, setPriceChange}){
     }
 
     async function deleteClient(){
-        const session = await supabase.auth.getSession()
-        axios.post(`${import.meta.env.VITE_BACKEND_URL}/deleteclient`,
-            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-            user: session.data.session.user.id,
-            "clientlink": details.clientlink})
+        axios.post(`/api/deleteclient`,
+            {"clientlink": details.clientlink})
         .then(res=>{
             nav('/home')
     })}
 
     async function linkParent(){
-        const session = await supabase.auth.getSession()
-        axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/joinparent`,
-            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-            user: session.data.session.user.id,
+        axios.post(`/api/users/joinparent`,
+            {
             "clientlink": details.clientlink,
             "parent_email": parentEmail,
             "authcode": authCode,
@@ -101,12 +91,9 @@ function UpperDetails({ details, setPriceChange}){
     })}
 
     async function removeParent(){
-        const session = await supabase.auth.getSession()
-        axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/removeparent`,
-            {   headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                is_tutor: true,
-                user: session.data.session.user.id,
-                "clientlink": details.clientlink
+        axios.post(`/api/users/removeparent`,
+            {is_tutor: true,
+            "clientlink": details.clientlink
             })
         .then((res)=>{
             setParentEmail("");
@@ -150,7 +137,7 @@ function UpperDetails({ details, setPriceChange}){
                             }
                         />
 
-                        <button class="bg-green-600 text-black mb-2 w-4/5" onClick={()=>{linkParent()}}>I am certain the email is correct and I wish to grant this account permission to view the lesson records.</button>
+                        <button className="bg-green-600 text-black mb-2 w-4/5" onClick={()=>{linkParent()}}>I am certain the email is correct and I wish to grant this account permission to view the lesson records.</button>
                         <br/>
                     </Modal>
                 </>
@@ -175,7 +162,7 @@ function UpperDetails({ details, setPriceChange}){
                         The parent will be unable to access the lesson records <br/>
                         Lessons's will not be deleted, and they can be readded.<br/>
                         If you want to change the parent linked to the record, first remove this parent and then you can add a different user.<br/><br/>
-                        <button class="bg-red-600 text-black mb-2" onClick={()=>{setRemoveParentOpen(false); removeParent();}}>I am certain I want to remove this parent's access</button>
+                        <button className="bg-red-600 text-black mb-2" onClick={()=>{setRemoveParentOpen(false); removeParent();}}>I am certain I want to remove this parent's access</button>
                         <br/>
                     </Modal>
                 </>
@@ -188,8 +175,8 @@ function UpperDetails({ details, setPriceChange}){
         if(editsOpen){
             return(
             <>
-            <div class="pr-5 h-full w-full flex flex-row">
-                <div class="pr-5 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
+            <div className="pr-5 h-full w-full flex flex-row">
+                <div className="pr-5 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
                     <input name ="description"
                         placeholder = "Title"
                         className='text-black dark:text-white'
@@ -200,8 +187,8 @@ function UpperDetails({ details, setPriceChange}){
                         style={{"fontSize":"32px"}}/>
 
 
-                    <div class="flex flex-row content-start">
-                            <h2 class="mr-1 text-white">
+                    <div className="flex flex-row content-start">
+                            <h2 className="mr-1 text-white">
                                 Default Price:£
                             <input name = "price" 
                                 placeholder = "Default price"
@@ -220,11 +207,11 @@ function UpperDetails({ details, setPriceChange}){
                     <h2 className='text-white'>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
                     
                 </div>
-                <div class="w-full flex flex-col text-left h-full pr-5">
+                <div className="w-full flex flex-col text-left h-full pr-5">
                     <textarea
                         id="client-publicnotes" 
                         placeholder='parent viewable notes' 
-                        class="h-1/2 w-full"
+                        className="h-1/2 w-full"
                         maxLength="256"
                         value = {publicNote}
                         onChange = {e => {
@@ -236,7 +223,7 @@ function UpperDetails({ details, setPriceChange}){
                     <textarea 
                         id="client-privatenotes" 
                         placeholder='private note' 
-                        class="h-1/2 w-full"
+                        className="h-1/2 w-full"
                         maxLength="256"
                         value = {privateNote}
                         onChange = {e => {
@@ -253,14 +240,14 @@ function UpperDetails({ details, setPriceChange}){
                 </div>
 
 
-                <button class="h-full w-10 bg-green-300 mr-1" onClick={()=>
+                <button className="h-full w-10 bg-green-300 mr-1" onClick={()=>
                     {   setEditsOpen(false);
                         updateClient();
                         
                     }}>
                     <Save size={16}/>
                 </button>
-                <button class="h-full w-10 bg-red-600" onClick={()=>setDeleteOpen(true)}>
+                <button className="h-full w-10 bg-red-600" onClick={()=>setDeleteOpen(true)}>
                     <Trash2 size={16}/>
                 </button>
 
@@ -271,18 +258,18 @@ function UpperDetails({ details, setPriceChange}){
         else{
             return(
             <>
-            <div class="pr-5 h-full w-full flex flex-row">
-                <div class="pr-10 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
+            <div className="pr-5 h-full w-full flex flex-row">
+                <div className="pr-10 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
                    <p className='text-white text-6xl font-semibold'>{desc}</p>
-                    <div class="flex flex-row">
-                            <h2 class="w-full text-white text-left">
+                    <div className="flex flex-row">
+                            <h2 className="w-full text-white text-left">
                                 Default Price: {formatter.format(price)}
                             </h2>
                     </div>
                     <h2 className='text-white text-left'>Tutoring since : {new Date(details.start).toUTCString().slice(0,-13)}</h2> 
                     
                 </div>
-                <div class="w-full flex flex-col text-left h-full pr-5">
+                <div className="w-full flex flex-col text-left h-full pr-5">
                     <p
                         id="client-publicnotes" 
                         className="h-1/2 w-full text-white"
@@ -326,7 +313,7 @@ function UpperDetails({ details, setPriceChange}){
                 All lesson records will be deleted <br/>
                 This is a permanent action.<br/> 
                 Your student and parent will be unable to access records as well. <br/><br/>
-                <button class="bg-red-600 text-black mb-2" onClick={()=>deleteClient()}>I am certain I want to permanently delete this student record</button>
+                <button className="bg-red-600 text-black mb-2" onClick={()=>deleteClient()}>I am certain I want to permanently delete this student record</button>
                 <br/>
             </Modal>
         </>

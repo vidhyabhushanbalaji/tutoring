@@ -1,40 +1,40 @@
 import { useNavigate } from 'react-router-dom';
 import { LogOut, HandCoins, House  } from 'lucide-react';
-import { supabase } from './supabaseClient';
-import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 function NavBar({ userType }){
     
     const nav = useNavigate()  
 
     async function logOut(){
-        const { error } = await supabase.auth.signOut()
-        nav('/login')
+        await axios.post(
+            '/api/users/logout',{}
+        ).then(()=>{nav('/login')})
     }
 
     
 
     return(
         <>
-            <div class="h-10 w-screen p-px bg-gradient-to-r bg-blue-600 shadow-sm" id="navbar">
-                <div class="flex flex-row h-full">
-                    <div class="flex flex-row w-2/5 align-items" id="logo">
-                        <h2 class="font-sans text-2xl text-black">HelpMeTutor!</h2>
+            <div className="h-10 w-screen p-px bg-gradient-to-r bg-blue-600 shadow-sm" id="navbar">
+                <div className="flex flex-row h-full">
+                    <div className="flex flex-row w-2/5 align-items" id="logo">
+                        <h2 className="font-sans text-2xl text-black">HelpMeTutor!</h2>
 
                     </div>
-                    <div class="w-3/5 flex flex-row-reverse">
-                        <div class="px-4 pt-0.5">
+                    <div className="w-3/5 flex flex-row-reverse">
+                        <div className="px-4 pt-0.5">
                                 <button 
-                                    class ="bg-white border-none text-black content-end"
+                                    className ="bg-white border-none text-black content-end"
                                     onClick = {()=>logOut()}><LogOut /></button>
                         </div>
-                        <div class="px-4 pt-0.5 justify-center ">
+                        <div className="px-4 pt-0.5 justify-center ">
                             <button 
-                            class ="bg-white border-none text-black content-end" 
+                            className ="bg-white border-none text-black content-end" 
                             onClick={()=>nav('/home')}><House /></button>
                         </div>
-                        <div class="px-4 pt-0.5 justify-center">
-                            <button class ="bg-white border-none text-black content-end"
+                        <div className="px-4 pt-0.5 justify-center">
+                            <button className ="bg-white border-none text-black content-end"
                             onClick={()=>nav('/payments')}><HandCoins/></button>
                         </div>
 

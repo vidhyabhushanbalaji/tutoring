@@ -6,7 +6,7 @@ import axios from 'axios'
 import CurrLesson from "./CurrLesson";
 import NavBar from "../NavBar";
 import UpperDetails from "./UpperDetails";
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 import { Loader } from 'lucide-react';
 
 
@@ -35,11 +35,8 @@ function Tutoring(){
 
     const getLessons = async()=>{
         try{
-        const session = await supabase.auth.getSession()
-        axios.post(`${import.meta.env.VITE_BACKEND_URL}/tutoringdetail`,
-            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-            user: session.data.session.user.id,
-            clientlink: clientlink,})
+        axios.post(`/api/tutoringdetail`,
+            {clientlink: clientlink,})
         .then(res =>{
             setSD(res.data.details)
             setPrice(res.data.details.default_price)
@@ -98,11 +95,11 @@ function Tutoring(){
     return (
         <>
             
-            <div id="full-screen" class="h-lvh pb-10">
+            <div id="full-screen" className="h-lvh pb-10">
                 <NavBar
                     userType="parent"
                 />
-                <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-600">
+                <div id="upper details" className="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-600">
                     {()=>{console.log("student side details");console.log(studentDetails)}}
                     <UpperDetails
                                 details = {studentDetails}
@@ -117,14 +114,14 @@ function Tutoring(){
                 </div>
                 
 
-                <div class="h-4/5 w-screen flex flex-row bg-gray-50">
+                <div className="h-4/5 w-screen flex flex-row bg-gray-50">
 
-                        <div class="flex flex-col w-1/5 pt-4 pl-4">
-                            <div class="h-min mb-2 content-center">
+                        <div className="flex flex-col w-1/5 pt-4 pl-4">
+                            <div className="h-min mb-2 content-center">
                                 <h2 className="font-semibold text-black">Lessons</h2>
                                 
                             </div>
-                            <div class="overflow-y-auto w-auto content-center mb-2">
+                            <div className="overflow-y-auto w-auto content-center mb-2">
                                 {lessons.length===0 ? 
                                     (<p className="text-black text-center">
                                         No lessons added yet, check back soon!
@@ -151,7 +148,7 @@ function Tutoring(){
                             
                             </div>
                         </div>
-                        <div class="w-4/5 ml-5 mr-5 mt-5 mb-5 border">
+                        <div className="w-4/5 ml-5 mr-5 mt-5 mb-5 border">
                             {LessonArea(currLesson)}
                         </div>
                 </div>

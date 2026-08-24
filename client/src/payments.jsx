@@ -1,7 +1,7 @@
 
 import { useState, useEffect, use } from 'react'
 import { Link, useNavigate } from "react-router-dom"
-import { supabase } from './supabaseClient';
+import { supabase } from './lib/supabase/client';
 import { Loader } from 'lucide-react';
 import TutorPayments from './TutorPage/payments';
 import axios from 'axios'
@@ -25,12 +25,9 @@ function Payments() {
 
     async function getThisMonth(){
         try{
-        const session = await supabase.auth.getSession()
         await axios.post(
-            `${import.meta.env.VITE_BACKEND_URL}/payments`,
-            {headers:
-                {Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                user: session.data.session.user.id}).
+            `/api/payments`,
+            {}).
         then((res) =>{
             if (res.data.is_tutor){
                 setTutor(true)

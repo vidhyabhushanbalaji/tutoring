@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from "react-router-dom"
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 import { Loader } from 'lucide-react';
 import axios from 'axios'
 import Modal from '../Modal'
@@ -43,14 +43,9 @@ function TutorPayments({ data }){
         }
         else{
             const clientDesc = clients.filter((client)=>client.clientlink==chosenClient)[0].description
-
-            const session = await supabase.auth.getSession()
             await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/tutor/payments/byclient`,
-                {headers:
-                    {Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                    user: session.data.session.user.id,
-                    clientlink: chosenClient}).
+                `/api/tutor/payments/byclient`,
+                {clientlink: chosenClient}).
                 then(res =>{
                     setLessonsShown(res.data)
                     setFiltered(res.data)
@@ -69,14 +64,10 @@ function TutorPayments({ data }){
             alert("Please chose dates that are a maximum of one year apart, and check the start is before the end")
         }
         else{
-            const session = await supabase.auth.getSession()
             await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/tutor/payments/byrange`,
-                {headers:
-                    {Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                    user: session.data.session.user.id,
-                    start: rangeStart,
-                    end: rangeEnd}).
+                `/api/tutor/payments/byrange`,
+                {start: rangeStart,
+                end: rangeEnd}).
                 then(res =>{
                     setLessonsShown(res.data)
                     setFiltered(res.data)
@@ -93,13 +84,9 @@ function TutorPayments({ data }){
 
     async function getAllUnpaid(){
         try{
-            const session = await supabase.auth.getSession()
             await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/tutor/payments/allunpaid`,
-                {headers:
-                    {Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                    user: session.data.session.user.id,
-                }).
+                `/api/tutor/payments/allunpaid`,
+                {}).
                 then(res =>{
                     setUnpaid(res.data.unpaid)
                     setLessonsShown(res.data.unpaid)

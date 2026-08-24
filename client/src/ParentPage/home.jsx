@@ -4,7 +4,7 @@ import Modal from '../Modal'
 import axios from 'axios'
 import { Link, useNavigate } from "react-router-dom"
 import NavBar from '../NavBar'
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 import { Edit, Save } from 'lucide-react'
 
 
@@ -12,6 +12,7 @@ function ParentHome({ data }){
     const nav = useNavigate()
     const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
     useEffect(()=>{
+        console.log(data)
         setTutors(data.tutors)
         setUnpaidLessons(data.unpaid)
         setParentFirstName(data.parent.first_name)
@@ -38,15 +39,9 @@ function ParentHome({ data }){
     
 
     async function updateUser(){
-        console.log("update");
-        console.log(newChanges)
         if (Object.keys(newChanges.current).length!= 0){
-            const session = await supabase.auth.getSession()
-            axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/updateuser`,
-                {headers:
-                    {Authorization: `Bearer: ${session.data.session.access_token}`},
-                user: session.data.session.user.id,
-                "changes": newChanges.current})
+            axios.post(`/api/users/updateuser`,
+                {"changes": newChanges.current})
         newChanges.current= {};
     }
     }
@@ -55,24 +50,21 @@ function ParentHome({ data }){
 
     return(
         <div className='h-screen w-screen overflow-y-auto flex flex-col bg-gray-50 overflow-hidden'>
-            
 
-            
-            
             <NavBar 
                 userType="parent"/>
-            <div class="w-full flex flex-col h-1/5">
+            <div className="w-full flex flex-col h-1/5">
             
                 
-                <div class="pr-5 h-full w-full flex flex-row bg-blue-600">
-                    <div class="pl-4 pr-10 flex flex-col text-left h-full w-2/3">
+                <div className="pr-5 h-full w-full flex flex-row bg-blue-600">
+                    <div className="pl-4 pr-10 flex flex-col text-left h-full w-2/3">
                         <h1 className='text-white' >Hi {parentFirstName}!</h1>
                         <h3 className='text-black w-full min-w-fit text-white'>Welcome to the parent homepage!</h3>
                         
                     </div>
 
                 
-                    <div class="w-1/3 pl-2 flex flex-col text-left h-full pr-5 text-black overflow-y-auto overflow-x-auto">
+                    <div className="w-1/3 pl-2 flex flex-col text-left h-full pr-5 text-black overflow-y-auto overflow-x-auto">
 
                         
                             
@@ -133,8 +125,8 @@ function ParentHome({ data }){
             </div>
             
             
-            <div class="flex flex-row h-4/5 min-h-0 gap-4">
-                <div class="w-1/3 h-full min-h-0 flex flex-col bg-white rounded-xl shadow-sm p-4">
+            <div className="flex flex-row h-4/5 min-h-0 gap-4">
+                <div className="w-1/3 h-full min-h-0 flex flex-col bg-white rounded-xl shadow-sm p-4">
                         <div id="tutors_titles">
                             <h1 className='text-4xl text-black'>All linked tutoring sessions</h1>
                         </div>
@@ -154,8 +146,8 @@ function ParentHome({ data }){
                             </ul>
                     </div>
                 </div>
-                <div class="flex flex-col w-2/3 h-full min-h-0">
-                        <div class="h-2/3 flex flex-row">
+                <div className="flex flex-col w-2/3 h-full min-h-0">
+                        <div className="h-2/3 flex flex-row">
 
                             <div className='w-1/2 h-full rounded-xl bg-white mr-4 p-4 flex flex-col'>
                                 <div className='border border-blue-600 my-5 mx-1 rounded-xl'>

@@ -4,7 +4,7 @@ import { Eye, EyeOff, Check } from 'lucide-react';
 import AuthLayout from './AuthLayout';
 import './App.css'
 import axios from 'axios'
-import { supabase } from './supabaseClient';
+import { supabase } from './lib/supabase/client';
 
 function Setup(){
 
@@ -27,28 +27,17 @@ function Setup(){
 
     async function handleSubmit(event){
       event.preventDefault();
-      const { data, error } = await supabase.auth.signUp({
-          email: email,
-          password: password,
-      })
-      if(!error){
-        console.log(data)
-        const session = await supabase.auth.getSession()
         await axios.post(
-          "https://helpmetutor-backend.vercel.app:443/users/usersetup"
+          "/api/users/usersetup"
           , {
-          headers:{Authorization: `Bearer: ${session.data.session.access_token}`},
-          user: data.user.id,
+          email: email,
+          password, password,
           userData:{
             is_tutor: isTutor,
             first_name: firstName, 
-            last_name: lastName,
-            email: email}
-        }).then(()=>nav('/home'))
-      }
-      else{
-        alert('error on loading')
-      }   
+            last_name: lastName}
+        }).then(()=>nav('/home')).
+        catch(()=>alert("Error in adding account, you may already have one"))
   }
     return (
     <>

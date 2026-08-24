@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 import axios from 'axios'
 import Modal from '../Modal'
 import { Loader } from 'lucide-react';
 
 
 function CreateLesson({ default_price, clientlink, onAdd}){
-
     console.log(default_price)
     const nav = useNavigate()  
     const [time, setTime] = useState('')
@@ -26,11 +25,8 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     async function handleSubmit(event){
         event.preventDefault();
         setLoadingOpen(true)
-        const session = await supabase.auth.getSession()
-        axios.post(`${import.meta.env.VITE_BACKEND_URL}/addlesson`,
-        {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-        user: session.data.session.user.id,
-        newLesson:
+        axios.post(`/api/addlesson`,
+        {newLesson:
             {"lessontime": time,
             "title": title,
             "price": price,
@@ -66,14 +62,13 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                         value = {title}
                         onChange = {e =>{
                             setTitle(e.target.value);
-                            newChanges.current["title"]= e.target.value;
                             alertChange();
                             }}
                         ></input> 
 
                     
 
-                        <div class="flex flex-row gap-4 pt-4 h-full mb-10">
+                        <div className="flex flex-row gap-4 pt-4 h-full mb-10">
                         
                             <div className='w-1/3 flex flex-col'>
                                 <span className='text-left'>Lesson Start Date and Time</span>
@@ -85,7 +80,6 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                                 value = {time}
                                 onChange = {e => {
                                     setTime(e.target.value);
-                                    newChanges.current["lessontime"]=e.target.value;
                                     alertChange();}}/>
                             </div>
                         
@@ -95,13 +89,12 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                                 <span className='text-xl mr-1'>£</span>
                                     <input 
                                     name ="price"
-                                    class="rounded-md border border-gray-400 bg-white"
+                                    className="rounded-md border border-gray-400 bg-white"
                                     placeholder = "price"
                                     value = {price}
                                     onChange = {e => {
                                         if(!isNaN(e.target.value)){
                                             setPrice(e.target.value);
-                                            newChanges.current["price"] = e.target.value;
                                             alertChange();}
                                         else{
                                             alert("price has to be a number only")
@@ -121,7 +114,6 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                             checked = {paid}
                             onChange = {e => {
                                 setPaid(!paid);
-                                newChanges.current["paid"] = !paid;
                                 alertChange();}}
                         />
                     </label>
@@ -133,7 +125,6 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                                 checked = {complete}
                                 onChange = {e => {
                                     setComplete(!complete);
-                                    newChanges.current["complete"] = !complete;
                                     alertChange();}}
                             />
                         </label>

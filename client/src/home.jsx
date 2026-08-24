@@ -1,7 +1,7 @@
 
 import { useState, useEffect, use } from 'react'
 import { Link, useNavigate } from "react-router-dom"
-import { supabase } from './supabaseClient';
+import { supabase } from './lib/supabase/client';
 import { Loader } from 'lucide-react';
 import TutorHome from './TutorPage/home';
 import axios from 'axios'
@@ -19,7 +19,7 @@ function Home() {
     const [loadingOpen, setLoadingOpen] = useState(true)
 
     const [data, setData] = useState({
-        tutors:[], 
+        tutors: [], 
         unpaid:[],
         next3:[],
         first_name:'', 
@@ -30,28 +30,28 @@ function Home() {
             first_name: '',
             last_name: '',
             email:''
+        },
+        tutor:{
+            first_name: '',
+            last_name: '',
+            email:''
         }})
 
     async function getDetails(){
         try{
-        console.log("here1")
-        const session = await supabase.auth.getSession()
-        console.log("here2")
+        const session = await supabase().auth.getSession()
         await axios.post(
-            `${import.meta.env.VITE_BACKEND_URL}/homepage`,
-            {headers:
-                {Authorization: `Bearer: ${session.data.session.access_token}`}, 
-            user: session.data.session.user.id}).
+            `/api/homepage`, {
+                withCredentials: true,
+                }).
         then(res =>{
-            
             if (res.data.is_tutor){
                 setTutor(true)
             }
-            setData({})
             setData(res.data)
             setLoadingOpen(false)
 
-        })}
+            })}
     catch{
         return(<p>error</p>)
     }
@@ -62,12 +62,21 @@ function Home() {
 
     return (
         <>  
-        
-            <Modal open={loadingOpen} onClose={()=>{setLoadingOpen(false)}}>
-                <h1>Loading</h1>
-                <Loader className="animate-bounce" size={300}/>
-            </Modal>
-            {isTutor ? <TutorHome data={data} /> : <ParentHome data={data}/>}
+
+
+                <Modal open={loadingOpen} onClose={()=>{setLoadingOpen(false)}}>
+                    <h1>Loading</h1>
+                    <Loader className="animate-bounce" size={300}/>
+                </Modal>
+            
+            
+            {isTutor ? 
+                    <TutorHome data={data} /> : 
+                    <ParentHome data={data}/>
+
+            }
+           
+            
             
         </>
     )

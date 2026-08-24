@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from "react-router-dom"
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 import { Loader } from 'lucide-react';
 import axios from 'axios'
 import Modal from '../Modal'
@@ -43,14 +43,9 @@ function ParentPayments({ data }){
         }
         else{
             const clientDesc = tutors.filter((client)=>client.clientlink==chosenTutor)[0].description
-
-            const session = await supabase.auth.getSession()
             await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/parent/payments/bytutor`,
-                {headers:
-                    {Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                    user: session.data.session.user.id,
-                    clientlink: chosenTutor}).
+                `/api/parent/payments/bytutor`,
+                {clientlink: chosenTutor}).
                 then(res =>{
                     setLessonsShown(res.data)
                     setFiltered(res.data)
@@ -68,12 +63,9 @@ function ParentPayments({ data }){
             alert("Please chose dates that are a maximum of one year apart, and check the start is before the end")
         }
         else{
-            const session = await supabase.auth.getSession()
             await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/parent/payments/byrange`,
-                {headers:
-                    {Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                    user: session.data.session.user.id,
+                `/api/parent/payments/byrange`,
+                {
                     start: rangeStart,
                     end: rangeEnd}).
                 then(res =>{
@@ -92,13 +84,9 @@ function ParentPayments({ data }){
 
     async function getAllUnpaid(){
         try{
-            const session = await supabase.auth.getSession()
             await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/parent/payments/allunpaid`,
-                {headers:
-                    {Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                    user: session.data.session.user.id,
-                }).
+                `/api/parent/payments/allunpaid`,
+                {}).
                 then(res =>{
                     setUnpaid(res.data.unpaid)
                     setLessonsShown(res.data.unpaid)

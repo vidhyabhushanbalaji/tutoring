@@ -1,7 +1,7 @@
 import {BrowserRouter as Router, Link, Route, Routes, useParams} from "react-router-dom"
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 import axios from 'axios'
 import CurrLesson from "./CurrLesson";
 import CreateLesson from "./CreateLesson";
@@ -38,11 +38,10 @@ function Student(){
     const getLessons = async()=>{
         try{
         console.log("clientlink "+clientlink)
-        const session = await supabase.auth.getSession()
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/studentdetail`,
-            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-            user: session.data.session.user.id, 
-            clientlink: clientlink}).then(res =>{
+        await axios.post(
+            `/api/studentdetail`, {
+                clientlink: clientlink,
+                }).then(res =>{
             console.log(res)
             setSD(res.data.details)
             setPrice(res.data.details.default_price)
@@ -96,7 +95,7 @@ function Student(){
     function removeFromLessons(lessonID){
         const newLessons = lessons.filter((lesson)=>{return(lesson.lessonid!=lessonID)})
         setLessons(newLessons)
-        setCurrLesson(-2)
+        setCurrLesson(-1)
     }
 
     function LessonArea(currLesson){
@@ -115,8 +114,8 @@ function Student(){
                 <>
                         <h2>Total Number of Lessons : {lessons.length}</h2>
                         <h2>Unpaid Lessons: {lessons.filter((lesson)=>(!lesson.paid)).length}</h2>
-                        <table class="w-full text-sm text-left rtl:text-right text-body">
-                            <thead class="border-b">
+                        <table className="w-full text-sm text-left rtl:text-right text-body">
+                            <thead className="border-b">
                                 <th>lessontime</th>
                                 <th>title</th>
                                 <th>price</th>
@@ -160,12 +159,11 @@ function Student(){
     return (
         <>
             
-            <div id="full-screen" class="h-lvh pb-10">
+            <div id="full-screen" className="h-lvh pb-10">
                 <NavBar
                     userType = "tutor"
                 />
-                <div id="upper details" class="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-600">
-                    {()=>{console.log("student side details");console.log(studentDetails)}}
+                <div id="upper details" className="w-screen h-1/5 pl-4 pr-4 overflow-y-auto bg-blue-600">
                     <UpperDetails
                                 details = {studentDetails}
                                 clientlink={clientlink} 
@@ -179,10 +177,10 @@ function Student(){
                 </div>
                 
 
-                <div class="h-4/5 w-screen flex flex-row bg-gray-50">
+                <div className="h-4/5 w-screen flex flex-row bg-gray-50">
 
-                        <div class="flex flex-col w-1/5 pt-4 pl-4">
-                            <div class="h-min content-center">
+                        <div className="flex flex-col w-1/5 pt-4 pl-4">
+                            <div className="h-min content-center">
                                 <h2 className="font-semibold">Lessons</h2>
                                     <button 
                                         onClick={()=>setCurrLesson(-1)}
@@ -190,7 +188,7 @@ function Student(){
                                     <span className="text-lg">+</span> Add a new lesson
                                 </button>
                             </div>
-                            <div class="overflow-y-auto w-auto content-center mb-2">
+                            <div className="overflow-y-auto w-auto content-center mb-2">
                                 {lessons.length===0 ? 
                                     (<p className="text-black text-center">
                                         Add your first lesson!
@@ -217,7 +215,7 @@ function Student(){
                             
                             </div>
                         </div>
-                        <div class="w-4/5 ml-5 mr-5 mt-5 mb-5 border">
+                        <div className="w-4/5 ml-5 mr-5 mt-5 mb-5 border">
                             {LessonArea(currLesson)}
                         </div>
                 </div>

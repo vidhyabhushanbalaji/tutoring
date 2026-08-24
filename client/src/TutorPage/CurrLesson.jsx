@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 
 import Modal from '../Modal'
 import axios from 'axios'
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 import { Loader } from 'lucide-react';
 
 
@@ -45,11 +45,9 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
         else if (lessonID!=-1){
             try{
             setLoadingOpen(true)
-            const session = await supabase.auth.getSession()
-            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/getlesson`,
-                {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                    user: session.data.session.user.id, 
-                    lessonid: lessonID}).then(res =>{
+            await axios.post(
+                `/api/getlesson`,
+                {lessonid: lessonID}).then(res =>{
                 console.log("here")
                 setTime(res.data.lessontime.substring(0,16))
                 setPrice(formatter.format(res.data.price).slice(1))
@@ -94,12 +92,11 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
         console.log("i got called");
         console.log(newChanges.current);
         console.log(changes);
-        const session = await supabase.auth.getSession()
-            await axios.post("https://helpmetutor-backend.vercel.app:443/updatelesson",
-            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-            user: session.data.session.user.id, 
-            "lessonid": lessonID,
-            "changes": newChanges.current}).then(res=> 
+            await axios.post(
+                `/api/updatelesson`,
+                {"lessonid": lessonID,
+                "changes": newChanges.current}
+            ).then(res=> 
             {if (res.status == 200){
                 console.log("updated");
                 setSaved(true);
@@ -136,11 +133,9 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
     }
 
     async function deleteLesson(){
-        console.log("reached delete lesson")
-        const session = await supabase.auth.getSession()
-        axios.post("https://helpmetutor-backend.vercel.app:443/deletelesson",
-            {headers:{Authorization: `Bearer: ${session.data.session.access_token}`}, 
-            user: session.data.session.user.id,
+        axios.post(
+            `/api/deletelesson`,
+            {
             lessonid: lessonID,
             clientlink: clientlink})
         .then(res=>{

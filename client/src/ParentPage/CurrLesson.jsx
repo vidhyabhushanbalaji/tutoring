@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import Modal from '../Modal'
 import axios from 'axios'
 import { Link } from "react-router-dom"
-import { supabase } from '../supabaseClient';
+import { supabase } from '../lib/supabase/client';
 import { Loader } from 'lucide-react'
 
 
@@ -34,11 +34,7 @@ function CurrLesson({ lessonID, clientlink}){
         if (lessonID!=-1){
             try{
             setLoadingOpen(true)
-            const session = await supabase.auth.getSession()
-            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/tutoring/getlesson`,{
-                headers:{
-                    Authorization: `Bearer: ${session.data.session.access_token}`}, 
-                user: session.data.session.user.id,
+            await axios.post(`/api/tutoring/getlesson`,{
                 lessonid: lessonID, 
                 clientlink: clientlink}).then(res =>
                 {
@@ -69,12 +65,12 @@ function CurrLesson({ lessonID, clientlink}){
    
     return(
         <>
-        <div class="flex flex-col h-full ">
+        <div className="flex flex-col h-full ">
         
 
-        <div class="h-full overflow-y-auto bg-gray-50 p-5">
+        <div className="h-full overflow-y-auto bg-gray-50 p-5">
             <form >
-                <div class="flex flex-col ">
+                <div className="flex flex-col ">
                     <span 
                         class = "w-full text-6xl h-auto font-semibold bg-transparent border-none text-left"
                         name ="title"
@@ -89,7 +85,7 @@ function CurrLesson({ lessonID, clientlink}){
                             <span>Lesson Time</span>
                             <span 
                             name ="time"
-                            class="rounded-md border border-gray-400"
+                            className="rounded-md border border-gray-400"
                             placeholder = "time"
                             >
                                 {(new Date(time)).toUTCString().slice(0,-7)}</span>
@@ -107,7 +103,7 @@ function CurrLesson({ lessonID, clientlink}){
                         </div>
                     </div>
 
-                    <div class="flex flex-row gap-4 pt-4">
+                    <div className="flex flex-row gap-4 pt-4">
                     <label className={`flex-1 flex items-center justify-center gap-2 rounded-lg font-medium cursor-pointer border transition-colors ${paid ? 'bg-green-100 border-green-300 text-green-800' : 'bg-gray-200 text-gray-500'}`}>
                         paid?
                         <input name ="paid"

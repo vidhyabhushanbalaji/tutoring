@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader } from 'lucide-react';
 import AuthLayout from './AuthLayout';
-import { supabase } from './supabaseClient';
+import Modal from './Modal'
+import { supabase } from './lib/supabase/client';
 
 
 
@@ -14,23 +15,15 @@ function Login() {
   const [email, setEmail] = useState('')
   const [pwd, setPwd] = useState('')
   const [showPassword, setShowPassword] = useState(false);
-
+  const [cookieConsent, setCookieConsent] = useState(true);
   
   async function handleSubmit(event){
     event.preventDefault();
-    const { data, error } = await supabase.auth.signInWithPassword({
+    await axios.post(`api/users/login`,{
       email: email,
       password: pwd,
-    })
-    if (!error){
-      nav('/home')
-    }
+    }).then(()=>{nav('/home')})
   }
-
-  function setupAccount(){
-        console.log("cliicked")
-        nav('/setup')
-    }
 
   
 
@@ -96,8 +89,23 @@ function Login() {
           Log in
         </button>
       </form>
+      {cookieConsent ?
+        <div className="fixed bottom-4 left-4 right-4 left-auto right-4 max-w-md bg-white rounded-xl border border-gray-400 p-4 flex flex-row items-center gap-3">
+            <p className="text-sm text-black flex-1">
+              Cookies are used to keep you logged in. These are not shared, or used for any third party purposes.
+            </p>
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={() => setCookieConsent(false)}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg shadow-sm"
+              >
+                Accept
+              </button>
+            </div>
+        </div> : <div/>}
+      
     </AuthLayout>
-
+      
       
     </>
   )

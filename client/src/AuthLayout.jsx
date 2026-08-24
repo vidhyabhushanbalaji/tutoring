@@ -7,7 +7,7 @@ export default function AuthLayout({ title, subtitle, children }) {
           <span className="text-white text-xl font-semibold tracking-tight">HelpMeTutor!</span>
         </div>
 
-        <div className="relative z-10 max-w-sm">
+        <div className="relative z-0 max-w-sm">
           <h1 className="text-white text-3xl font-semibold leading-snug mb-3">
             {title}
           </h1>
@@ -17,7 +17,7 @@ export default function AuthLayout({ title, subtitle, children }) {
         </div>
 
         <div className="relative z-10 text-blue-200 text-xs">
-          Vidhyabhushan Balaji 2026. Find out more.
+          Vidhyabhushan Balaji 2026.
         </div>
       </div>
 

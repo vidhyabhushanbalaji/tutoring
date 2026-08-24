@@ -140,54 +140,54 @@ app.post('/users/logout', async (req,res) =>{
 })
 
 const allowed_updateuser = new Set(["first_name", "last_name"]) 
-app.post('/users/updateuser', async (req,res1) =>{
+app.post('/users/updateuser', async (req,res) =>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         for (const key in req.body.changes){
             if (!(allowed_updateuser.has(key))){
-                res1.status(500).send("error in keys provided")
+                res.status(500).send("error in keys provided")
             }
         }
         const { error } = await supabase.from('users').update(req.body.changes).eq('id', checkUser)
         if (!error){
-            res1.status(200).send("success")
+            res.status(200).send("success")
         }
         else{
-            res1.status(400).send("error on update")
+            res.status(400).send("error on update")
         }
     }
     catch{
-        res1.status(500).send("error")
+        res.status(500).send("error")
     }
 })
 
 
-app.post('/users/addclient', async(req,res1)=>{
+app.post('/users/addclient', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         const addclient = await supabase.from('client_links').insert({...req.body.newStudent, tutor_id : checkUser}).select('clientlink')
         const newID = addclient.data[0].clientlink
-        res1.status(200).send({clientlink: newID})
+        res.status(200).send({clientlink: newID})
     }
     catch{
-        res1.status(500).send("error on adding the client, try again")
+        res.status(500).send("error on adding the client, try again")
     }
 })
 
 
-app.post('/users/joinparent', async(req,res1)=>{
+app.post('/users/joinparent', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         const findparent = await supabase.from('users').select('id, first_name, last_name').eq('email', req.body.parent_email).eq('authcode', req.body.authcode).eq('is_tutor', false)
 
         if (findparent.data.length==0){
-            res1.status(400).send("no parent with these details exists")
+            res.status(400).send("no parent with these details exists")
         }
 
         
@@ -196,20 +196,20 @@ app.post('/users/joinparent', async(req,res1)=>{
         const updateparent = await supabase.from('users').update({authcode: genJoinCode()}).eq("id", findparent.data[0].id)
 
         if(!joinparent.error && !updateparent.error){
-            res1.status(200).send({first_name: findparent.data[0].first_name, last_name: findparent.data[0].last_name});
+            res.status(200).send({first_name: findparent.data[0].first_name, last_name: findparent.data[0].last_name});
         }
 
-        res1.status(500).send("error on updating")
+        res.status(500).send("error on updating")
 
     }
     catch{
-        res1.status(500).send("failed to complete request")
+        res.status(500).send("failed to complete request")
     }
 })
 
-app.post('/users/removeparent', async(req,res1)=>{
+app.post('/users/removeparent', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         var query;
@@ -220,11 +220,11 @@ app.post('/users/removeparent', async(req,res1)=>{
         
 
         if(!query.error){
-            res1.status(200).send("success")}
-        res1.status(500).send("error on removing parent from the record")
+            res.status(200).send("success")}
+        res.status(500).send("error on removing parent from the record")
         }
     catch{
-        res1.status(500).send("error on removing parent from the record")
+        res.status(500).send("error on removing parent from the record")
     }
 })
 
@@ -280,26 +280,29 @@ app.post('/homepage', async(req,res)=>{
 
             res.status(200).send({is_tutor: true, students: students.data, tutor: tutor.data[0], unpaid: unpaid.data, next3: next3.data, thisWeek: thisWeek.data})}
         else{
+            console.log("tutors")
             const tutors = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('parent_id', checkUser).order('start', { ascending: true})
+            console.log("parent")
             const parent = await supabase.from('users').select('first_name, last_name, email, authcode').eq('id', checkUser).eq('is_tutor', false).limit(1)
+            console.log("unpaid")
             const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('paid', false).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: true})
+            console.log("timefrom")
             const timefrom = new Date(new Date() - 60*60*1000).toISOString()
             const next3 = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('client_links.parent_id', checkUser).gte('lessontime', timefrom).limit(3).order('lessontime', { ascending: true})
 
-            res1.status(200).send({is_tutor: false, tutors: tutors.data, parent: parent.data[0], unpaid: unpaid.data, next3: next3.data})
+            res.status(200).send({is_tutor: false, tutors: tutors.data, parent: parent.data[0], unpaid: unpaid.data, next3: next3.data})
         }
     }
         
     catch{
         res.status(400).send("error in retrieving data on server side")
-        console.log("failed while finding user")
     }
 })
 
-app.post('/payments', async(req, res1)=>{
+app.post('/payments', async(req, res)=>{
     
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
         isTutor = verified.is_tutor
         
@@ -312,107 +315,107 @@ app.post('/payments', async(req, res1)=>{
         if(isTutor){
             const thisMonth = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', startOfMonth).lt('lessontime', nextMonth.toISOString()).order('lessontime', { ascending: false})
             const clients = await supabase.from('client_links').select('description, clientlink').eq('tutor_id', checkUser)
-            res1.status(200).send({is_tutor: true, thisMonth: thisMonth.data, clients: clients.data})
+            res.status(200).send({is_tutor: true, thisMonth: thisMonth.data, clients: clients.data})
         }
         else{
             const thisMonth = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links!inner(description)').eq('client_links.parent_id', checkUser).gte('lessontime', startOfMonth).lt('lessontime', nextMonth.toISOString()).order('lessontime', { ascending: false})
             const clients = await supabase.from('client_links').select('description, clientlink').eq('parent_id', checkUser)
-            res1.status(200).send({is_tutor: false, thisMonth: thisMonth.data, tutors: clients.data})
+            res.status(200).send({is_tutor: false, thisMonth: thisMonth.data, tutors: clients.data})
         }
         
     }
     catch{
-        res1.status(500).send("error fetching data")
+        res.status(500).send("error fetching data")
     }
 })
 
-app.post('/tutor/payments/allunpaid', async(req, res1)=>{
+app.post('/tutor/payments/allunpaid', async(req, res)=>{
     
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
         
         const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, paid, clientlink, client_links(description)').eq('paid', false).eq('tutor_id', checkUser).order('lessontime', { ascending: false})
-        res1.status(200).send({unpaid: unpaid.data})
+        res.status(200).send({unpaid: unpaid.data})
     }
     catch{
-        res1.status(500).send("error fetching data")
+        res.status(500).send("error fetching data")
     }
 })
 
-app.post('/tutor/payments/byclient', async(req, res1)=>{
+app.post('/tutor/payments/byclient', async(req, res)=>{
     
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
         
         const byclient = await supabase.from('lessons').select('lessonid, lessontime, title, price, paid, clientlink, client_links(description)').eq('clientlink', req.body.clientlink).eq('tutor_id', checkUser).order('lessontime', { ascending: false})
-        res1.status(200).send(byclient.data)
+        res.status(200).send(byclient.data)
     }
     catch{
-        res1.status(500).send("error fetching data")
+        res.status(500).send("error fetching data")
     }
 })
 
-app.post('/tutor/payments/byrange', async(req, res1)=>{
+app.post('/tutor/payments/byrange', async(req, res)=>{
     
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         const gap = (new Date(req.body.end)) - (new Date(req.body.start))
         if (gap>60*60*24*366*1000 || gap <0){
-            res1.status(204).send("Invalid date range")
+            res.status(204).send("Invalid date range")
         }
         
         const rangeStart = `${req.body.start}T00:00:00.000Z`
         const rangeEnd = `${req.body.end}T23:59:59.999Z`
 
         const inRange = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links(description)').eq('tutor_id', checkUser).gte('lessontime', rangeStart).lte('lessontime',rangeEnd).order('lessontime', { ascending: false})
-        res1.status(200).send(inRange.data)
+        res.status(200).send(inRange.data)
     }
     catch{
-        res1.status(500).send("error fetching data")
+        res.status(500).send("error fetching data")
     }
 })
 
-app.post('/parent/payments/allunpaid', async(req, res1)=>{
+app.post('/parent/payments/allunpaid', async(req, res)=>{
     
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
         
         const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('paid', false).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: false})
-        res1.status(200).send({unpaid: unpaid.data})
+        res.status(200).send({unpaid: unpaid.data})
     }
     catch{
-        res1.status(500).send("error fetching data")
+        res.status(500).send("error fetching data")
     }
 })
 
-app.post('/parent/payments/bytutor', async(req, res1)=>{
+app.post('/parent/payments/bytutor', async(req, res)=>{
     
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         const bytutor = await supabase.from('lessons').select('lessonid, lessontime, title, price, paid, clientlink, client_links(description)').eq('clientlink', req.body.clientlink).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: false})
-        res1.status(200).send(bytutor.data)
+        res.status(200).send(bytutor.data)
     }
     catch{
-        res1.status(500).send("error fetching data")
+        res.status(500).send("error fetching data")
     }
 })
 
-app.post('/parent/payments/byrange', async(req, res1)=>{
+app.post('/parent/payments/byrange', async(req, res)=>{
     
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
         
         const gap = (new Date(req.body.end)) - (new Date(req.body.start))
         if (gap>60*60*24*366*1000 || gap <0){
-            res1.status(204).send("Invalid date range")
+            res.status(204).send("Invalid date range")
         }
 
         const rangeStart = `${req.body.start}T00:00:00.000Z`
@@ -420,17 +423,17 @@ app.post('/parent/payments/byrange', async(req, res1)=>{
 
 
         const inRange = await supabase.from('lessons').select('lessonid, paid, lessontime, title, price, clientlink, client_links(description)').eq('client_links.parent_id', checkUser).gte('lessontime', rangeStart).lte('lessontime',rangeEnd).order('lessontime', { ascending: false})
-        res1.status(200).send(inRange.data)
+        res.status(200).send(inRange.data)
     }
     catch{
-        res1.status(500).send("error fetching data")
+        res.status(500).send("error fetching data")
     }
 })
 
 
-app.post('/studentdetail', async(req,res1)=>{
+app.post('/studentdetail', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
 
@@ -444,16 +447,16 @@ app.post('/studentdetail', async(req,res1)=>{
 
 
 
-        res1.status(200).send({details: {...details.data[0], parent_id:-1,  parent: {...parent.data[0]}}, lessons: lessons.data})
+        res.status(200).send({details: {...details.data[0], parent_id:-1,  parent: {...parent.data[0]}}, lessons: lessons.data})
     }
     catch{
         console.log("fail")
     }
 })
 
-app.post('/tutoringdetail', async(req,res1)=>{
+app.post('/tutoringdetail', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         const details = await supabase.from('client_links').select('clientlink, tutor_id, description, default_price, public_note, start').eq('clientlink', req.body.clientlink).eq('parent_id', checkUser)
@@ -461,127 +464,127 @@ app.post('/tutoringdetail', async(req,res1)=>{
             const lessons = await supabase.from('lessons').select('lessonid, lessontime, title, price, paid').eq('clientlink', req.body.clientlink).order('lessontime', {ascending: false})
             let tutorID = details.data[0].tutor_id
             const tutor = await supabase.from('users').select('first_name, last_name, email').eq('id', tutorID)
-            res1.status(200).send({details: {...details.data[0], tutor: {...tutor.data[0]}}, lessons: lessons.data})
+            res.status(200).send({details: {...details.data[0], tutor: {...tutor.data[0]}}, lessons: lessons.data})
         }
         else{
-            res1.status(400).send("clientlink does not match user")}
+            res.status(400).send("clientlink does not match user")}
     }
     catch{
-        res1.status(500).send("error matching user")
+        res.status(500).send("error matching user")
     }
 })
 
-app.post('/deleteclient', async(req,res1)=>{
+app.post('/deleteclient', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         const { error1 } = await supabase.from('client_links').delete().eq('tutor_id', checkUser).eq('clientlink', req.body.clientlink)
         const { error2 } = await supabase.from('lessons').delete().eq('tutor_id', checkUser).eq('clientlink', req.body.clientlink)
 
         if (!error1 && !error2){
-            res1.status(200).send("deleted")}
-        res1.status(204).send("error in deletion")
+            res.status(200).send("deleted")}
+        res.status(204).send("error in deletion")
     }
     catch{
-        res1.status(500).send("error on deleting client")
+        res.status(500).send("error on deleting client")
     }
 })
 
 
-app.post('/addlesson', async(req,res1)=>{
+app.post('/addlesson', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
         
         const client_check = await supabase.from('client_links').select('*', {count: 'exact', head:true}).eq('tutor_id', checkUser).eq('clientlink', req.body.newLesson.clientlink)
         if (client_check.count>0){
             const newlesson = await supabase.from('lessons').insert({...req.body.newLesson, tutor_id: checkUser}).select('lessonid')
             let newlessonID = newlesson.data[0].lessonid
-            return res1.status(200).send({lessonID: newlessonID})
+            return res.status(200).send({lessonID: newlessonID})
         }
         
-        res1.status(204).send("user not authenticated to add lesson to that client")
+        res.status(204).send("user not authenticated to add lesson to that client")
     }
     catch{
-        res1.status(500).send("error on adding lesson")
+        res.status(500).send("error on adding lesson")
     }
     
 })
 
-app.post('/getlesson', async(req,res1)=>{
+app.post('/getlesson', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
         
         const lesson = await supabase.from('lessons').select('lessontime, title, publicnotes, privatenotes, price, paid, complete').eq('lessonid', req.body.lessonid).eq('tutor_id', checkUser)
         console.log(lesson)
-        res1.status(200).send(lesson.data[0])
+        res.status(200).send(lesson.data[0])
     }
     catch{
-        res1.status(500).send("error on getting lesson")
+        res.status(500).send("error on getting lesson")
     }
 })
 
-app.post('/tutoring/getlesson', async(req,res1)=>{
+app.post('/tutoring/getlesson', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         const lesson = await supabase.from('lessons').select('lessontime, title, price, paid, complete, publicnotes, client_links!inner()').eq('lessonid', req.body.lessonid).eq('client_links.parent_id', checkUser).eq('clientlink', req.body.clientlink)
         if(lesson.error){
-            res1.status(204).send("user cannot access this lesson")
+            res.status(204).send("user cannot access this lesson")
         }
         else{
-            res1.status(200).send(lesson.data[0])
+            res.status(200).send(lesson.data[0])
         }
     }
     catch{
-        res1.status(500).send("error on lesson fetch")
+        res.status(500).send("error on lesson fetch")
     }
 })
 
-app.post('/deletelesson', async(req,res1)=>{
+app.post('/deletelesson', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         const { error } = await supabase.from('lessons').delete().eq('lessonid', req.body.lessonid).eq('tutor_id', checkUser).eq('clientlink', req.body.clientlink)
         if (!error){
-            res1.status(200).send("deleted")
+            res.status(200).send("deleted")
         }
         else{
-            res1.status(400).send("error on delete")
+            res.status(400).send("error on delete")
         }
     }
     catch{
-        res1.status(500).send("error on delete")
+        res.status(500).send("error on delete")
     }
 })
 
 const allowed_updatelesson = new Set(["lessonid", "lessontime", "title", "privatenotes", "publicnotes", "price", "paid", "tutor_id", "parent_id", "clientlink","complete"])
-app.post('/updatelesson', async(req,res1)=>{
+app.post('/updatelesson', async(req,res)=>{
     try{
-        verified = await verifyUser(req, res1)
+        verified = await verifyUser(req, res)
         checkUser= verified.id
 
         for (const key in req.body.changes){
             if (!(allowed_updatelesson.has(key))){
-                res1.status(400).send("error in keys provided")
+                res.status(400).send("error in keys provided")
             }
         }
 
         const { error } = await supabase.from('lessons').update(req.body.changes).eq('tutor_id', checkUser).eq('lessonid', req.body.lessonid)
 
         if (!error){
-            res1.status(200).send("success")
+            res.status(200).send("success")
         }
         else{
-            res1.status(400).send("error on update")
+            res.status(400).send("error on update")
         }
     }
     catch{
-        res1.status(500).send("error on update")
+        res.status(500).send("error on update")
     }
 })
 

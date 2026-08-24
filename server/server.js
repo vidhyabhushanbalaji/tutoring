@@ -62,7 +62,6 @@ app.post('/users/usersetup', async (req,res) =>{
             password: req.body.password,
         })
         if (error) return res.status(401).json({ error: error.message })
-        console.log(data)
         const { access_token, refresh_token, expires_in } = data.session
         res.cookie('sb-access-token', access_token, {
             httpOnly: true,
@@ -76,18 +75,13 @@ app.post('/users/usersetup', async (req,res) =>{
             sameSite: 'lax',
             maxAge: 60 * 60 * 24 * 30 * 1000
         })
-        console.log("hereA")
         var usersetup=null
-        console.log(req.body.userData)
-        console.log(data.user.id)
          
         if (!req.body.userData.is_tutor){
             usersetup = await supabase.from('users').insert({...req.body.userData, email: req.body.email,  UUID: data.user.id, authcode: genJoinCode()})
         }
         else{
-            console.log("here1")
             usersetup = await supabase.from('users').insert({...req.body.userData, email: req.body.email, UUID: data.user.id})
-            console.log(usersetup)
             }
         if (usersetup)
             {res.json({ user: data.user })}
@@ -249,7 +243,6 @@ app.post('/updateclient', async(req,res)=>{
     }
     catch{
         res.status(500).send("error on update")
-        console.log("failedhere")
     }
 })
 
@@ -280,13 +273,9 @@ app.post('/homepage', async(req,res)=>{
 
             res.status(200).send({is_tutor: true, students: students.data, tutor: tutor.data[0], unpaid: unpaid.data, next3: next3.data, thisWeek: thisWeek.data})}
         else{
-            console.log("tutors")
             const tutors = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('parent_id', checkUser).order('start', { ascending: true})
-            console.log("parent")
             const parent = await supabase.from('users').select('first_name, last_name, email, authcode').eq('id', checkUser).eq('is_tutor', false).limit(1)
-            console.log("unpaid")
             const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('paid', false).eq('client_links.parent_id', checkUser).order('lessontime', { ascending: true})
-            console.log("timefrom")
             const timefrom = new Date(new Date() - 60*60*1000).toISOString()
             const next3 = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links!inner(description)').eq('client_links.parent_id', checkUser).gte('lessontime', timefrom).limit(3).order('lessontime', { ascending: true})
 
@@ -450,7 +439,7 @@ app.post('/studentdetail', async(req,res)=>{
         res.status(200).send({details: {...details.data[0], parent_id:-1,  parent: {...parent.data[0]}}, lessons: lessons.data})
     }
     catch{
-        console.log("fail")
+        res.status(204).send({error:"parent details couldn't be matched correctly"})
     }
 })
 
@@ -518,7 +507,6 @@ app.post('/getlesson', async(req,res)=>{
         checkUser= verified.id
         
         const lesson = await supabase.from('lessons').select('lessontime, title, publicnotes, privatenotes, price, paid, complete').eq('lessonid', req.body.lessonid).eq('tutor_id', checkUser)
-        console.log(lesson)
         res.status(200).send(lesson.data[0])
     }
     catch{

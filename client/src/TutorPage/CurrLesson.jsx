@@ -161,7 +161,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
                         placeholder = "Title for session"
                         maxLength="127"
                         value = {title}
-                        onChange = {e =>{
+                        onChange = {(e) =>{
                             setTitle(e.target.value);
                             newChanges.current["title"]= e.target.value;
                             alertChange();
@@ -178,7 +178,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
                             placeholder = "session date YYYY-MM-DD"
                             type="datetime-local"
                             value = {time}
-                            onChange = {e => {
+                            onChange = {(e) => {
                                 setTime(e.target.value);
                                 newChanges.current["lessontime"]=e.target.value;
                                 alertChange();}}/>
@@ -195,7 +195,7 @@ function CurrLesson({ lessonID, clientlink, changeLesson, removeLesson, details,
                         className="rounded-md border border-gray-400 bg-white"
                         placeholder = "price"
                         value = {price}
-                        onChange = {e => {
+                        onChange = {(e) => {
                             if(!isNaN(e.target.value)){
                                 setPrice(e.target.value);
                                 newChanges.current["price"] = e.target.value;

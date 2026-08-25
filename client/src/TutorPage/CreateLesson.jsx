@@ -9,7 +9,7 @@ import { Loader } from 'lucide-react';
 function CreateLesson({ default_price, clientlink, onAdd}){
     console.log(default_price)
     const nav = useNavigate()  
-    const [time, setTime] = useState('')
+    const [time, setTime] = useState((new Date()).toISOString().slice(0,16))
     // update with default price
     const [price, setPrice] = useState(0)
     const [paid, setPaid] = useState(false)
@@ -35,7 +35,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
             "complete": complete}}).then(res=> 
             {if (res.status == 200){
                 console.log("added")
-                onAdd({lessonid: res.data.lessonID, lessontime: time, title: title, paid: paid, complete: complete})
+                onAdd({lessonid: res.data.lessonID, lessontime: time, price: price, title: title, paid: paid, complete: complete})
             }
             
             }).catch(err =>
@@ -49,11 +49,11 @@ function CreateLesson({ default_price, clientlink, onAdd}){
     return(
        
        <section id="newLesson">
-          <div class="flex flex-col w-full h-full p-2">
+          <div className="flex flex-col w-full h-full p-2">
             <p className='justify-center h-min w-full text-white text-2xl bg-blue-600 rounded-xl text-left border-black p-4 mb-4'>New Lesson:</p>
             <form onSubmit={handleSubmit} className='px-4'>
 
-                <div class="flex flex-col gap-4 pt-4">
+                <div className="flex flex-col gap-4 pt-4">
                     <input 
                         className = "w-full text-6xl h-auto font-semibold bg-white border border-gray-300 bg-white"
                         name ="title"
@@ -62,7 +62,6 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                         value = {title}
                         onChange = {e =>{
                             setTitle(e.target.value);
-                            alertChange();
                             }}
                         ></input> 
 
@@ -79,8 +78,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                                 type="datetime-local"
                                 value = {time}
                                 onChange = {e => {
-                                    setTime(e.target.value);
-                                    alertChange();}}/>
+                                    setTime(e.target.value);}}/>
                             </div>
                         
                         <div className='w-1/3 flex flex-col'>
@@ -95,7 +93,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                                     onChange = {e => {
                                         if(!isNaN(e.target.value)){
                                             setPrice(e.target.value);
-                                            alertChange();}
+                                            }
                                         else{
                                             alert("price has to be a number only")
                                         }    
@@ -114,7 +112,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                             checked = {paid}
                             onChange = {e => {
                                 setPaid(!paid);
-                                alertChange();}}
+                                }}
                         />
                     </label>
 
@@ -125,7 +123,7 @@ function CreateLesson({ default_price, clientlink, onAdd}){
                                 checked = {complete}
                                 onChange = {e => {
                                     setComplete(!complete);
-                                    alertChange();}}
+                                    }}
                             />
                         </label>
 

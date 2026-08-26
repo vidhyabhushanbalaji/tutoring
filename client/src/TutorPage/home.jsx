@@ -11,7 +11,6 @@ import { Edit, Save, Plus} from 'lucide-react'
 
 function TutorHome({ data }){
     const nav = useNavigate()
-
     const [addStudentOpen, setAddStudentOpen] = useState(false)
     const [allStudents, setStudents] = useState([])
     const [unpaidLessons,setUnpaidLessons] = useState([])
@@ -23,7 +22,6 @@ function TutorHome({ data }){
     const [thisWeek, setThisWeek] = useState([])
     const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
     
-
     const newChanges = useRef({});
     
     let gotStudents = false;
@@ -216,7 +214,7 @@ function TutorHome({ data }){
 
             <div className="h-1/3 min-h-0 bg-white rounded-xl shadow-sm p-4 flex flex-col">
               <div className="flex flex-row justify-between items-center mb-2 shrink-0">
-                <h3 className="text-sm font-semibold text-gray-800">Unpaid lessons: {unpaidLessons.length}</h3>
+                <h3 className="text-sm font-semibold text-gray-800">Unpaid lessons (only complete shown): {unpaidLessons.length}</h3>
                 <h3 className="text-sm font-semibold text-red-600">
                   Total unpaid: {formatter.format(unpaidLessons.reduce((acc, cur) => cur.price + acc, 0))}
                 </h3>

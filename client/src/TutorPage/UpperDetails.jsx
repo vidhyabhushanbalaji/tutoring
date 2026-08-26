@@ -258,7 +258,7 @@ function UpperDetails({ details, setPriceChange}){
         else{
             return(
             <>
-            <div className="pr-5 h-full w-full flex flex-row">
+            <div className="h-full w-full flex flex-row">
                 <div className="pr-10 flex flex-col text-left h-full max-w-1/2 min-w-fit ">
                    <p className='text-white text-6xl font-semibold'>{desc}</p>
                     <div className="flex flex-row">

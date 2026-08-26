@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import AuthLayout from './AuthLayout';
@@ -17,6 +17,13 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [cookieConsent, setCookieConsent] = useState(true);
   
+  useEffect(()=>{
+    axios.post(`/api/users/checksession`,{})
+        .then(res=>{ 
+          if (res.data.valid){
+              nav('/home')}})
+  }, [])
+
   async function handleSubmit(event){
     event.preventDefault();
     await axios.post(`api/users/login`,{

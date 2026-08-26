@@ -19,12 +19,13 @@ const cookieOpts = {httpOnly: true, secure: true, sameSite: 'lax'}
 
 async function verifyUser(req, res){
     const token = req.cookies['sb-access-token']
-    if (!token) return res.status(401).end()
-    const { data: { user }, error } = await sbAuth.auth.getUser(token)
-    if (!error && user){
-        let reqUUID = user.id
-        const {data: responses} = await supabase.from('users').select('id, is_tutor').eq('UUID', reqUUID).limit(1)
-        return responses[0]
+    if (token){
+        const { data: { user }, error } = await sbAuth.auth.getUser(token)
+        if (!error && user){
+            let reqUUID = user.id
+            const {data: responses} = await supabase.from('users').select('id, is_tutor').eq('UUID', reqUUID).limit(1)
+            return responses[0]
+        }
     }
 
     const refresh_token = req.cookies['sb-refresh-token']
@@ -92,6 +93,29 @@ app.post('/users/usersetup', async (req,res) =>{
     catch{
         res.status(500).send("error")
     }
+})
+
+app.post('/users/checksession', async (req,res) =>{
+    const token = req.cookies['sb-access-token']
+    if (token){
+        const { data: { user }, error } = await sbAuth.auth.getUser(token)
+        if (!error && user){
+            return res.status(200).send({valid: true})
+        }
+    }
+
+    const refresh_token = req.cookies['sb-refresh-token']
+    if (!refresh_token) {res.status(201).send({valid: false})}
+    const {data, error: refreshError} = await sbAuth.auth.refreshSession({ refresh_token : refresh_token})
+    if (refreshError || !data.session){
+        res.clearCookie("sb-access-token", cookieOpts)
+        res.clearCookie("sb-refresh-token", cookieOpts)
+        return res.status(201).send({valid: false})
+    }
+    const {access_token, refresh_token: newRefresh, expires_in} = data.session
+    res.cookie('sb-access-token', access_token, {...cookieOpts, maxAge: expires_in*1000})
+    res.cookie('sb-refresh-token', newRefresh, {...cookieOpts, maxAge: 60*60*24*30*1000})
+    return res.status(200).send({valid: true})
 })
 
 app.post('/users/login', async (req,res) =>{
@@ -255,7 +279,7 @@ app.post('/homepage', async(req,res)=>{
         if(isTutor){
             const students = await supabase.from('client_links').select('clientlink, description, default_price, start').eq('tutor_id', checkUser).order('start', { ascending: true})
             const tutor = await supabase.from('users').select('first_name, last_name, email').eq('id', checkUser).eq('is_tutor', true).limit(1)
-            const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('paid', false).eq('tutor_id', checkUser)
+            const unpaid = await supabase.from('lessons').select('lessonid, lessontime, title, price, clientlink, client_links(description)').eq('paid', false).eq('complete', true).eq('tutor_id', checkUser)
             const timefrom = new Date(new Date() - 60*60*1000).toISOString()
 
             // find the start of this week, and the start of next week

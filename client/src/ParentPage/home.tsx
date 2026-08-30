@@ -19,7 +19,7 @@ function ParentHome(props: {data : parentHomeType}){
         setParentFirstName(data.parent.first_name)
         setParentLastName(data.parent.last_name)
         setParentEmail(data.parent.email)
-        setParentShareCode(data.authcode)
+        setParentShareCode(data.parent.authcode)
         setNextLessons(data.next3)
         },[data])
 

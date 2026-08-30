@@ -27,11 +27,11 @@ function Home() {
         first_name:'', 
         last_name:'',
         email: '', 
-        authcode:'',
         parent:{
             first_name: '',
             last_name: '',
-            email:''
+            email:'',
+            authcode: ''
         },
         tutor:{
             first_name: '',

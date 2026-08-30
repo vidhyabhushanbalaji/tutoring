@@ -9,7 +9,10 @@ export interface parentHomeType {
     first_name: string, 
     last_name: string,
     email: string, 
-    authcode:string,
-    parent: personType,
-    tutor: personType
+   parent: {first_name: string,
+            last_name: string,
+            email: string,
+            authcode: string
+    },
+    tutor: personType,
 }

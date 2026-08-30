@@ -4,11 +4,12 @@ import Modal from '../Modal'
 import axios from 'axios'
 import { Link, useNavigate } from "react-router-dom"
 import NavBar from '../NavBar'
-import { supabase } from '../lib/supabase/client';
 import { Edit, Save } from 'lucide-react'
+import { parentHomeType } from '../types/parentHomeType'
 
 
-function ParentHome({ data }){
+function ParentHome(props: {data : parentHomeType}){
+    const { data } = props
     const nav = useNavigate()
     const formatter = new Intl.NumberFormat('default', {style: 'currency', currency: 'GBP'});
     useEffect(()=>{
@@ -18,7 +19,7 @@ function ParentHome({ data }){
         setParentFirstName(data.parent.first_name)
         setParentLastName(data.parent.last_name)
         setParentEmail(data.parent.email)
-        setParentShareCode(data.parent.authcode)
+        setParentShareCode(data.authcode)
         setNextLessons(data.next3)
         },[data])
 

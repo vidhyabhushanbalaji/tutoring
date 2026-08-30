@@ -8,6 +8,8 @@ import axios from 'axios'
 import ParentHome from './ParentPage/home';
 import Modal from './Modal'
 
+import { parentHomeType } from './types/parentHomeType'
+
 
 
 function Home() {
@@ -18,10 +20,10 @@ function Home() {
     const [isTutor, setTutor] = useState(false)
     const [loadingOpen, setLoadingOpen] = useState(true)
 
-    const [data, setData] = useState({
+    const [data, setData]= useState<parentHomeType>({
         tutors: [], 
         unpaid:[],
-        next3:[],
+        next3: [],
         first_name:'', 
         last_name:'',
         email: '', 

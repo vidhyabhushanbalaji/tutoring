@@ -8,7 +8,6 @@ import NavBar from '../NavBar'
 import { supabase } from '../lib/supabase/client';
 import { Edit, Save, Plus} from 'lucide-react'
 
-
 function TutorHome({ data }){
     const nav = useNavigate()
     const [addStudentOpen, setAddStudentOpen] = useState(false)

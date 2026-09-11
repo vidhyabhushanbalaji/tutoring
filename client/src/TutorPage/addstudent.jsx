@@ -17,7 +17,7 @@ function AddStudent(){
             
         }
         else{
-            axios.post(`/api/users/addclient/`,
+            await axios.post(`/api/users/addclient/`,
                 {newStudent:
                     {description: desc, 
                     default_price: price}})

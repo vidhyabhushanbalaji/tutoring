@@ -15,7 +15,7 @@ app.use(cors())
 const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_SERVICE_ROLE_KEY)
 const sbAuth = createClient(config.SUPABASE_URL, config.SUPABASE_PUBLISHABLE_KEY)
 
-const cookieOpts = {httpOnly: true, secure: true, sameSite: 'lax'}
+const cookieOpts = {httpOnly: true, secure: true, sameSite: 'strict'}
 
 async function verifyUser(req, res){
     const token = req.cookies['sb-access-token']
@@ -67,13 +67,13 @@ app.post('/users/usersetup', async (req,res) =>{
         res.cookie('sb-access-token', access_token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'lax',
+            sameSite: 'strict',
             maxAge: expires_in * 1000,
         })
         res.cookie('sb-refresh-token', refresh_token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'lax',
+            sameSite: 'strict',
             maxAge: 60 * 60 * 24 * 30 * 1000
         })
         var usersetup=null

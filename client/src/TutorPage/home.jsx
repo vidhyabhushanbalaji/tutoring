@@ -55,6 +55,21 @@ function TutorHome({ data }){
     }
     }
 
+    async function setLessonPaid(lessonID){
+            await axios.post(
+                `/api/updatelesson`,
+                {"lessonid": lessonID,
+                "changes": {paid:true}}
+            ).then(res=> 
+            {if (res.status == 200){
+              alert(' I did it ')
+            }
+            }).catch(err =>
+            {
+                console.log("unsuccesful update attempt")
+            }
+            );
+        };
     
 
     return(

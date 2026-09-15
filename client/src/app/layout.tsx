@@ -13,7 +13,7 @@ export default function RootLayout({
   return (
   <html lang="en" data-theme="light">
   <head>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/notebook.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HelpMeTutor!</title>
   </head>

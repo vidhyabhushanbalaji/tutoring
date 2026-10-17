@@ -1,8 +1,7 @@
-#HelpMeTutor
+# HelpMeTutor
 
 TLDR:
 A website to help tutors keep up to date on lessons, payments and scheduling, and keep parents in the loop over their student's progress.
-# HelpMeTutor.
 
 ## So what was the problem
 I tutor maths for Middle School to GCSE alongside university work. I'm a strong believer that my student's parents deserve to be kept in the loop, especially since they are paying for a service. However, keeping track of lesson reports between clients, alongside noting when their next sessions are, meeting links, and keeping track of payments and earnings across clients was becoming time consuming and seemed a waste of time, requiring me stitching together information from messages to parents, my calendar, a notes file, and bank statement to get all the required information.
